@@ -10,7 +10,7 @@ import { GetGenres } from '../services/tmdbApi';
 import { Genre } from '../types/movie';
 
 const UserProfile: React.FC = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const { user, logout } = useUser();
   const { watchHistory, watchlist, removeFromWatchlist, removeFromWatchHistory } = useEmotion();
   const [searchParams] = useSearchParams();
@@ -380,7 +380,7 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
 
-              <EmotionalProfileDisplay theme={theme} />
+              <EmotionalProfileDisplay theme={theme} user={user} />
             </div>
           )}
 
@@ -427,7 +427,7 @@ const UserProfile: React.FC = () => {
 };
 
 // Emotional Profile Display Component
-const EmotionalProfileDisplay: React.FC<{ theme: string }> = ({ theme }) => {
+const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme, user }) => {
   const [emotionalProfile, setEmotionalProfile] = useState<PersonalizedMapping | null>(null);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
@@ -435,8 +435,9 @@ const EmotionalProfileDisplay: React.FC<{ theme: string }> = ({ theme }) => {
   useEffect(() => {
     const loadEmotionalProfile = async () => {
       try {
+        const userId = user?.id?.toString() || '';
         const [profile, genreResponse] = await Promise.all([
-          personalizedEmotionMappingService.getUserEmotionGenreMappings('user123'),
+          personalizedEmotionMappingService.getUserEmotionGenreMappings(userId),
           GetGenres()
         ]);
         setEmotionalProfile(profile);
@@ -447,7 +448,7 @@ const EmotionalProfileDisplay: React.FC<{ theme: string }> = ({ theme }) => {
       }
     };
     loadEmotionalProfile();
-  }, []);
+  }, [user?.id]);
 
   const getGenreName = (genreId: number): string => {
     const genre = genres.find(g => g.id === genreId);

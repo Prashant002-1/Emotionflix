@@ -4,6 +4,7 @@
  */
 
 import { EmotionScores } from '../types/emotion';
+import apiClient from './apiClient';
 
 export interface UserEmotionGenreMapping {
   emotion: keyof EmotionScores;
@@ -182,25 +183,35 @@ class PersonalizedEmotionMappingService {
   }
 
   /**
-   * Simulate database fetch (replace with actual DB call)
+   * Fetch user mappings from backend API
    */
-  private async fetchUserMappingsFromDB(_userId: string): Promise<PersonalizedMapping> {
-    // This would be replaced with actual database query
-    // For now, return empty to use defaults
-    return {};
+  private async fetchUserMappingsFromDB(userId: string): Promise<PersonalizedMapping> {
+    try {
+      const response = await apiClient.get(`/emotion-mappings/${userId}`);
+      return response.data.mappings || {};
+    } catch (error) {
+      // Return empty object to fall back to defaults
+      console.log('No user mappings found, using defaults');
+      return {};
+    }
   }
 
   /**
-   * Simulate database persistence (replace with actual DB call)
+   * Persist user mappings to backend API
    */
   private async persistUserMappingsToDB(
-    _userId: string,
-    _mappings: PersonalizedMapping,
+    userId: string,
+    mappings: PersonalizedMapping,
     _movieGenres: number[],
     _emotionScores: EmotionScores,
     _interactionType: string
   ): Promise<void> {
-    // This would be replaced with actual database update
+    try {
+      await apiClient.put(`/emotion-mappings/${userId}`, { mappings });
+    } catch (error) {
+      console.error('Failed to persist user mappings:', error);
+      // Don't throw error to avoid breaking the user experience
+    }
   }
 
   /**

@@ -78,6 +78,18 @@ CREATE TABLE IF NOT EXISTS user_movies (
     UNIQUE(user_id, movie_id, status)
 );
 
+-- User personalized emotion-to-genre mappings
+CREATE TABLE IF NOT EXISTS user_emotion_mappings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    emotion VARCHAR(20) NOT NULL,
+    genre_id INTEGER REFERENCES genres(id) ON DELETE CASCADE,
+    weight DECIMAL(5,4) DEFAULT 0.0000,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, emotion, genre_id)
+);
+
 -- Indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_emotions_user_id ON emotions(user_id);
 CREATE INDEX IF NOT EXISTS idx_emotions_session_id ON emotions(session_id);
@@ -89,6 +101,8 @@ CREATE INDEX IF NOT EXISTS idx_recommendations_user_id ON recommendations(user_i
 CREATE INDEX IF NOT EXISTS idx_recommendations_created_at ON recommendations(created_at);
 CREATE INDEX IF NOT EXISTS idx_user_movies_user_id ON user_movies(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_movies_status ON user_movies(status);
+CREATE INDEX IF NOT EXISTS idx_user_emotion_mappings_user_id ON user_emotion_mappings(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_emotion_mappings_emotion ON user_emotion_mappings(emotion);
 
 -- Insert initial genre data (TMDB standard genres)
 INSERT INTO genres (id, name) VALUES 

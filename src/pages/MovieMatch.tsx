@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUser } from '../contexts/UserContext';
 import { recommendationService } from '../services/recommendationService';
 import { SearchMovies } from '../services/tmdbApi';
 import { Movie } from '../types/movie';
@@ -8,6 +9,7 @@ import { LoadingSpinner } from '../components/common';
 
 const MovieMatch: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useUser();
   
   // Movie search states
   const [movieSearchQuery, setMovieSearchQuery] = useState('');
@@ -31,7 +33,7 @@ const MovieMatch: React.FC = () => {
     const emotionCompatibility = await recommendationService.calculateEmotionCompatibility(
       emotions, 
       movie.genre_ids, 
-      'user123' // In real app, get from user context
+      user?.id?.toString() || '' // Get from user context
     );
     
     // Quality score from rating and popularity
