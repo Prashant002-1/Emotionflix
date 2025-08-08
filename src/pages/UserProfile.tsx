@@ -28,7 +28,7 @@ const UserProfile: React.FC = () => {
   if (!user) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <LoadingSpinner />
+        <LoadingSpinner message="Loading profile..." />
       </div>
     );
   }
@@ -458,7 +458,7 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <LoadingSpinner />
+        <LoadingSpinner message="Loading emotional profile..." />
       </div>
     );
   }

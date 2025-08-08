@@ -3,11 +3,13 @@ import React from 'react';
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  message?: string;
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
   size = 'md', 
-  className = '' 
+  className = '',
+  message = 'Loading...'
 }) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
@@ -23,7 +25,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
         <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
-      <p className="text-gray-300 text-sm">Finding perfect matches...</p>
+      {message && <p className="text-gray-300 text-sm">{message}</p>}
     </div>
   );
 };

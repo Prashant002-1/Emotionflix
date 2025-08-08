@@ -175,7 +175,7 @@ const MovieMatch: React.FC = () => {
             <div className="mb-4">
               <div className="text-center mb-2">
                 <div className="text-4xl font-bold text-purple-500">
-                  {emotionScore !== null ? Math.round(emotionScore * 100) : <LoadingSpinner />}%
+                  {emotionScore !== null ? Math.round(emotionScore * 100) : <LoadingSpinner size="sm" message="" />}%
                 </div>
                 <div className={`text-sm ${
                   theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
