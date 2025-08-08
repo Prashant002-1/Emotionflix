@@ -21,10 +21,13 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth-token');
-      localStorage.removeItem('auth-user');
-      // Redirect to home page instead of non-existent /login route
-      window.location.href = '/';
+      const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+      
+      if (!isAuthRequest) {
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('auth-user');
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

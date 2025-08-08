@@ -210,6 +210,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const logout = () => {
     authService.logout();
     setUser(null);
+    // Redirect to home page after logout
+    window.location.href = '/';
   };
 
   const updateUserStats = useCallback(() => {

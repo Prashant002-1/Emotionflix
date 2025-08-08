@@ -26,7 +26,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegister }) 
       await login(formData.email, formData.password);
       onSuccess?.();
     } catch (err: unknown) {
-      setError((err as any)?.response?.data?.error || 'Login failed. Please try again.');
+      const errorResponse = (err as any)?.response;
+      if (errorResponse?.status === 401) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else if (errorResponse?.status === 400) {
+        setError(errorResponse?.data?.error || 'Please check your input and try again.');
+      } else if (errorResponse?.status >= 500) {
+        setError('Server error. Please try again later.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

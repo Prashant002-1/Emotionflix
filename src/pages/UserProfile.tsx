@@ -11,7 +11,7 @@ import { Genre } from '../types/movie';
 
 const UserProfile: React.FC = () => {
   const { theme } = useTheme();
-  const { user, logout } = useUser();
+  const { user } = useUser();
   const { watchHistory, watchlist, removeFromWatchlist, removeFromWatchHistory } = useEmotion();
   const [searchParams] = useSearchParams();
   
@@ -25,16 +25,13 @@ const UserProfile: React.FC = () => {
     }
   }, [searchParams]);
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <LoadingSpinner message="Loading profile..." />
-      </div>
-    );
-  }
+
 
 
   const recentWatchHistory = watchHistory.slice(0, 10);
+
+  // ProtectedRoute ensures user is not null, but TypeScript doesn't know that
+  if (!user) return null;
 
   return (
     <div className="min-h-screen">
@@ -406,15 +403,9 @@ const UserProfile: React.FC = () => {
                       <p className={`text-sm ${
                         theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                       }`}>
-                        Manage your account
+                        Manage your account settings and preferences
                       </p>
                     </div>
-                    <button
-                      onClick={logout}
-                      className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
-                    >
-                      Sign Out
-                    </button>
                   </div>
                 </div>
               </div>

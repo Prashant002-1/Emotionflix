@@ -152,8 +152,8 @@ const Layout: React.FC = () => {
                         <button
                           className="flex items-center gap-3 px-5 py-3 text-sm font-medium w-full text-left transition-all duration-200 group text-red-600 hover:text-red-700 hover:bg-red-50/50"
                           onClick={() => {
-                            logout();
                             setShowProfileDropdown(false);
+                            logout();
                           }}
                         >
                           <i className="fas fa-sign-out-alt group-hover:scale-110 transition-transform duration-200"></i>

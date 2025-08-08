@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { ErrorBoundary } from './components/common'
+import { ErrorBoundary, ProtectedRoute } from './components/common'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { UserProvider } from './contexts/UserContext'
 import { EmotionProvider } from './contexts/EmotionContext'
@@ -21,8 +21,16 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<Home />} />
-                                <Route path="profile" element={<UserProfile />} />
-                                <Route path="log" element={<Log />} />
+                                <Route path="profile" element={
+                                    <ProtectedRoute>
+                                        <UserProfile />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="log" element={
+                                    <ProtectedRoute>
+                                        <Log />
+                                    </ProtectedRoute>
+                                } />
                                 <Route path="recommendations" element={<Recommendations />} />
                                 <Route path="movie-match" element={<MovieMatch />} />
                                 <Route path="movie/:id" element={<MovieDetails />} />
