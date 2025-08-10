@@ -56,6 +56,9 @@ logs/
 CLAUDE.local.md
 GEMINI.local.md
 
+# Testing documentation
+TESTING.md
+
 # Build artifacts and cache
 .vite/
 *.cache
