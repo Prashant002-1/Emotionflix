@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS emotions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    movie_id INTEGER REFERENCES movies(id) ON DELETE CASCADE,
     session_id UUID DEFAULT gen_random_uuid(),
     neutral DECIMAL(3,2) DEFAULT 0.00,
     happy DECIMAL(3,2) DEFAULT 0.00,
@@ -25,7 +26,8 @@ CREATE TABLE IF NOT EXISTS emotions (
     surprised DECIMAL(3,2) DEFAULT 0.00,
     detection_method VARCHAR(20) DEFAULT 'manual', -- 'manual', 'webcam'
     confidence DECIMAL(3,2) DEFAULT 0.00, -- confidence level 0-1
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, movie_id, created_at) -- Composite key for unique emotion sessions per movie viewing
 );
 
 -- Movies table for caching TMDB movie data
@@ -67,12 +69,12 @@ CREATE TABLE IF NOT EXISTS recommendations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- User favorites/watchlist
+-- User watchlist and watched movies
 CREATE TABLE IF NOT EXISTS user_movies (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     movie_id INTEGER REFERENCES movies(id) ON DELETE CASCADE,
-    status VARCHAR(20) DEFAULT 'watchlist', -- 'watchlist', 'watched', 'favorite'
+    status VARCHAR(20) DEFAULT 'watchlist', -- 'watchlist', 'watched'
     rating INTEGER CHECK (rating >= 1 AND rating <= 10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, movie_id, status)
@@ -90,10 +92,25 @@ CREATE TABLE IF NOT EXISTS user_emotion_mappings (
     UNIQUE(user_id, emotion, genre_id)
 );
 
+-- User emotion profiles for storing current emotional state
+CREATE TABLE IF NOT EXISTS user_emotion_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    neutral DECIMAL(3,2) DEFAULT 0.00,
+    happy DECIMAL(3,2) DEFAULT 0.00,
+    sad DECIMAL(3,2) DEFAULT 0.00,
+    angry DECIMAL(3,2) DEFAULT 0.00,
+    fearful DECIMAL(3,2) DEFAULT 0.00,
+    disgusted DECIMAL(3,2) DEFAULT 0.00,
+    surprised DECIMAL(3,2) DEFAULT 0.00,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_emotions_user_id ON emotions(user_id);
 CREATE INDEX IF NOT EXISTS idx_emotions_session_id ON emotions(session_id);
 CREATE INDEX IF NOT EXISTS idx_emotions_created_at ON emotions(created_at);
+CREATE INDEX IF NOT EXISTS idx_emotions_movie_id ON emotions(movie_id);
 CREATE INDEX IF NOT EXISTS idx_movies_title ON movies(title);
 CREATE INDEX IF NOT EXISTS idx_movies_release_date ON movies(release_date);
 CREATE INDEX IF NOT EXISTS idx_movies_vote_average ON movies(vote_average);
@@ -103,6 +120,7 @@ CREATE INDEX IF NOT EXISTS idx_user_movies_user_id ON user_movies(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_movies_status ON user_movies(status);
 CREATE INDEX IF NOT EXISTS idx_user_emotion_mappings_user_id ON user_emotion_mappings(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_emotion_mappings_emotion ON user_emotion_mappings(emotion);
+CREATE INDEX IF NOT EXISTS idx_user_emotion_profiles_user_id ON user_emotion_profiles(user_id);
 
 -- Insert initial genre data (TMDB standard genres)
 INSERT INTO genres (id, name) VALUES 

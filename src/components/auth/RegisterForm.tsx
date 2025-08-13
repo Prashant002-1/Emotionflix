@@ -7,6 +7,47 @@ interface RegisterFormProps {
   onSwitchToLogin?: () => void;
 }
 
+// Password strength validation function (matching backend logic)
+const validatePasswordStrength = (password: string): { isValid: boolean; error?: string } => {
+  if (password.length < 6) {
+    return { isValid: false, error: 'Password must be at least 6 characters long' };
+  }
+  
+  // Check for common weak patterns
+  if (/^[0-9]+$/.test(password)) {
+    return { isValid: false, error: 'Password cannot be only numbers' };
+  }
+  
+  if (/^[a-zA-Z]+$/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one number or special character' };
+  }
+  
+  // Check for very common weak passwords (exact matches only)
+  const commonWeakPasswords = [
+    'password', '123456', '123456789', 'qwerty', 'abc123', 'password123',
+    'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'master'
+  ];
+  
+  if (commonWeakPasswords.includes(password.toLowerCase())) {
+    return { isValid: false, error: 'Password is too common, please choose a stronger password' };
+  }
+  
+  // Require at least one letter, one number, and one special character
+  if (!/[a-zA-Z]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one letter' };
+  }
+  
+  if (!/[0-9]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one number' };
+  }
+  
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one special character' };
+  }
+  
+  return { isValid: true };
+};
+
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const { theme } = useTheme();
   const { register } = useUser();
@@ -28,8 +69,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    // Use the same password validation as backend
+    const passwordValidation = validatePasswordStrength(formData.password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.error || 'Password does not meet strength requirements');
       return;
     }
 

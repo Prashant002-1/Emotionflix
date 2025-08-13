@@ -39,22 +39,18 @@ const MovieDetails: React.FC = () => {
     }
   };
 
-  const handleWatchlistToggle = () => {
+  const handleWatchlistToggle = async () => {
     if (!movie) return;
-    
-    const movieData = {
-      movieId: movie.id,
-      title: movie.title,
-      poster_path: movie.poster_path,
-      release_date: movie.release_date,
-      vote_average: movie.vote_average,
-      genre_ids: movie.genre_ids
-    };
 
-    if (isInWatchlist(movie.id)) {
-      removeFromWatchlist(movie.id);
-    } else {
-      addToWatchlist(movieData);
+    try {
+      if (isInWatchlist(movie.id)) {
+        await removeFromWatchlist(movie.id);
+      } else {
+        await addToWatchlist(movie);
+      }
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      alert('Failed to update watchlist. Please try again.');
     }
   };
 

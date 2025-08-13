@@ -1,21 +1,26 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { EmotionScores, EmotionSession, WatchedMovie } from '../types/emotion';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { EmotionScores, EmotionSession } from '../types/emotion';
+import { Movie } from '../types/movie';
 import { useUser } from './UserContext';
+import { userMoviesService, UserMovie } from '../services/userMoviesService';
 
 interface EmotionContextType {
   currentEmotion: EmotionScores | null;
   emotionHistory: EmotionSession[];
-  watchHistory: WatchedMovie[];
-  watchlist: WatchedMovie[];
+  watchHistory: UserMovie[];
+  watchlist: UserMovie[];
+  loading: boolean;
   addEmotionSession: (params: { emotionScores: EmotionScores; detectionMethod: 'webcam' | 'manual' | 'upload'; movieId?: number; confidence?: number }) => void;
   updateMovieEmotion: (movieId: number, emotions: EmotionScores, method: 'webcam' | 'manual' | 'upload', confidence?: number) => void;
-  addToWatchHistory: (movie: Omit<WatchedMovie, 'userId' | 'watchedAt' | 'hasLoggedEmotion'>) => void;
-  addToWatchlist: (movie: Omit<WatchedMovie, 'userId' | 'watchedAt' | 'hasLoggedEmotion'>) => void;
-  removeFromWatchlist: (movieId: number) => void;
-  removeFromWatchHistory: (movieId: number) => void;
+  addToWatchHistory: (movie: Movie, emotions?: EmotionScores, rating?: number, confidence?: number) => Promise<void>;
+  addToWatchlist: (movie: Movie, emotions?: EmotionScores) => Promise<void>;
+  removeFromWatchlist: (movieId: number) => Promise<void>;
+  removeFromWatchHistory: (movieId: number) => Promise<void>;
   isInWatchlist: (movieId: number) => boolean;
+  isInWatched: (movieId: number) => boolean;
   getEmotionDisplayString: (emotions: EmotionScores, threshold?: number) => { emotion: keyof EmotionScores; value: number; icon: string; color: string }[];
   clearEmotionHistory: () => void;
+  refreshUserMovies: () => Promise<void>;
 }
 
 const EmotionContext = createContext<EmotionContextType | undefined>(undefined);
@@ -56,19 +61,37 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
   const { user } = useUser();
   const [currentEmotion, setCurrentEmotion] = useState<EmotionScores | null>(null);
   const [emotionHistory, setEmotionHistory] = useState<EmotionSession[]>([]);
-  const [watchHistory, setWatchHistory] = useState<WatchedMovie[]>(() => {
-    const saved = localStorage.getItem('emotionflix-watch-history');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    
-    return [];
-  });
+  const [watchHistory, setWatchHistory] = useState<UserMovie[]>([]);
+  const [watchlist, setWatchlist] = useState<UserMovie[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [watchlist, setWatchlist] = useState<WatchedMovie[]>(() => {
-    const saved = localStorage.getItem('emotionflix-watchlist');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Load user movies from server when user changes
+  const loadUserMovies = useCallback(async () => {
+    if (!user?.id) {
+      setWatchHistory([]);
+      setWatchlist([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const [watchlistData, watchedData] = await Promise.all([
+        userMoviesService.getUserMovies('watchlist'),
+        userMoviesService.getUserMovies('watched')
+      ]);
+      
+      setWatchlist(watchlistData);
+      setWatchHistory(watchedData);
+    } catch (error) {
+      console.error('Error loading user movies:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadUserMovies();
+  }, [loadUserMovies]);
 
   const addEmotionSession = useCallback((params: { emotionScores: EmotionScores; detectionMethod: 'webcam' | 'manual' | 'upload'; movieId?: number; confidence?: number }) => {
     const newSession: EmotionSession = {
@@ -79,23 +102,11 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
       timestamp: new Date()
     };
 
-
     setEmotionHistory(prev => [newSession, ...prev]);
     setCurrentEmotion(params.emotionScores);
   }, []);
 
   const updateMovieEmotion = useCallback((movieId: number, emotions: EmotionScores, method: 'webcam' | 'manual' | 'upload', confidence?: number) => {
-    
-    setWatchHistory(prev => {
-      const updated = prev.map(movie => 
-        movie.movieId === movieId 
-          ? { ...movie, emotions, hasLoggedEmotion: true }
-          : movie
-      );
-      localStorage.setItem('emotionflix-watch-history', JSON.stringify(updated));
-      return updated;
-    });
-
     // Pass the correct detection method and confidence
     addEmotionSession({
       emotionScores: emotions,
@@ -105,38 +116,59 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     });
   }, [addEmotionSession]);
 
-  const addToWatchHistory = useCallback((movie: Omit<WatchedMovie, 'userId' | 'watchedAt' | 'hasLoggedEmotion'>) => {
-    if (!user?.id) {
-      return; // Skip if user not logged in
-    }
+  const addToWatchHistory = useCallback(async (movie: Movie, emotions?: EmotionScores, rating?: number, confidence?: number) => {
+    if (!user?.id) return;
     
-    setWatchHistory(prev => {
-      // Check if movie already exists in watch history
-      const existingMovieIndex = prev.findIndex(m => m.movieId === movie.movieId);
-      
-      if (existingMovieIndex !== -1) {
-        // Movie exists, update emotions and hasLoggedEmotion flag
-        const updated = prev.map((m, index) => 
-          index === existingMovieIndex 
-            ? { ...m, emotions: movie.emotions, hasLoggedEmotion: !!movie.emotions }
-            : m
-        );
-        localStorage.setItem('emotionflix-watch-history', JSON.stringify(updated));
-        return updated;
-      } else {
-        // New movie, add to beginning of list
-        const newWatchedMovie: WatchedMovie = {
-          ...movie,
-          userId: user?.id?.toString() || '',
-          watchedAt: new Date(),
-          hasLoggedEmotion: !!movie.emotions
-        };
-        const updated = [newWatchedMovie, ...prev];
-        localStorage.setItem('emotionflix-watch-history', JSON.stringify(updated));
-        return updated;
-      }
-    });
-  }, [user]);
+    try {
+      await userMoviesService.markAsWatched(movie, emotions, rating, confidence);
+      await loadUserMovies(); // Refresh data
+    } catch (error) {
+      console.error('Error adding to watch history:', error);
+      throw error; // Re-throw the error so UI can handle it
+    }
+  }, [user?.id, loadUserMovies]);
+
+  const addToWatchlist = useCallback(async (movie: Movie, emotions?: EmotionScores) => {
+    if (!user?.id) return;
+    
+    try {
+      await userMoviesService.addToWatchlist(movie, emotions);
+      await loadUserMovies(); // Refresh data
+    } catch (error) {
+      console.error('Error adding to watchlist:', error);
+      throw error; // Re-throw the error so UI can handle it
+    }
+  }, [user?.id, loadUserMovies]);
+
+
+
+  const removeFromWatchlist = useCallback(async (movieId: number) => {
+    try {
+      await userMoviesService.removeMovie(movieId, 'watchlist');
+      await loadUserMovies(); // Refresh data
+    } catch (error) {
+      console.error('Error removing from watchlist:', error);
+    }
+  }, [loadUserMovies]);
+
+  const removeFromWatchHistory = useCallback(async (movieId: number) => {
+    try {
+      await userMoviesService.removeMovie(movieId, 'watched');
+      await loadUserMovies(); // Refresh data
+    } catch (error) {
+      console.error('Error removing from watch history:', error);
+    }
+  }, [loadUserMovies]);
+
+  const isInWatchlist = useCallback((movieId: number): boolean => {
+    return watchlist.some(movie => movie.movie_id === movieId);
+  }, [watchlist]);
+
+
+
+  const isInWatched = useCallback((movieId: number): boolean => {
+    return watchHistory.some(movie => movie.movie_id === movieId);
+  }, [watchHistory]);
 
   const getEmotionDisplayString = useCallback((emotions: EmotionScores, threshold: number = 0.008): { emotion: keyof EmotionScores; value: number; icon: string; color: string }[] => {
     const emotionEntries = Object.entries(emotions) as [keyof EmotionScores, number][];
@@ -154,56 +186,14 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     return significantEmotions;
   }, []);
 
-  const addToWatchlist = useCallback((movie: Omit<WatchedMovie, 'userId' | 'watchedAt' | 'hasLoggedEmotion'>) => {
-    if (!user?.id) {
-      return; // Skip if user not logged in
-    }
-    
-    setWatchlist(prev => {
-      if (prev.some(m => m.movieId === movie.movieId)) {
-        return prev;
-      }
-      
-      const newWatchlistMovie: WatchedMovie = {
-        ...movie,
-        userId: user?.id?.toString() || '',
-        watchedAt: new Date(),
-        hasLoggedEmotion: false
-      };
-      
-      const updated = [newWatchlistMovie, ...prev];
-      localStorage.setItem('emotionflix-watchlist', JSON.stringify(updated));
-      return updated;
-    });
-  }, [user]);
-
-  const removeFromWatchlist = useCallback((movieId: number) => {
-    
-    setWatchlist(prev => {
-      const updated = prev.filter(movie => movie.movieId !== movieId);
-      localStorage.setItem('emotionflix-watchlist', JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
-
-  const removeFromWatchHistory = useCallback((movieId: number) => {
-    
-    setWatchHistory(prev => {
-      const updated = prev.filter(movie => movie.movieId !== movieId);
-      localStorage.setItem('emotionflix-watch-history', JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
-
-  const isInWatchlist = useCallback((movieId: number): boolean => {
-    return watchlist.some(movie => movie.movieId === movieId);
-  }, [watchlist]);
-
   const clearEmotionHistory = useCallback(() => {
     setEmotionHistory([]);
     setCurrentEmotion(null);
-    localStorage.removeItem('emotionflix-emotion-history');
   }, []);
+
+  const refreshUserMovies = useCallback(async () => {
+    await loadUserMovies();
+  }, [loadUserMovies]);
 
   return (
     <EmotionContext.Provider value={{
@@ -211,6 +201,7 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
       emotionHistory,
       watchHistory,
       watchlist,
+      loading,
       addEmotionSession,
       updateMovieEmotion,
       addToWatchHistory,
@@ -218,8 +209,10 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
       removeFromWatchlist,
       removeFromWatchHistory,
       isInWatchlist,
+      isInWatched,
       getEmotionDisplayString,
-      clearEmotionHistory
+      clearEmotionHistory,
+      refreshUserMovies
     }}>
       {children}
     </EmotionContext.Provider>

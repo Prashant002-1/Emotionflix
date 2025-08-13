@@ -255,14 +255,15 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
   const handleManualSubmit = useCallback(() => {
     const total = Object.values(manualEmotions).reduce((sum, val) => sum + val, 0);
     if (total > 0) {
+      // Convert from percentage (0-100) to decimal (0-1)
       const normalizedEmotions: EmotionScores = {
-        neutral: manualEmotions.neutral / total,
-        happy: manualEmotions.happy / total,
-        sad: manualEmotions.sad / total,
-        angry: manualEmotions.angry / total,
-        fearful: manualEmotions.fearful / total,
-        disgusted: manualEmotions.disgusted / total,
-        surprised: manualEmotions.surprised / total
+        neutral: manualEmotions.neutral / 100,
+        happy: manualEmotions.happy / 100,
+        sad: manualEmotions.sad / 100,
+        angry: manualEmotions.angry / 100,
+        fearful: manualEmotions.fearful / 100,
+        disgusted: manualEmotions.disgusted / 100,
+        surprised: manualEmotions.surprised / 100
       };
       onEmotionsDetected(normalizedEmotions, 'manual', 1.0);
     }
@@ -607,13 +608,13 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 mb-2">Preview:</p>
             {renderEmotionDisplay({
-              neutral: manualEmotions.neutral / total,
-              happy: manualEmotions.happy / total,
-              sad: manualEmotions.sad / total,
-              angry: manualEmotions.angry / total,
-              fearful: manualEmotions.fearful / total,
-              disgusted: manualEmotions.disgusted / total,
-              surprised: manualEmotions.surprised / total
+              neutral: manualEmotions.neutral / 100,
+              happy: manualEmotions.happy / 100,
+              sad: manualEmotions.sad / 100,
+              angry: manualEmotions.angry / 100,
+              fearful: manualEmotions.fearful / 100,
+              disgusted: manualEmotions.disgusted / 100,
+              surprised: manualEmotions.surprised / 100
             }, false)}
           </div>
         )}

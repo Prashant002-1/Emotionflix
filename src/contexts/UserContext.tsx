@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService, AuthUser } from '../services/authService';
+import { userMoviesService } from '../services/userMoviesService';
 
 export interface User {
   id: number;
@@ -83,72 +84,25 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     userRef.current = user;
   }, [user]);
 
-  const updateUserStatsInternal = (userToUpdate: User) => {
-    // Get watch history from local storage
-    const watchHistoryData = localStorage.getItem('emotionflix-watch-history');
-    const watchHistory = watchHistoryData ? JSON.parse(watchHistoryData) : [];
-    
-    // Calculate actual stats from data
-    const moviesWatched = watchHistory.length;
-    const emotionsLogged = watchHistory.filter((movie: any) => movie.hasLoggedEmotion).length;
-    
-    // Calculate favorite emotion from watch history
-    const emotionCounts: Record<string, number> = {
-      neutral: 0,
-      happy: 0,
-      sad: 0,
-      angry: 0,
-      fearful: 0,
-      disgusted: 0,
-      surprised: 0
-    };
-    
-    watchHistory.forEach((movie: any) => {
-      if (movie.emotions) {
-        // Find the emotion with the highest score for this movie
-        let topEmotion = 'neutral';
-        let maxScore = 0;
-        Object.entries(movie.emotions).forEach(([emotion, score]) => {
-          if (typeof score === 'number' && score > maxScore) {
-            maxScore = score;
-            topEmotion = emotion;
-          }
-        });
-        emotionCounts[topEmotion]++;
-      }
-    });
-    
-    // Find the most frequent emotion
-    let favoriteEmotion = 'neutral';
-    let maxCount = 0;
-    Object.entries(emotionCounts).forEach(([emotion, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        favoriteEmotion = emotion;
-      }
-    });
+  const updateUserStatsInternal = async (userToUpdate: User) => {
+    if (!userToUpdate.id) return;
 
-    // Only update if stats have actually changed
-    const currentStats = userToUpdate.stats;
-    if (
-      currentStats.moviesWatched === moviesWatched &&
-      currentStats.emotionsLogged === emotionsLogged &&
-      currentStats.favoriteEmotion === favoriteEmotion
-    ) {
-      return; 
+    try {
+      const stats = await userMoviesService.getUserStats();
+      
+      const updatedUser = {
+        ...userToUpdate,
+        stats: {
+          moviesWatched: stats.movies.watched,
+          emotionsLogged: stats.emotions.total,
+          favoriteEmotion: stats.emotions.favoriteEmotion
+        }
+      };
+
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Error updating user stats:', error);
     }
-
-    const updatedUser = {
-      ...userToUpdate,
-      stats: {
-        moviesWatched,
-        emotionsLogged,
-        favoriteEmotion
-      }
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem('emotionflix-user', JSON.stringify(updatedUser));
   };
 
   useEffect(() => {
@@ -183,8 +137,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const response = await authService.login({ email, password });
       authService.storeAuthData(response.token, response.user);
       const userWithStats = createUserFromAuth(response.user);
+      
       setUser(userWithStats);
-      updateUserStatsInternal(userWithStats);
+      await updateUserStatsInternal(userWithStats);
     } catch (error) {
       throw error;
     } finally {
@@ -199,7 +154,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       authService.storeAuthData(response.token, response.user);
       const userWithStats = createUserFromAuth(response.user);
       setUser(userWithStats);
-      updateUserStatsInternal(userWithStats);
+      await updateUserStatsInternal(userWithStats);
     } catch (error) {
       throw error;
     } finally {
@@ -231,7 +186,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     };
 
     setUser(updatedUser);
-    localStorage.setItem('emotionflix-user', JSON.stringify(updatedUser));
   };
 
   return (

@@ -111,7 +111,7 @@ const Log: React.FC = () => {
     setCurrentStep('emotions');
   };
 
-  const handleEmotionSubmit = (emotionScores: EmotionScores, method: 'webcam' | 'manual' | 'upload', confidence?: number) => {
+  const handleEmotionSubmit = async (emotionScores: EmotionScores, method: 'webcam' | 'manual' | 'upload', confidence?: number) => {
     // Prevent submission if no movie is selected
     if (!selectedMovie) {
       return;
@@ -120,21 +120,19 @@ const Log: React.FC = () => {
     setEmotions(emotionScores);
     setDetectionMethod(method as 'webcam' | 'manual');
     
-    // Update movie emotion with correct method and confidence
-    updateMovieEmotion(selectedMovie.id, emotionScores, method, confidence);
-    
-    // Add to watch history with emotions
-    addToWatchHistory({
-      movieId: selectedMovie.id,
-      title: selectedMovie.title,
-      poster_path: selectedMovie.poster_path,
-      release_date: selectedMovie.release_date,
-      vote_average: selectedMovie.vote_average,
-      genre_ids: selectedMovie.genre_ids,
-      emotions: emotionScores
-    });
+    try {
+      // Update movie emotion with correct method and confidence
+      updateMovieEmotion(selectedMovie.id, emotionScores, method, confidence);
+      
+      // Add to watch history with emotions
+      await addToWatchHistory(selectedMovie, emotionScores, undefined, confidence);
 
-    setCurrentStep('complete');
+      setCurrentStep('complete');
+    } catch (error) {
+      console.error('Error logging emotions:', error);
+      // You could add a toast notification here to show the error to the user
+      alert('Failed to log emotions. Please try again.');
+    }
   };
 
   const handleStartOver = () => {

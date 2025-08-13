@@ -23,6 +23,11 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/login', credentials);
@@ -36,6 +41,11 @@ export const authService = {
 
   async getProfile(): Promise<{ user: AuthUser }> {
     const response = await apiClient.get('/auth/profile');
+    return response.data;
+  },
+
+  async changePassword(data: ChangePasswordData): Promise<{ message: string }> {
+    const response = await apiClient.put('/auth/change-password', data);
     return response.data;
   },
 

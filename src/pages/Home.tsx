@@ -4,6 +4,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
 import { useEmotion } from '../contexts/EmotionContext';
 import AuthModal from '../components/auth/AuthModal';
+import EmotionDisplay from '../components/features/emotion/EmotionDisplay';
+import { convertToEmotionScores } from '../services/userMoviesService';
 const Home: React.FC = () => {
   const { theme } = useTheme();
   const { user, updateUserStats } = useUser();
@@ -21,19 +23,12 @@ const Home: React.FC = () => {
     navigate('/movie-match');
   };
 
-  // Update user stats when user logs in
+  // Update user stats when user logs in (only once)
   useEffect(() => {
     if (user) {
       updateUserStats();
     }
-  }, [user, updateUserStats]);
-
-  // Update stats when watch history changes
-  useEffect(() => {
-    if (user && watchHistory.length > 0) {
-      updateUserStats();
-    }
-  }, [user, watchHistory.length, updateUserStats]);
+  }, [user?.id]); // Only depend on user ID, not the entire user object or updateUserStats function
 
   const handleSignInPrompt = () => {
     setShowAuthModal(true);
@@ -228,7 +223,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="grid gap-4">
                   {watchHistory.slice(0, 3).map((movie, index) => (
-                    <div key={`${movie.movieId}-${index}`} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                    <div key={`${movie.movie_id}-${index}`} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
                       theme === 'dark' 
                         ? 'bg-gray-700/30 border-gray-600/30 hover:bg-gray-700/50' 
                         : 'bg-gray-50/50 border-gray-200/50 hover:bg-white/80'
@@ -248,7 +243,7 @@ const Home: React.FC = () => {
                           <p className={`text-sm mb-3 ${
                             theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                           }`}>
-                            Watched {new Date(movie.watchedAt).toLocaleDateString()}
+                            Watched {new Date(movie.created_at).toLocaleDateString()}
                           </p>
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
@@ -259,12 +254,20 @@ const Home: React.FC = () => {
                               </span>
                             </div>
                             <button
-                              onClick={() => navigate(`/movie/${movie.movieId}`)}
+                              onClick={() => navigate(`/movie/${movie.movie_id}`)}
                               className="text-sm text-purple-500 hover:text-purple-400 font-medium transition-colors"
                             >
                               View Details →
                             </button>
                           </div>
+                          {(() => {
+                            const emotions = convertToEmotionScores(movie);
+                            return emotions && (
+                              <div className="mt-3">
+                                <EmotionDisplay emotions={emotions} />
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -281,7 +284,7 @@ const Home: React.FC = () => {
                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
                   theme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>
-                  Your Emotional <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Genre</span> Profile
+                  Your Emotional <span className="text-gradient-cinema">Genre</span> Profile
                 </h2>
                 <p className={`text-lg max-w-2xl mx-auto ${
                   theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
@@ -291,8 +294,8 @@ const Home: React.FC = () => {
               </div>
               <div className={`p-8 rounded-2xl border backdrop-blur-sm shadow-lg ${
                 theme === 'dark' 
-                  ? 'bg-gradient-to-br from-purple-900/20 to-pink-900/10 border-purple-700/30' 
-                  : 'bg-gradient-to-br from-purple-50/50 to-pink-50/30 border-purple-200/50'
+                  ? 'bg-gradient-to-br from-cinema-900/20 to-film-900/10 border-cinema-700/30' 
+                  : 'bg-gradient-to-br from-cinema-50/50 to-film-50/30 border-cinema-200/50'
               }`}>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -354,19 +357,19 @@ const Home: React.FC = () => {
           {!user && (
             <section className={`p-12 rounded-2xl border backdrop-blur-sm shadow-lg text-center ${
               theme === 'dark' 
-                ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/20 border-purple-700/30' 
-                : 'bg-gradient-to-br from-purple-50/50 to-pink-50/30 border-purple-200/50'
+                ? 'bg-gradient-to-br from-cinema-900/30 to-film-900/20 border-cinema-700/30' 
+                : 'bg-gradient-to-br from-cinema-50/50 to-film-50/30 border-cinema-200/50'
             }`}>
               <div className="max-w-2xl mx-auto">
                 <div className="flex items-center justify-center mb-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/25">
+                  <div className="w-20 h-20 bg-gradient-to-br from-cinema-600 to-film-600 rounded-full flex items-center justify-center shadow-cinema">
                     <i className="fas fa-brain text-white text-3xl"></i>
                   </div>
                 </div>
                 <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${
                   theme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>
-                  Ready to Begin Your <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Emotional Journey</span>?
+                  Ready to Begin Your <span className="text-gradient-cinema">Emotional Journey</span>?
                 </h2>
                 <p className={`text-lg mb-8 ${
                   theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
@@ -416,7 +419,7 @@ const Home: React.FC = () => {
                 </div>
                 <button
                   onClick={handleSignInPrompt}
-                  className="px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-2xl transition-all duration-300 hover:shadow-2xl hover:scale-105 shadow-purple-500/25"
+                  className="btn-primary px-10 py-5 text-lg font-bold"
                 >
                   Join EmotionFlix Now
                 </button>

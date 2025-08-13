@@ -8,6 +8,8 @@ import EmotionDisplay from '../components/features/emotion/EmotionDisplay';
 import { personalizedEmotionMappingService, PersonalizedMapping } from '../services/personalizedEmotionMapping';
 import { GetGenres } from '../services/tmdbApi';
 import { Genre } from '../types/movie';
+import { convertToEmotionScores } from '../services/userMoviesService';
+import { authService, ChangePasswordData } from '../services/authService';
 
 const UserProfile: React.FC = () => {
   const { theme } = useTheme();
@@ -212,7 +214,7 @@ const UserProfile: React.FC = () => {
               {recentWatchHistory.length > 0 ? (
                 <div className="space-y-4">
                   {recentWatchHistory.map((movie) => (
-                    <div key={`${movie.movieId}-${movie.watchedAt}`} className={`p-4 rounded-xl border ${
+                    <div key={`${movie.movie_id}-${movie.created_at}`} className={`p-4 rounded-xl border ${
                       theme === 'dark' 
                         ? 'bg-slate-700/50 border-slate-600' 
                         : 'bg-gray-50 border-gray-200'
@@ -233,13 +235,16 @@ const UserProfile: React.FC = () => {
                             <p className={`text-sm ${
                               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                             }`}>
-                              Watched on {new Date(movie.watchedAt).toLocaleDateString()}
+                              Watched on {new Date(movie.created_at).toLocaleDateString()}
                             </p>
-                            {movie.emotions && (
-                              <div className="mt-2">
-                                <EmotionDisplay emotions={movie.emotions} />
-                              </div>
-                            )}
+                            {(() => {
+                              const emotions = convertToEmotionScores(movie);
+                              return emotions && (
+                                <div className="mt-2">
+                                  <EmotionDisplay emotions={emotions} />
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -252,7 +257,7 @@ const UserProfile: React.FC = () => {
                             </span>
                           </div>
                           <button
-                            onClick={() => removeFromWatchHistory(movie.movieId)}
+                            onClick={() => removeFromWatchHistory(movie.movie_id)}
                             className="text-red-500 hover:text-red-700 transition-colors p-1"
                             title="Remove from watch history"
                           >
@@ -287,7 +292,7 @@ const UserProfile: React.FC = () => {
               {watchlist.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {watchlist.map((movie) => (
-                    <div key={movie.movieId} className={`p-4 rounded-xl border transition-all hover:shadow-lg ${
+                    <div key={movie.movie_id} className={`p-4 rounded-xl border transition-all hover:shadow-lg ${
                       theme === 'dark' 
                         ? 'bg-slate-700/50 border-slate-600 hover:border-slate-500' 
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
@@ -319,19 +324,19 @@ const UserProfile: React.FC = () => {
                           </div>
                           <div className="flex gap-2 mt-3">
                             <button
-                              onClick={() => window.location.href = `/movie/${movie.movieId}`}
+                              onClick={() => window.location.href = `/movie/${movie.movie_id}`}
                               className="text-xs px-3 py-1 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
                             >
                               View Details
                             </button>
                             <button
-                              onClick={() => window.location.href = `/log?movieId=${movie.movieId}`}
+                              onClick={() => window.location.href = `/log?movieId=${movie.movie_id}`}
                               className="text-xs px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
                             >
                               Log Emotions
                             </button>
                             <button
-                              onClick={() => removeFromWatchlist(movie.movieId)}
+                              onClick={() => removeFromWatchlist(movie.movie_id)}
                               className="text-xs px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
                             >
                               Remove
@@ -386,31 +391,13 @@ const UserProfile: React.FC = () => {
               <h2 className={`text-2xl font-bold mb-6 ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
-                Settings
+                Account Settings
               </h2>
               
-              <div className="space-y-6">
-                <div className={`p-6 rounded-xl ${
-                  theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className={`text-lg font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>
-                        Account Actions
-                      </h3>
-                      <p className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
-                        Manage your account settings and preferences
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PasswordChangeForm theme={theme} />
             </div>
           )}
+
         </div>
       </div>
     </div>
@@ -549,6 +536,147 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// Password Change Form Component
+const PasswordChangeForm: React.FC<{ theme: string }> = ({ theme }) => {
+  const [formData, setFormData] = useState<ChangePasswordData>({
+    currentPassword: '',
+    newPassword: ''
+  });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: 'New passwords do not match' });
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      setMessage({ type: 'error', text: 'New password must be at least 6 characters long' });
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      await authService.changePassword(formData);
+      setMessage({ type: 'success', text: 'Password changed successfully' });
+      setFormData({ currentPassword: '', newPassword: '' });
+      setConfirmPassword('');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error || 'Failed to change password';
+      setMessage({ type: 'error', text: errorMessage });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof ChangePasswordData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (message) setMessage(null);
+  };
+
+  return (
+    <div className={`p-6 rounded-xl ${
+      theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'
+    }`}>
+      <h3 className={`text-lg font-semibold mb-4 ${
+        theme === 'dark' ? 'text-white' : 'text-gray-900'
+      }`}>
+        Change Password
+      </h3>
+      
+      {message && (
+        <div className={`p-4 rounded-lg mb-4 ${
+          message.type === 'success' 
+            ? theme === 'dark'
+              ? 'bg-green-900/30 border border-green-500/30 text-green-300'
+              : 'bg-green-50 border border-green-200 text-green-700'
+            : theme === 'dark'
+              ? 'bg-red-900/30 border border-red-500/30 text-red-300'
+              : 'bg-red-50 border border-red-200 text-red-700'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            Current Password
+          </label>
+          <input
+            type="password"
+            value={formData.currentPassword}
+            onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Enter current password"
+            required
+          />
+        </div>
+
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            New Password
+          </label>
+          <input
+            type="password"
+            value={formData.newPassword}
+            onChange={(e) => handleInputChange('newPassword', e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Enter new password"
+            required
+          />
+        </div>
+
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            Confirm New Password
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Confirm new password"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-cinema-600 text-white py-3 px-6 rounded-xl hover:bg-cinema-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        >
+          {loading ? 'Changing Password...' : 'Change Password'}
+        </button>
+      </form>
     </div>
   );
 };

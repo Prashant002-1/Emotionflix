@@ -57,4 +57,17 @@ export class UserModel {
     if (!user.password_hash) return false;
     return bcrypt.compare(password, user.password_hash);
   }
+
+  static async updatePassword(userId: number, newPassword: string): Promise<boolean> {
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    const query = `
+      UPDATE users 
+      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `;
+    
+    const result = await pool.query(query, [hashedPassword, userId]);
+    return (result.rowCount ?? 0) > 0;
+  }
 }
