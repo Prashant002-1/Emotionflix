@@ -68,6 +68,11 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: passwordSchema,
+});
+
 export const register = async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
@@ -177,6 +182,50 @@ export const getProfile = async (req: Request, res: Response) => {
 };
 
 /**
+ * Change user password endpoint.
+ * Validates current password and updates to new password if authentication succeeds.
+ * @param req Request containing current password and new password
+ * @param res Response object
+ */
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const validatedData = changePasswordSchema.parse(req.body);
+    const { currentPassword, newPassword } = validatedData;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const user = await UserModel.findByEmail((req as any).user.email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isValidCurrentPassword = await UserModel.validatePassword(user, currentPassword);
+    if (!isValidCurrentPassword) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    const updateSuccess = await UserModel.updatePassword(userId, newPassword);
+    if (!updateSuccess) {
+      return res.status(500).json({ error: 'Failed to update password' });
+    }
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: error.errors 
+      });
+    }
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
  * Token verification endpoint for validating JWT tokens.
  * Used by clients to verify token validity and retrieve user information.
  * @param req Request containing Authorization header with Bearer token
@@ -218,11 +267,12 @@ export const verifyToken = async (req: Request, res: Response) => {
 /**
  * Authentication controller object export.
  * Provides a centralized interface for all authentication operations
- * including registration, login, profile management, and token verification.
+ * including registration, login, profile management, password changes, and token verification.
  */
 export const authController = {
   register,
   login,
   getProfile,
+  changePassword,
   verifyToken,
 };

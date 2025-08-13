@@ -29,14 +29,11 @@ const MovieMatch: React.FC = () => {
     surprised: 15
   });
 
-  const [loading, setLoading] = useState(true);
-
   // Load user's emotional profile on component mount
   useEffect(() => {
     const loadUserEmotionalProfile = async () => {
       if (user?.id) {
         try {
-          setLoading(true);
           const userEmotions = await userMoviesService.getUserEmotionalProfile();
           // Convert from decimal (0-1) to percentage (0-100)
           const emotionsAsPercentages: EmotionScores = {
@@ -52,11 +49,7 @@ const MovieMatch: React.FC = () => {
         } catch (error) {
           console.error('Error loading user emotional profile:', error);
           // Keep default emotions if loading fails
-        } finally {
-          setLoading(false);
         }
-      } else {
-        setLoading(false);
       }
     };
 

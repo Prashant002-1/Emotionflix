@@ -1,4 +1,4 @@
-// src/controllers/userMoviesController.ts - Controller for user movie data (watchlist, favorites, watched)
+// src/controllers/userMoviesController.ts - Controller for user movie data (watchlist, watched)
 
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
@@ -6,7 +6,7 @@ import { z } from 'zod';
 import pool from '../config/database';
 import { getMovieDetails, TMDBMovie } from '../services/tmdbService';
 
-const VALID_STATUSES = ['watchlist', 'watched', 'favorite'] as const;
+const VALID_STATUSES = ['watchlist', 'watched'] as const;
 
 // Helper function to update user's emotional profile
 const updateUserEmotionalProfile = async (userId: number, emotions: Record<string, number>) => {
@@ -69,7 +69,7 @@ const updateUserEmotionalProfile = async (userId: number, emotions: Record<strin
 const addMovieSchema = z.object({
   movieId: z.number().positive('Movie ID must be positive'),
   status: z.enum(VALID_STATUSES, {
-    errorMap: () => ({ message: 'Status must be one of: watchlist, watched, favorite' })
+    errorMap: () => ({ message: 'Status must be one of: watchlist, watched' })
   }),
   rating: z.number().min(1).max(10).optional(),
   emotions: z.record(z.number()).optional(), // Emotion scores if logged
@@ -351,7 +351,7 @@ export const removeUserMovie = async (req: AuthRequest, res: Response) => {
 
     // Validate status parameter
     if (!status || !VALID_STATUSES.includes(status as any)) {
-      return res.status(400).json({ error: 'Status parameter is required and must be one of: watchlist, watched, favorite' });
+      return res.status(400).json({ error: 'Status parameter is required and must be one of: watchlist, watched' });
     }
 
     const deleteQuery = 'DELETE FROM user_movies WHERE user_id = $1 AND movie_id = $2 AND status = $3 RETURNING *';
@@ -433,7 +433,6 @@ export const getUserStats = async (req: AuthRequest, res: Response) => {
       movies: {
         watchlist: 0,
         watched: 0,
-        favorite: 0,
         total: 0
       },
       emotions: {

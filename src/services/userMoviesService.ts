@@ -8,7 +8,7 @@ export interface UserMovie {
   id: number;
   user_id: number;
   movie_id: number;
-  status: 'watchlist' | 'watched' | 'favorite';
+  status: 'watchlist' | 'watched';
   rating?: number;
   created_at: string;
   title: string;
@@ -33,7 +33,6 @@ export interface UserStats {
   movies: {
     watchlist: number;
     watched: number;
-    favorite: number;
     total: number;
   };
   emotions: {
@@ -77,14 +76,7 @@ export const userMoviesService = {
     return response.data.movie;
   },
 
-  async addToFavorites(movie: Movie, emotions?: EmotionScores): Promise<UserMovie> {
-    const response = await apiClient.post('/user-movies', {
-      movieId: movie.id,
-      status: 'favorite',
-      emotions
-    });
-    return response.data.movie;
-  },
+
 
   async markAsWatched(movie: Movie, emotions?: EmotionScores, rating?: number, confidence?: number): Promise<UserMovie> {
     const response = await apiClient.post('/user-movies', {

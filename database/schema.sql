@@ -69,12 +69,12 @@ CREATE TABLE IF NOT EXISTS recommendations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- User favorites/watchlist
+-- User watchlist and watched movies
 CREATE TABLE IF NOT EXISTS user_movies (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     movie_id INTEGER REFERENCES movies(id) ON DELETE CASCADE,
-    status VARCHAR(20) DEFAULT 'watchlist', -- 'watchlist', 'watched', 'favorite'
+    status VARCHAR(20) DEFAULT 'watchlist', -- 'watchlist', 'watched'
     rating INTEGER CHECK (rating >= 1 AND rating <= 10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, movie_id, status)

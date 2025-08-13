@@ -227,7 +227,7 @@ const Layout: React.FC = () => {
               </span>
             </div>
             <div className="text-xs font-medium text-charcoal-400">
-              © 2024 EmotionFlix. All rights reserved. | 
+              © 2025 EmotionFlix. All rights reserved. | 
               <span className="ml-1">
                 Powered by <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">TMDB</a> & 
                 <a href="https://fontawesome.com/" target="_blank" rel="noopener noreferrer" className="hover:underline ml-1">Font Awesome</a>

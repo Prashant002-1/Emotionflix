@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { EmotionScores, EmotionSession, WatchedMovie } from '../types/emotion';
+import { EmotionScores, EmotionSession } from '../types/emotion';
 import { Movie } from '../types/movie';
 import { useUser } from './UserContext';
 import { userMoviesService, UserMovie } from '../services/userMoviesService';
@@ -14,11 +14,9 @@ interface EmotionContextType {
   updateMovieEmotion: (movieId: number, emotions: EmotionScores, method: 'webcam' | 'manual' | 'upload', confidence?: number) => void;
   addToWatchHistory: (movie: Movie, emotions?: EmotionScores, rating?: number, confidence?: number) => Promise<void>;
   addToWatchlist: (movie: Movie, emotions?: EmotionScores) => Promise<void>;
-  addToFavorites: (movie: Movie, emotions?: EmotionScores) => Promise<void>;
   removeFromWatchlist: (movieId: number) => Promise<void>;
   removeFromWatchHistory: (movieId: number) => Promise<void>;
   isInWatchlist: (movieId: number) => boolean;
-  isInFavorites: (movieId: number) => boolean;
   isInWatched: (movieId: number) => boolean;
   getEmotionDisplayString: (emotions: EmotionScores, threshold?: number) => { emotion: keyof EmotionScores; value: number; icon: string; color: string }[];
   clearEmotionHistory: () => void;
@@ -142,21 +140,11 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     }
   }, [user?.id, loadUserMovies]);
 
-  const addToFavorites = useCallback(async (movie: Movie, emotions?: EmotionScores) => {
-    if (!user?.id) return;
-    
-    try {
-      await userMoviesService.addToFavorites(movie, emotions);
-      await loadUserMovies(); // Refresh data
-    } catch (error) {
-      console.error('Error adding to favorites:', error);
-      throw error; // Re-throw the error so UI can handle it
-    }
-  }, [user?.id, loadUserMovies]);
+
 
   const removeFromWatchlist = useCallback(async (movieId: number) => {
     try {
-      await userMoviesService.removeMovie(movieId);
+      await userMoviesService.removeMovie(movieId, 'watchlist');
       await loadUserMovies(); // Refresh data
     } catch (error) {
       console.error('Error removing from watchlist:', error);
@@ -165,7 +153,7 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
 
   const removeFromWatchHistory = useCallback(async (movieId: number) => {
     try {
-      await userMoviesService.removeMovie(movieId);
+      await userMoviesService.removeMovie(movieId, 'watched');
       await loadUserMovies(); // Refresh data
     } catch (error) {
       console.error('Error removing from watch history:', error);
@@ -176,9 +164,7 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     return watchlist.some(movie => movie.movie_id === movieId);
   }, [watchlist]);
 
-  const isInFavorites = useCallback((movieId: number): boolean => {
-    return watchlist.some(movie => movie.movie_id === movieId && movie.status === 'favorite');
-  }, [watchlist]);
+
 
   const isInWatched = useCallback((movieId: number): boolean => {
     return watchHistory.some(movie => movie.movie_id === movieId);
@@ -220,11 +206,9 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
       updateMovieEmotion,
       addToWatchHistory,
       addToWatchlist,
-      addToFavorites,
       removeFromWatchlist,
       removeFromWatchHistory,
       isInWatchlist,
-      isInFavorites,
       isInWatched,
       getEmotionDisplayString,
       clearEmotionHistory,

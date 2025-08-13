@@ -9,6 +9,7 @@ import { personalizedEmotionMappingService, PersonalizedMapping } from '../servi
 import { GetGenres } from '../services/tmdbApi';
 import { Genre } from '../types/movie';
 import { convertToEmotionScores } from '../services/userMoviesService';
+import { authService, ChangePasswordData } from '../services/authService';
 
 const UserProfile: React.FC = () => {
   const { theme } = useTheme();
@@ -16,13 +17,13 @@ const UserProfile: React.FC = () => {
   const { watchHistory, watchlist, removeFromWatchlist, removeFromWatchHistory } = useEmotion();
   const [searchParams] = useSearchParams();
   
-  const [activeTab, setActiveTab] = useState<'profile' | 'stats' | 'watchlist' | 'emotions'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'stats' | 'watchlist' | 'emotions' | 'settings'>('profile');
 
   // Handle tab query parameter
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['profile', 'stats', 'watchlist', 'emotions'].includes(tabParam)) {
-      setActiveTab(tabParam as 'profile' | 'stats' | 'watchlist' | 'emotions');
+    if (tabParam && ['profile', 'stats', 'watchlist', 'emotions', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam as 'profile' | 'stats' | 'watchlist' | 'emotions' | 'settings');
     }
   }, [searchParams]);
 
@@ -63,11 +64,12 @@ const UserProfile: React.FC = () => {
               { id: 'profile', label: 'Profile', icon: 'fa-user' },
               { id: 'stats', label: 'Watch History', icon: 'fa-history' },
               { id: 'watchlist', label: 'Watchlist', icon: 'fa-bookmark' },
-              { id: 'emotions', label: 'Emotions', icon: 'fa-heart' }
+              { id: 'emotions', label: 'Emotions', icon: 'fa-heart' },
+              { id: 'settings', label: 'Settings', icon: 'fa-cog' }
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'profile' | 'stats' | 'watchlist' | 'emotions')}
+                onClick={() => setActiveTab(tab.id as 'profile' | 'stats' | 'watchlist' | 'emotions' | 'settings')}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-cinema-600 text-white shadow-cinema'
@@ -384,6 +386,18 @@ const UserProfile: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'settings' && (
+            <div className="space-y-8">
+              <h2 className={`text-2xl font-bold mb-6 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                Account Settings
+              </h2>
+              
+              <PasswordChangeForm theme={theme} />
+            </div>
+          )}
+
         </div>
       </div>
     </div>
@@ -522,6 +536,147 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// Password Change Form Component
+const PasswordChangeForm: React.FC<{ theme: string }> = ({ theme }) => {
+  const [formData, setFormData] = useState<ChangePasswordData>({
+    currentPassword: '',
+    newPassword: ''
+  });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: 'New passwords do not match' });
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      setMessage({ type: 'error', text: 'New password must be at least 6 characters long' });
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      await authService.changePassword(formData);
+      setMessage({ type: 'success', text: 'Password changed successfully' });
+      setFormData({ currentPassword: '', newPassword: '' });
+      setConfirmPassword('');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error || 'Failed to change password';
+      setMessage({ type: 'error', text: errorMessage });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof ChangePasswordData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (message) setMessage(null);
+  };
+
+  return (
+    <div className={`p-6 rounded-xl ${
+      theme === 'dark' ? 'bg-slate-700/50' : 'bg-gray-50'
+    }`}>
+      <h3 className={`text-lg font-semibold mb-4 ${
+        theme === 'dark' ? 'text-white' : 'text-gray-900'
+      }`}>
+        Change Password
+      </h3>
+      
+      {message && (
+        <div className={`p-4 rounded-lg mb-4 ${
+          message.type === 'success' 
+            ? theme === 'dark'
+              ? 'bg-green-900/30 border border-green-500/30 text-green-300'
+              : 'bg-green-50 border border-green-200 text-green-700'
+            : theme === 'dark'
+              ? 'bg-red-900/30 border border-red-500/30 text-red-300'
+              : 'bg-red-50 border border-red-200 text-red-700'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            Current Password
+          </label>
+          <input
+            type="password"
+            value={formData.currentPassword}
+            onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Enter current password"
+            required
+          />
+        </div>
+
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            New Password
+          </label>
+          <input
+            type="password"
+            value={formData.newPassword}
+            onChange={(e) => handleInputChange('newPassword', e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Enter new password"
+            required
+          />
+        </div>
+
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            Confirm New Password
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-cinema-500 focus:border-transparent transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-600 border-slate-500 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            placeholder="Confirm new password"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-cinema-600 text-white py-3 px-6 rounded-xl hover:bg-cinema-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        >
+          {loading ? 'Changing Password...' : 'Change Password'}
+        </button>
+      </form>
     </div>
   );
 };
