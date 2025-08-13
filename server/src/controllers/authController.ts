@@ -20,10 +20,27 @@ const validatePasswordStrength = (password: string): { isValid: boolean; error?:
     return { isValid: false, error: 'Password must contain at least one number or special character' };
   }
   
-  // Check for common weak passwords
-  const commonWeakPasswords = ['123456', 'password', '123456789', 'qwerty', 'abc123'];
+  // Check for very common weak passwords (exact matches only)
+  const commonWeakPasswords = [
+    'password', '123456', '123456789', 'qwerty', 'abc123', 'password123',
+    'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'master'
+  ];
+  
   if (commonWeakPasswords.includes(password.toLowerCase())) {
     return { isValid: false, error: 'Password is too common, please choose a stronger password' };
+  }
+  
+  // Require at least one letter, one number, and one special character
+  if (!/[a-zA-Z]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one letter' };
+  }
+  
+  if (!/[0-9]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one number' };
+  }
+  
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return { isValid: false, error: 'Password must contain at least one special character' };
   }
   
   return { isValid: true };

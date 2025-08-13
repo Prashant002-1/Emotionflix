@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/database';
 import authRoutes from './routes/auth';
 import emotionMappingRoutes from './routes/emotionMapping';
+import userMoviesRoutes from './routes/userMovies';
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/emotion-mappings', emotionMappingRoutes);
+app.use('/api/user-movies', userMoviesRoutes);
 
 const startServer = async () => {
   try {
