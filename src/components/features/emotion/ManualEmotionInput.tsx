@@ -92,7 +92,7 @@ const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({
         <div className="mt-6 text-center">
           <button
             onClick={handleSubmit}
-            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg"
+            className="px-8 py-3 bg-gradient-to-r from-cinema-500 to-film-500 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-cinema"
           >
             Submit Emotions
           </button>

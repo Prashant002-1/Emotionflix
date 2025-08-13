@@ -3,6 +3,7 @@ import { EmotionScores, EmotionSession } from '../types/emotion';
 import { Movie } from '../types/movie';
 import { useUser } from './UserContext';
 import { userMoviesService, UserMovie } from '../services/userMoviesService';
+import { personalizedEmotionMappingService } from '../services/personalizedEmotionMapping';
 
 interface EmotionContextType {
   currentEmotion: EmotionScores | null;
@@ -21,6 +22,7 @@ interface EmotionContextType {
   getEmotionDisplayString: (emotions: EmotionScores, threshold?: number) => { emotion: keyof EmotionScores; value: number; icon: string; color: string }[];
   clearEmotionHistory: () => void;
   refreshUserMovies: () => Promise<void>;
+  refreshEmotionalProfile: () => Promise<void>;
 }
 
 const EmotionContext = createContext<EmotionContextType | undefined>(undefined);
@@ -121,6 +123,21 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     
     try {
       await userMoviesService.markAsWatched(movie, emotions, rating, confidence);
+      
+      // Update emotion mappings if emotions were provided
+      if (emotions && movie.genre_ids) {
+        try {
+          await personalizedEmotionMappingService.updateUserMappingFromInteraction(
+            user.id.toString(),
+            movie.genre_ids,
+            emotions,
+            'logged'
+          );
+        } catch (error) {
+          console.error('Failed to update emotion mappings:', error);
+        }
+      }
+      
       await loadUserMovies(); // Refresh data
     } catch (error) {
       console.error('Error adding to watch history:', error);
@@ -195,6 +212,12 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     await loadUserMovies();
   }, [loadUserMovies]);
 
+  const refreshEmotionalProfile = useCallback(async () => {
+    if (user?.id) {
+      await personalizedEmotionMappingService.refreshUserMappings(user.id.toString());
+    }
+  }, [user?.id]);
+
   return (
     <EmotionContext.Provider value={{
       currentEmotion,
@@ -212,7 +235,8 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
       isInWatched,
       getEmotionDisplayString,
       clearEmotionHistory,
-      refreshUserMovies
+      refreshUserMovies,
+      refreshEmotionalProfile
     }}>
       {children}
     </EmotionContext.Provider>

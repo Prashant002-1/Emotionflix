@@ -90,7 +90,7 @@ const MovieDetails: React.FC = () => {
             <img
               src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
               alt={`${movie.title} movie poster`}
-              className="w-full rounded-2xl shadow-2xl shadow-purple-500/20 border-2 border-purple-500/30 transform hover:scale-105 transition-transform duration-300"
+              className="w-full rounded-2xl shadow-2xl shadow-cinema-500/20 border-2 border-cinema-500/30 transform hover:scale-105 transition-transform duration-300"
             />
           )}
         </div>
@@ -99,7 +99,7 @@ const MovieDetails: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             {movie.title}
           </h1>
-          <p className="text-lg text-purple-300 font-semibold mb-6">
+          <p className="text-lg text-cinema-300 font-semibold mb-6">
             {movie.tagline}
           </p>
 
@@ -121,7 +121,7 @@ const MovieDetails: React.FC = () => {
                 {movie.genres.map((genre) => (
                   <span
                     key={genre.id}
-                    className="bg-white/10 backdrop-blur-sm text-purple-200 px-4 py-2 rounded-full text-sm font-medium border border-purple-400/20"
+                    className="bg-white/10 backdrop-blur-sm text-cinema-200 px-4 py-2 rounded-full text-sm font-medium border border-cinema-400/20"
                   >
                     {genre.name}
                   </span>
@@ -138,7 +138,7 @@ const MovieDetails: React.FC = () => {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={handleLogEmotions}
-              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-lg shadow-purple-500/30"
+              className="inline-block bg-gradient-to-r from-cinema-600 to-film-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-cinema"
             >
               <i className="fas fa-heart mr-2"></i>
               Log Emotions

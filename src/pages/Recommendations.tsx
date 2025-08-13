@@ -616,7 +616,7 @@ const Recommendations: React.FC = () => {
               <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
-                <i className="fas fa-user-circle text-purple-500"></i>
+                <i className="fas fa-user-circle text-cinema-500"></i>
                 Current Mood
               </h3>
               <div className="space-y-3">
@@ -651,7 +651,7 @@ const Recommendations: React.FC = () => {
               <button
                 onClick={() => setIsGenreFilterOpen(!isGenreFilterOpen)}
                 className={`w-full text-lg font-bold mb-4 flex items-center justify-between ${
-                  theme === 'dark' ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-600'
+                  theme === 'dark' ? 'text-white hover:text-cinema-300' : 'text-gray-900 hover:text-cinema-600'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -674,7 +674,7 @@ const Recommendations: React.FC = () => {
                           setSelectedGenres(prev => prev.filter(id => id !== genre.id));
                         }
                       }}
-                      className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                      className="w-4 h-4 text-cinema-600 rounded focus:ring-cinema-500"
                     />
                     <span className={`text-sm ${
                       theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
@@ -855,8 +855,8 @@ const Recommendations: React.FC = () => {
                       .map(([emotion, value]) => (
                         <span key={emotion} className={`px-2 py-1 rounded-lg text-xs font-medium ${
                           theme === 'dark' 
-                            ? 'bg-purple-500/20 text-purple-300' 
-                            : 'bg-purple-100 text-purple-700'
+                            ? 'bg-cinema-500/20 text-cinema-300' 
+                            : 'bg-cinema-100 text-cinema-700'
                         }`}>
                           {emotion} ({value}%)
                         </span>

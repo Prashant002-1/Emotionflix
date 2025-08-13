@@ -404,134 +404,363 @@ const UserProfile: React.FC = () => {
   );
 };
 
-// Emotional Profile Display Component
+// Enhanced Emotional Profile Display Component
 const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme, user }) => {
   const [emotionalProfile, setEmotionalProfile] = useState<PersonalizedMapping | null>(null);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadEmotionalProfile = async (isRefresh = false) => {
+    try {
+      setError(null);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
+      const userId = user?.id?.toString() || '';
+      const [profile, genreResponse] = await Promise.all([
+        personalizedEmotionMappingService.getUserEmotionGenreMappings(userId),
+        GetGenres()
+      ]);
+      setEmotionalProfile(profile);
+      setGenres(genreResponse.genres);
+    } catch (error) {
+      console.error('Error loading emotional profile:', error);
+      setError('Failed to load emotional profile. Please try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const loadEmotionalProfile = async () => {
-      try {
-        const userId = user?.id?.toString() || '';
-        const [profile, genreResponse] = await Promise.all([
-          personalizedEmotionMappingService.getUserEmotionGenreMappings(userId),
-          GetGenres()
-        ]);
-        setEmotionalProfile(profile);
-        setGenres(genreResponse.genres);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    };
     loadEmotionalProfile();
   }, [user?.id]);
+
+  const handleRefresh = async () => {
+    await loadEmotionalProfile(true);
+  };
 
   const getGenreName = (genreId: number): string => {
     const genre = genres.find(g => g.id === genreId);
     return genre ? genre.name : `Genre ${genreId}`;
   };
 
+  const getStrengthLabel = (weight: number): string => {
+    if (weight > 0.8) return 'Very Strong';
+    if (weight > 0.6) return 'Strong';
+    if (weight > 0.4) return 'Moderate';
+    if (weight > 0.2) return 'Weak';
+    return 'Very Weak';
+  };
+
+  const getStrengthColor = (weight: number): string => {
+    if (weight > 0.8) return 'text-green-600';
+    if (weight > 0.6) return 'text-green-500';
+    if (weight > 0.4) return 'text-yellow-500';
+    if (weight > 0.2) return 'text-orange-500';
+    return 'text-gray-500';
+  };
+
+  const getStrengthBgColor = (weight: number): string => {
+    if (weight > 0.8) return 'bg-green-500';
+    if (weight > 0.6) return 'bg-green-400';
+    if (weight > 0.4) return 'bg-yellow-400';
+    if (weight > 0.2) return 'bg-orange-400';
+    return 'bg-gray-400';
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <LoadingSpinner message="Loading emotional profile..." />
+        <LoadingSpinner message="Loading your emotional profile..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className={`w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center`}>
+          <i className="fas fa-exclamation-triangle text-white text-3xl"></i>
+        </div>
+        <h3 className={`text-xl font-semibold mb-3 ${
+          theme === 'dark' ? 'text-white' : 'text-gray-900'
+        }`}>
+          Error Loading Profile
+        </h3>
+        <p className={`text-lg mb-6 ${
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+        }`}>
+          {error}
+        </p>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+            theme === 'dark'
+              ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-800'
+              : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-800'
+          }`}
+        >
+          {refreshing ? (
+            <>
+              <i className="fas fa-spinner fa-spin mr-2"></i>
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-redo mr-2"></i>
+              Try Again
+            </>
+          )}
+        </button>
       </div>
     );
   }
 
   const emotionInfo = {
-    neutral: { icon: 'fas fa-meh', color: 'text-gray-500', label: 'Neutral' },
-    happy: { icon: 'fas fa-smile', color: 'text-yellow-500', label: 'Happy' },
-    sad: { icon: 'fas fa-frown', color: 'text-blue-500', label: 'Sad' },
-    angry: { icon: 'fas fa-angry', color: 'text-red-500', label: 'Angry' },
-    fearful: { icon: 'fas fa-grimace', color: 'text-purple-500', label: 'Fearful' },
-    disgusted: { icon: 'fas fa-dizzy', color: 'text-green-500', label: 'Disgusted' },
-    surprised: { icon: 'fas fa-surprise', color: 'text-orange-500', label: 'Surprised' }
+    neutral: { 
+      icon: 'fas fa-meh', 
+      color: 'text-gray-500', 
+      label: 'Neutral',
+      description: 'Balanced, calm emotional responses',
+      bgGradient: 'from-gray-400 to-gray-600'
+    },
+    happy: { 
+      icon: 'fas fa-smile', 
+      color: 'text-yellow-500', 
+      label: 'Happy',
+      description: 'Joyful, uplifting emotional responses',
+      bgGradient: 'from-yellow-400 to-orange-500'
+    },
+    sad: { 
+      icon: 'fas fa-frown', 
+      color: 'text-blue-500', 
+      label: 'Sad',
+      description: 'Melancholic, emotional responses',
+      bgGradient: 'from-blue-400 to-indigo-600'
+    },
+    angry: { 
+      icon: 'fas fa-angry', 
+      color: 'text-red-500', 
+      label: 'Angry',
+      description: 'Intense, powerful emotional responses',
+      bgGradient: 'from-red-500 to-red-700'
+    },
+    fearful: { 
+      icon: 'fas fa-grimace', 
+      color: 'text-purple-500', 
+      label: 'Fearful',
+      description: 'Anxious, suspenseful emotional responses',
+      bgGradient: 'from-purple-500 to-gray-700'
+    },
+    disgusted: { 
+      icon: 'fas fa-dizzy', 
+      color: 'text-green-500', 
+      label: 'Disgusted',
+      description: 'Repulsed, intense emotional responses',
+      bgGradient: 'from-green-500 to-teal-600'
+    },
+    surprised: { 
+      icon: 'fas fa-surprise', 
+      color: 'text-orange-500', 
+      label: 'Surprised',
+      description: 'Shocked, unexpected emotional responses',
+      bgGradient: 'from-orange-400 to-red-500'
+    }
   };
 
   if (!emotionalProfile || Object.keys(emotionalProfile).length === 0) {
     return (
       <div className="text-center py-12">
-        <i className="fas fa-brain text-6xl text-gray-400 mb-4"></i>
-        <p className={`text-lg ${
+        <div className={`w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-cinema-500 to-film-600 flex items-center justify-center shadow-cinema`}>
+          <i className="fas fa-brain text-white text-3xl"></i>
+        </div>
+        <h3 className={`text-xl font-semibold mb-3 ${
+          theme === 'dark' ? 'text-white' : 'text-gray-900'
+        }`}>
+          Build Your Emotional Profile
+        </h3>
+        <p className={`text-lg mb-4 ${
           theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
         }`}>
-          Start logging movies to build your emotional profile
+          Start logging movies to discover your emotional patterns
         </p>
+        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
+          theme === 'dark' ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'
+        }`}>
+          <i className="fas fa-lightbulb text-sm"></i>
+          <span className="text-sm">Your profile will update automatically</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className={`p-4 rounded-xl ${
-        theme === 'dark' ? 'bg-blue-900/20 border border-blue-500/30' : 'bg-blue-50 border border-blue-200'
+      {/* Enhanced Info Card */}
+      <div className={`p-6 rounded-xl border ${
+        theme === 'dark' ? 'bg-gradient-to-r from-cinema-900/20 to-film-900/20 border-cinema-500/30' : 'bg-gradient-to-r from-cinema-50 to-film-50 border-cinema-200'
       }`}>
-        <p className={`text-sm ${
-          theme === 'dark' ? 'text-blue-300' : 'text-blue-700'
-        }`}>
-          Your emotional profile is dynamically updated based on your movie interactions. 
-          The stronger the association between an emotion and genre, the better your recommendations become.
-        </p>
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-4">
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-cinema-500 to-film-600 flex items-center justify-center flex-shrink-0 shadow-cinema`}>
+              <i className="fas fa-brain text-white text-xl"></i>
+            </div>
+            <div className="flex-1">
+              <h3 className={`text-lg font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                Your Emotional Profile
+              </h3>
+              <p className={`text-sm leading-relaxed ${
+                theme === 'dark' ? 'text-blue-200' : 'text-blue-700'
+              }`}>
+                This profile shows how different movie genres affect your emotions. 
+                The stronger the association, the more likely that genre is to evoke that emotion in you. 
+                This data powers your personalized movie recommendations.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              theme === 'dark'
+                ? 'text-blue-300 hover:text-blue-200 hover:bg-blue-900/30 disabled:text-blue-600'
+                : 'text-blue-600 hover:text-blue-700 hover:bg-blue-100 disabled:text-blue-400'
+            }`}
+            title="Refresh emotional profile"
+          >
+            <i className={`fas fa-redo text-lg ${refreshing ? 'fa-spin' : ''}`}></i>
+          </button>
+        </div>
       </div>
 
+      {/* Emotion Cards */}
       {Object.entries(emotionalProfile).map(([emotion, genreWeights]) => {
         const info = emotionInfo[emotion as keyof typeof emotionInfo];
         if (!info || Object.keys(genreWeights).length === 0) return null;
 
+        const isExpanded = selectedEmotion === emotion;
+        const sortedGenres = Object.entries(genreWeights)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, isExpanded ? 12 : 6);
+
         return (
-          <div key={emotion} className={`p-6 rounded-xl border ${
+          <div key={emotion} className={`p-6 rounded-xl border transition-all duration-300 ${
             theme === 'dark' 
-              ? 'bg-slate-700/50 border-slate-600' 
-              : 'bg-gray-50 border-gray-200'
+              ? 'bg-slate-700/50 border-slate-600 hover:border-slate-500' 
+              : 'bg-gray-50 border-gray-200 hover:border-gray-300'
           }`}>
-            <div className="flex items-center gap-3 mb-4">
-              <i className={`${info.icon} text-2xl ${info.color}`}></i>
-              <h3 className={`text-xl font-semibold ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                {info.label}
-              </h3>
+            {/* Emotion Header */}
+            <div className="flex items-center gap-4">
+              <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${info.bgGradient} flex items-center justify-center shadow-lg`}>
+                <i className={`${info.icon} text-white text-2xl`}></i>
+              </div>
+              <div className="flex-1">
+                <h3 className={`text-xl font-semibold ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {info.label}
+                </h3>
+                <p className={`text-sm ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  {info.description}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  {Object.keys(genreWeights).length} total genres
+                </span>
+              </div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {Object.entries(genreWeights)
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 6)
-                .map(([genreId, weight]) => (
-                  <div key={genreId} className={`p-3 rounded-lg ${
+            {/* Genre Associations */}
+            <div className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {sortedGenres.map(([genreId, weight]) => (
+                  <div key={genreId} className={`p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${
                     theme === 'dark' 
-                      ? 'bg-slate-600/50' 
-                      : 'bg-white border border-gray-200'
+                      ? 'bg-slate-600/50 border-slate-500 hover:bg-slate-600/70' 
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
                   }`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-sm font-medium ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-sm font-semibold ${
+                        theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
                       }`}>
                         {getGenreName(parseInt(genreId))}
                       </span>
-                      <span className={`text-sm font-bold ${
-                        weight > 0.7 ? 'text-green-500' : 
-                        weight > 0.4 ? 'text-yellow-500' : 'text-gray-500'
-                      }`}>
-                        {Math.round(weight * 100)}%
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold ${getStrengthColor(weight)}`}>
+                          {getStrengthLabel(weight)}
+                        </span>
+                        <span className={`text-sm font-bold ${
+                          weight > 0.7 ? 'text-green-600' : 
+                          weight > 0.4 ? 'text-yellow-600' : 'text-gray-500'
+                        }`}>
+                          {Math.round(weight * 100)}%
+                        </span>
+                      </div>
                     </div>
-                    <div className={`mt-2 h-2 rounded-full overflow-hidden ${
+                    <div className={`h-3 rounded-full overflow-hidden ${
                       theme === 'dark' ? 'bg-slate-700' : 'bg-gray-200'
                     }`}>
                       <div 
-                        className={`h-full transition-all duration-300 ${
-                          weight > 0.7 ? 'bg-green-500' : 
-                          weight > 0.4 ? 'bg-yellow-500' : 'bg-gray-400'
-                        }`}
+                        className={`h-full transition-all duration-500 ${getStrengthBgColor(weight)}`}
                         style={{ width: `${weight * 100}%` }}
                       />
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {!isExpanded && Object.keys(genreWeights).length > 6 && (
+                <div className="text-center mt-6">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEmotion(emotion);
+                    }}
+                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 ${
+                      theme === 'dark' 
+                        ? 'bg-slate-600/70 text-slate-200 hover:bg-slate-600 border border-slate-500' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                    }`}
+                  >
+                    <i className="fas fa-plus text-sm"></i>
+                    Show {Object.keys(genreWeights).length - 6} more genres
+                  </button>
+                </div>
+              )}
+
+              {isExpanded && Object.keys(genreWeights).length > 6 && (
+                <div className="text-center mt-6">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEmotion(null);
+                    }}
+                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 ${
+                      theme === 'dark' 
+                        ? 'bg-slate-600/70 text-slate-200 hover:bg-slate-600 border border-slate-500' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                    }`}
+                  >
+                    <i className="fas fa-minus text-sm"></i>
+                    Show fewer genres
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );

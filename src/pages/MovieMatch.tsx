@@ -202,7 +202,7 @@ const MovieMatch: React.FC = () => {
           <div className="flex-1">
             <div className="mb-4">
               <div className="text-center mb-2">
-                <div className="text-4xl font-bold text-purple-500">
+                <div className="text-4xl font-bold text-cinema-600">
                   {emotionScore !== null ? Math.round(emotionScore * 100) : <LoadingSpinner size="sm" message="" />}%
                 </div>
                 <div className={`text-sm ${
@@ -269,7 +269,7 @@ const MovieMatch: React.FC = () => {
       }`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-lg mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-cinema-600 to-film-600 rounded-full flex items-center justify-center shadow-cinema mx-auto mb-4">
               <i className="fas fa-search text-white text-2xl"></i>
             </div>
             <h1 className={`text-3xl font-bold mb-2 ${
@@ -406,7 +406,7 @@ const MovieMatch: React.FC = () => {
                           ⭐ {movie.vote_average?.toFixed(1) || 'N/A'}
                         </p>
                       </div>
-                      <i className="fas fa-arrow-right text-purple-500"></i>
+                      <i className="fas fa-arrow-right text-cinema-500"></i>
                     </div>
                   ))}
                 </div>

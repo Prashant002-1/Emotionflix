@@ -21,7 +21,7 @@ class PersonalizedEmotionMappingService {
 
   /**
    * Get personalized emotion-to-genre mappings for a user
-   * Falls back to default mappings if no user data exists
+   * Fetches from backend database, creates default mappings for new users
    */
   async getUserEmotionGenreMappings(userId: string): Promise<PersonalizedMapping> {
     // Check cache first
@@ -30,13 +30,15 @@ class PersonalizedEmotionMappingService {
     }
 
     try {
-      // In a real implementation, this would fetch from the database
-      // For now, we'll simulate with enhanced default mappings
+      // Fetch from the database
       const personalizedMapping = await this.fetchUserMappingsFromDB(userId);
       
       if (Object.keys(personalizedMapping).length === 0) {
-        // Use enhanced default mappings
+        // Create default mappings for new users and store them
         const defaultMapping = this.getEnhancedDefaultMappings();
+        await this.persistUserMappingsToDB(userId, defaultMapping, [], {
+          neutral: 0, happy: 0, sad: 0, angry: 0, fearful: 0, disgusted: 0, surprised: 0
+        }, 'default');
         this.userMappings.set(userId, defaultMapping);
         return defaultMapping;
       }
@@ -44,6 +46,8 @@ class PersonalizedEmotionMappingService {
       this.userMappings.set(userId, personalizedMapping);
       return personalizedMapping;
     } catch (error) {
+      console.error('Error fetching user mappings:', error);
+      // Return enhanced default mappings as fallback
       return this.getEnhancedDefaultMappings();
     }
   }
@@ -91,10 +95,11 @@ class PersonalizedEmotionMappingService {
       // Update cache
       this.userMappings.set(userId, currentMappings);
       
-      // In a real implementation, persist to database
+      // Persist to database
       await this.persistUserMappingsToDB(userId, currentMappings, movieGenres, emotionScores, interactionType);
       
     } catch (error) {
+      console.error('Error updating user mapping from interaction:', error);
     }
   }
 
@@ -190,8 +195,7 @@ class PersonalizedEmotionMappingService {
       const response = await apiClient.get(`/emotion-mappings/${userId}`);
       return response.data.mappings || {};
     } catch (error) {
-      // Return empty object to fall back to defaults
-      console.log('No user mappings found, using defaults');
+      console.error('Error fetching user mappings from database:', error);
       return {};
     }
   }
@@ -210,15 +214,23 @@ class PersonalizedEmotionMappingService {
       await apiClient.put(`/emotion-mappings/${userId}`, { mappings });
     } catch (error) {
       console.error('Failed to persist user mappings:', error);
-      // Don't throw error to avoid breaking the user experience
+      throw error; // Re-throw to handle errors properly
     }
   }
 
   /**
-   * Clear user mapping cache (useful for testing)
+   * Clear user mapping cache (useful for testing and refreshing data)
    */
   clearUserCache(userId: string): void {
     this.userMappings.delete(userId);
+  }
+
+  /**
+   * Refresh user mappings from database (clears cache and refetches)
+   */
+  async refreshUserMappings(userId: string): Promise<PersonalizedMapping> {
+    this.clearUserCache(userId);
+    return await this.getUserEmotionGenreMappings(userId);
   }
 }
 
