@@ -49,7 +49,7 @@ const startServer = async () => {
     
     try {
       await connectDB();
-    } catch (dbError) {
+    } catch {
       console.warn('Database connection failed, continuing server startup');
     }
     

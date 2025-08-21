@@ -1,17 +1,16 @@
 // src/controllers/userMoviesController.ts - Controller for user movie data (watchlist, watched)
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 import pool from '../config/database';
-import { getMovieDetails, TMDBMovie } from '../services/tmdbService';
+import { getMovieDetails } from '../services/tmdbService';
 
 const VALID_STATUSES = ['watchlist', 'watched'] as const;
 
 // Helper function to update user's emotional profile
-const updateUserEmotionalProfile = async (userId: number, emotions: Record<string, number>) => {
+const updateUserEmotionalProfile = async (userId: number) => {
   try {
-    // Calculate average emotions from user's recent emotion history (last 10 emotions)
     const avgEmotionsQuery = `
       SELECT 
         AVG(neutral) as avg_neutral,
@@ -36,7 +35,6 @@ const updateUserEmotionalProfile = async (userId: number, emotions: Record<strin
       avg_fearful: 0, avg_disgusted: 0, avg_surprised: 0
     };
 
-    // Upsert user's emotional profile
     const upsertQuery = `
       INSERT INTO user_emotion_profiles (user_id, neutral, happy, sad, angry, fearful, disgusted, surprised, last_updated)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
@@ -246,7 +244,7 @@ export const addUserMovie = async (req: AuthRequest, res: Response) => {
       ]);
 
       // Update user's emotional profile with the new emotions
-      await updateUserEmotionalProfile(userId, emotions);
+      await updateUserEmotionalProfile(userId);
     }
 
     res.status(201).json({

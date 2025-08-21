@@ -1,6 +1,6 @@
 // src/controllers/emotionMappingController.ts - Controller for user emotion-to-genre mappings
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { UserEmotionMappingModel, PersonalizedMapping } from '../models/UserEmotionMapping';
 import { z } from 'zod';
 import { AuthRequest } from '../middleware/auth';
