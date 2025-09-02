@@ -141,7 +141,7 @@ class PersonalizedEmotionMappingService {
   private getEnhancedDefaultMappings(): PersonalizedMapping {
     return {
       happy: {
-        35: 0.9,   // Comedy - strong match
+        35: 0.9,   // Comedy
         16: 0.7,   // Animation
         10402: 0.6, // Music
         10751: 0.8, // Family
@@ -149,27 +149,27 @@ class PersonalizedEmotionMappingService {
         10749: 0.6 // Romance
       },
       sad: {
-        18: 0.9,   // Drama - strong match
+        18: 0.9,   // Drama
         10749: 0.8, // Romance
         10752: 0.6, // War
         36: 0.5,   // History
         99: 0.4    // Documentary
       },
       angry: {
-        28: 0.9,   // Action - strong match
+        28: 0.9,   // Action
         80: 0.8,   // Crime
         53: 0.8,   // Thriller
         37: 0.6,   // Western
         10752: 0.7 // War
       },
       fearful: {
-        27: 0.9,   // Horror - strong match
+        27: 0.9,   // Horror
         53: 0.8,   // Thriller
         9648: 0.7, // Mystery
-        878: 0.5   // Sci-Fi (for existential fear)
+        878: 0.5   // Sci-Fi
       },
       surprised: {
-        878: 0.9,  // Sci-Fi - strong match
+        878: 0.9,  // Sci-Fi
         14: 0.8,   // Fantasy
         9648: 0.7, // Mystery
         12: 0.6,   // Adventure
@@ -217,7 +217,7 @@ class PersonalizedEmotionMappingService {
       await apiClient.put(`/emotion-mappings/${userId}`, { mappings });
     } catch (error) {
       console.error('Failed to persist user mappings:', error);
-      throw error; // Re-throw to handle errors properly
+      throw error;
     }
   }
 

@@ -6,11 +6,11 @@
  * with TMDB API for movie details, and updates user emotional profiles.
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 import pool from '../config/database';
-import { getMovieDetails, TMDBMovie } from '../services/tmdbService';
+import { getMovieDetails } from '../services/tmdbService';
 
 const VALID_STATUSES = ['watchlist', 'watched'] as const;
 

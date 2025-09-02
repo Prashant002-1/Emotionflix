@@ -6,7 +6,7 @@
  * and authorization checks to ensure users can only access their own data.
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { UserEmotionMappingModel, PersonalizedMapping } from '../models/UserEmotionMapping';
 import { z } from 'zod';
 import { AuthRequest } from '../middleware/auth';

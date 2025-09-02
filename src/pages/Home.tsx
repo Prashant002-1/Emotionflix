@@ -41,7 +41,8 @@ const Home: React.FC = () => {
     if (user) {
       updateUserStats();
     }
-  }, [user?.id]); // Only depend on user ID, not the entire user object or updateUserStats function
+    // Only depend on user ID, not the entire user object or updateUserStats function
+  }, [user?.id]); 
 
   const handleSignInPrompt = () => {
     setShowAuthModal(true);
@@ -414,7 +415,7 @@ const Home: React.FC = () => {
                     }`}>Get Personalized</h4>
                     <p className={`text-sm ${
                       theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                    }`}>AI learns your emotional patterns</p>
+                    }`}>App learns your emotional patterns</p>
                   </div>
                   <div className={`p-6 rounded-xl border ${
                     theme === 'dark' 

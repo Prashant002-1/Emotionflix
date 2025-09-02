@@ -30,7 +30,7 @@ export interface AuthRequest extends Request {
  * Extracts Bearer token from Authorization header, verifies it, and attaches
  * user information to the request object for use by protected routes.
  * 
- * @param req - Express request object (extended with user property)
+ * @param req - Express request object
  * @param res - Express response object
  * @param next - Next middleware function in the chain
  */

@@ -20,7 +20,7 @@ export interface User {
   email: string;
   /** User's chosen username (unique) */
   username: string;
-  /** Hashed password (excluded from public responses) */
+  /** Hashed password*/
   password_hash?: string;
   /** Account creation timestamp */
   created_at: Date;

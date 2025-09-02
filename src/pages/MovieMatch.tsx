@@ -77,7 +77,7 @@ const MovieMatch: React.FC = () => {
     const emotionCompatibility = await recommendationService.calculateEmotionCompatibility(
       emotions, 
       movie.genre_ids, 
-      user?.id?.toString() || '' // Get from user context
+      user?.id?.toString() || '' 
     );
     
     // Quality score from rating and popularity
@@ -106,7 +106,6 @@ const MovieMatch: React.FC = () => {
 
   const handleMovieSearchQueryChange = (value: string) => {
     setMovieSearchQuery(value);
-    // Debounce autocomplete search
     clearTimeout((window as any).autocompleteTimeout);
     (window as any).autocompleteTimeout = setTimeout(() => {
       handleAutocompleteSearch(value);

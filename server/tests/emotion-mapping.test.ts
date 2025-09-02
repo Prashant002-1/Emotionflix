@@ -3,7 +3,6 @@
  * 
  * Test suite for emotion-to-genre mapping functionality covering
  * CRUD operations, authorization checks, and data validation.
- * Critical for personalized recommendation system functionality.
  */
 
 import request from 'supertest';
@@ -149,7 +148,6 @@ describe('Emotion Mapping API - Production Critical', () => {
 
   describe('Delete User Mappings', () => {
     beforeEach(async () => {
-      // Set up some mappings to delete
       await request(app)
         .put(`/emotion-mappings/${userId}`)
         .set('Authorization', `Bearer ${userToken}`)
@@ -279,8 +277,6 @@ describe('Emotion Mapping API - Production Critical', () => {
     });
 
     it('should handle database connection errors gracefully', async () => {
-      // This test would require database mocking or intentional database failure
-      // For now, we test the error response format
       const response = await request(app)
         .get('/emotion-mappings/invalid')
         .set('Authorization', `Bearer ${userToken}`);

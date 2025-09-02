@@ -2,7 +2,7 @@
  * Emotion Mapping Utilities
  * 
  * Utilities for mapping detected emotions to movie genres and generating
- * human-readable emotion descriptions. Uses psychological associations
+ * human-readable emotion descriptions. Uses probable psychological associations
  * between emotional states and movie genre preferences.
  */
 
@@ -36,11 +36,12 @@ export const MapEmotionsToGenres = (emotionScores: EmotionScores): number[] => {
 
   // Calculate weighted genre scores based on emotion intensities
   Object.entries(emotionScores).forEach(([emotion, intensity]) => {
-    if (intensity > 0.01) { // Lower threshold for broader genre matching
+    // Lower threshold for broader genre matching
+    if (intensity > 0.01) { 
       const genreIds = EMOTION_GENRE_MAP[emotion as keyof typeof EMOTION_GENRE_MAP];
       genreIds?.forEach(genreId => {
         // Apply exponential weighting to amplify stronger emotions
-        const amplifiedWeight = Math.pow(intensity, 0.7) * 2; // Amplify by factor of 2 with exponential scaling
+        const amplifiedWeight = Math.pow(intensity, 0.7) * 2; 
         genreWeights[genreId] = (genreWeights[genreId] || 0) + amplifiedWeight;
       });
     }
@@ -49,17 +50,18 @@ export const MapEmotionsToGenres = (emotionScores: EmotionScores): number[] => {
   // Sort genres by weight and return top matches
   return Object.entries(genreWeights)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 5) // Top 5 genres
+    // Top 5 genres
+    .slice(0, 5) 
     .map(([genreId]) => parseInt(genreId));
 };
 
 /**
- * Provides a human-readable description of the dominant emotional state.
+ * Provides a readable description of the dominant emotional state.
  * Analyzes emotion scores and returns descriptive text explaining
- * the detected emotional state for user feedback.
+ * the detected emotional state.
  * 
  * @param emotionScores - The emotion scores to analyze and describe
- * @returns Human-readable description of the emotional state
+ * @returns Readable description of the emotional state
  */
 export const GetEmotionDescription = (emotionScores: EmotionScores): string => {
   const dominantEmotion = Object.entries(emotionScores).reduce((a, b) => 

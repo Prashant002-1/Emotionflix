@@ -22,7 +22,7 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
 
   beforeAll(async () => {
     app = express();
-    app.use(express.json({ limit: '10mb' })); // Set reasonable limit
+    app.use(express.json({ limit: '10mb' }));
     
     // Add security headers middleware
     app.use((_req, res, next) => {
@@ -88,7 +88,6 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
         .post('/auth/register')
         .send(specialChars);
 
-      // Should handle special characters safely
       expect([201, 400]).toContain(response.status);
       if (response.status === 400) {
         expect(response.body).toHaveProperty('error');
@@ -131,10 +130,10 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
 
     it('should verify bcrypt hash strength', async () => {
       const password = 'TestPassword123!';
-      const hash = await bcrypt.hash(password, 12); // Use strong salt rounds
+      const hash = await bcrypt.hash(password, 12); 
       
-      expect(hash).toMatch(/^\$2[aby]?\$\d{2}\$/); // bcrypt format
-      expect(hash.length).toBeGreaterThan(50); // Sufficient length
+      expect(hash).toMatch(/^\$2[aby]?\$\d{2}\$/); 
+      expect(hash.length).toBeGreaterThan(50); 
       
       // Verify password verification works
       const isValid = await bcrypt.compare(password, hash);
@@ -146,7 +145,7 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
     });
 
     it('should generate secure JWT tokens', async () => {
-      // Create a fresh user for this test
+      // Create a new user for this test
       const registerResponse = await request(app)
         .post('/auth/register')
         .send({
@@ -179,10 +178,10 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
       expect(decoded).toHaveProperty('iat');
       expect(decoded).toHaveProperty('exp');
       
-      // Verify token expiration is reasonable (not too long)
-      const expirationTime = decoded.exp * 1000; // Convert to milliseconds
+      // Verify token expiration is reasonable
+      const expirationTime = decoded.exp * 1000; 
       const now = Date.now();
-      const maxExpiration = now + (7 * 24 * 60 * 60 * 1000); // 7 days max
+      const maxExpiration = now + (7 * 24 * 60 * 60 * 1000); 
       
       expect(expirationTime).toBeLessThanOrEqual(maxExpiration);
     });
@@ -343,9 +342,6 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
     });
 
     it('should handle database connection errors securely', async () => {
-      // Simulate database connection error scenario
-      // This would require mocking the database connection
-      
       const response = await request(app)
         .get('/auth/verify')
         .set('Authorization', `Bearer ${validToken}`);
@@ -385,7 +381,7 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
       // Try to access first user's data with second user's ID
       const response = await request(app)
         .put(`/emotion-mappings/${secondUserId}`)
-        .set('Authorization', `Bearer ${validToken}`) // First user's token
+        .set('Authorization', `Bearer ${validToken}`) 
         .send({
           mappings: { happy: { 35: 0.8 } }
         });
@@ -449,6 +445,4 @@ describe('Backend Security Tests - Critical Vulnerabilities', () => {
       expect(response.headers['access-control-allow-origin']).not.toBe('https://malicious-site.com');
     });
   });
-
-  // Session and Token Security tests removed - features not implemented in current version
 });
