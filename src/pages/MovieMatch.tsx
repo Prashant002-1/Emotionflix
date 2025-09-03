@@ -6,7 +6,6 @@
  * - Manual emotion input with sliders for each emotion type
  * - Real-time movie recommendations based on emotion state
  * - Search functionality to find specific movies
- * - Integration with user's watch history and preferences
  * - Responsive emotion-based filtering and sorting
  */
 
