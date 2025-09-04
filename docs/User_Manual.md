@@ -9,13 +9,13 @@ EmotionFlix is an emotion-based movie recommendation platform that suggests film
 
 ### The 7 Core Emotions
 EmotionFlix recognizes **7 core emotions** on a 0-100% scale:
-- **😊 Happy** - Joy, excitement, contentment
-- **😢 Sad** - Sorrow, melancholy, disappointment  
-- **😠 Angry** - Frustration, irritation, rage
-- **😨 Fearful** - Anxiety, nervousness, apprehension
-- **🤢 Disgusted** - Revulsion, distaste, aversion
-- **😮 Surprised** - Shock, amazement, astonishment
-- **😐 Neutral** - Calm, balanced, no strong emotion
+- **Happy** - Joy, excitement, contentment
+- **Sad** - Sorrow, melancholy, disappointment  
+- **Angry** - Frustration, irritation, rage
+- **Fearful** - Anxiety, nervousness, apprehension
+- **Disgusted** - Revulsion, distaste, aversion
+- **Surprised** - Shock, amazement, astonishment
+- **Neutral** - Calm, balanced, no strong emotion
 
 
 ---
@@ -24,13 +24,15 @@ EmotionFlix recognizes **7 core emotions** on a 0-100% scale:
 
 ### Option 1: Try Without an Account
 - Use EmotionFlix immediately without signing up
-- Access recommendations with manual emotion input
+- Access Movie Match feature with manual emotion input
 - Explore movies and see compatibility scores
+- Browse movie details and information
 - Perfect for trying out the platform
 
 ### Option 2: Create an Account for Full Features
 **Enhanced Features with Account:**
 - Advanced emotion detection with webcam/photo upload
+- Access to full Recommendations page with personalized suggestions
 - Watch history tracking with emotional context
 - Personalized recommendations that improve over time
 - Watchlist and favorites management
@@ -45,27 +47,34 @@ EmotionFlix recognizes **7 core emotions** on a 0-100% scale:
 
 ## Finding Movies by Your Mood
 
-### Method 1: Quick Recommendations (All Users)
-**Recommendations Page - Instant Movie Discovery:**
-1. Navigate to "Recommendations" in the main menu
+### Method 1: Movie Match Feature (All Users)
+**Movie Match Page - Instant Movie Discovery:**
+1. Navigate to "Movie Match" in the main menu
 2. Use the emotion sliders to set how you're feeling
-3. Watch as movie recommendations update in real-time
-4. Adjust emotions to explore different movie types
-5. Click on any movie to see full details
+3. Browse movies and see compatibility percentages with your current mood
+4. Search for specific movies or browse popular titles
+5. Adjust emotions to see how match scores change
+6. Click on any movie to see full details and compatibility explanation
 
 **Slider Tips:**
 - Drag sliders to adjust each emotion from 0-100%
 - Emotions automatically normalize to total 100%
 - Try different combinations to discover new genres
-- Higher emotion percentages have stronger influence
+- Higher emotion percentages have stronger influence on matching
 
-### Method 2: Movie Match Feature (All Users)
-**Find Your Perfect Movie Match:**
-1. Go to "Movie Match" page
-2. Search for specific movies or browse popular titles
-3. See your compatibility percentage with each movie
-4. Adjust your emotional profile to see how matches change
-5. Discover why certain movies match your current mood
+### Method 2: Personalized Recommendations (Account Required)
+**Recommendations Page - Advanced Movie Discovery:**
+1. Create an account and sign in
+2. Navigate to "Recommendations" in the main menu
+3. Use enhanced emotion sliders with personalized mappings
+4. Get recommendations that learn from your viewing history
+5. See why movies were recommended based on your emotional profile
+
+**Enhanced Features:**
+- Personalized emotion-to-genre mappings that improve over time
+- Recommendations based on your watch history and ratings
+- Advanced filtering and sorting options
+- Integration with your watchlist and viewing patterns
 
 ### Method 3: Advanced Emotion Detection (Account Required)
 **Log Page - Precise Emotion Capture:**
