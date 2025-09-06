@@ -1,6 +1,9 @@
 /**
- * LAYOUT COMPONENT
- *   Main application layout with navigation
+ * Layout Component
+ * 
+ * Main application layout wrapper providing consistent navigation and structure.
+ * Includes responsive header with navigation links, user authentication state,
+ * mobile menu support, and renders child routes through React Router's Outlet.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -9,13 +12,8 @@ import { useUser } from '../../contexts/UserContext';
 import AuthModal from '../auth/AuthModal';
 
 /**
- * NAME
- *   Layout - Main application layout wrapper
- *
- * DESCRIPTION
- *   Provides consistent navigation and layout structure across
- *   all application pages. Includes header with navigation links
- *   and renders child routes via Outlet.
+ * Layout component that wraps all application pages with consistent navigation.
+ * Provides header, footer, navigation menu, and authentication modal management.
  */
 const Layout: React.FC = () => {
   const location = useLocation();

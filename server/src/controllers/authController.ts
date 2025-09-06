@@ -1,11 +1,23 @@
-// src/controllers/authController.ts - Authentication controller for user registration, login, and profile retrieval
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication operations including registration, login,
+ * password management, and profile retrieval. Implements JWT-based
+ * authentication with password strength validation and secure hashing.
+ */
 
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { UserModel } from '../models/User';
 
-// Password strength validation function
+/**
+ * Validates password strength according to security requirements.
+ * Checks for minimum length, character diversity, and common weak passwords.
+ * 
+ * @param password - Password string to validate
+ * @returns Object with validation result and error message if invalid
+ */
 const validatePasswordStrength = (password: string): { isValid: boolean; error?: string } => {
   if (password.length < 6) {
     return { isValid: false, error: 'Password must be at least 6 characters long' };

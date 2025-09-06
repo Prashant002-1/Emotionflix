@@ -1,4 +1,10 @@
-// src/routes/emotionMapping.ts - Routes for user emotion-to-genre mappings
+/**
+ * Emotion Mapping Routes
+ * 
+ * Express router for managing user-specific emotion-to-genre mappings.
+ * All routes require authentication and implement authorization checks
+ * to ensure users can only access their own emotion mapping data.
+ */
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
@@ -10,16 +16,16 @@ import {
 
 const router = express.Router();
 
-// All routes require authentication
+/** Apply authentication middleware to all routes */
 router.use(authenticateToken);
 
-// GET /api/emotion-mappings/:userId - Get user's personalized emotion mappings
+/** GET /emotion-mappings/:userId - Retrieve user's personalized emotion-to-genre mappings */
 router.get('/:userId', getUserEmotionMappings);
 
-// PUT /api/emotion-mappings/:userId - Update user's emotion mappings
+/** PUT /emotion-mappings/:userId - Update user's emotion-to-genre mappings */
 router.put('/:userId', updateUserEmotionMappings);
 
-// DELETE /api/emotion-mappings/:userId - Delete user's emotion mappings
+/** DELETE /emotion-mappings/:userId - Delete user's emotion-to-genre mappings */
 router.delete('/:userId', deleteUserEmotionMappings);
 
 export default router;

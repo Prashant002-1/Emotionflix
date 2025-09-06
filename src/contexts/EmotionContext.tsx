@@ -1,3 +1,11 @@
+/**
+ * EmotionContext
+ * 
+ * React context for managing emotion detection, storage, and movie interactions.
+ * Provides centralized state management for emotion sessions, watch history,
+ * watchlist, and emotion display utilities throughout the application.
+ */
+
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { EmotionScores, EmotionSession } from '../types/emotion';
 import { Movie } from '../types/movie';
@@ -27,6 +35,11 @@ interface EmotionContextType {
 
 const EmotionContext = createContext<EmotionContextType | undefined>(undefined);
 
+/**
+ * Hook to access the EmotionContext.
+ * @returns {EmotionContextType} The emotion context value
+ * @throws {Error} If used outside of an EmotionProvider
+ */
 export const useEmotion = () => {
   const context = useContext(EmotionContext);
   if (!context) {
@@ -59,6 +72,10 @@ const EMOTION_COLORS = {
   surprised: 'text-orange-500'
 } as const;
 
+/**
+ * EmotionProvider component that provides emotion-related state and functions.
+ * @param children - Child components that will have access to the emotion context
+ */
 export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) => {
   const { user } = useUser();
   const [currentEmotion, setCurrentEmotion] = useState<EmotionScores | null>(null);
@@ -67,7 +84,10 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
   const [watchlist, setWatchlist] = useState<UserMovie[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Load user movies from server when user changes
+  /**
+   * Loads user's watch history and watchlist from the server.
+   * Called when user changes or when data needs to be refreshed.
+   */
   const loadUserMovies = useCallback(async () => {
     if (!user?.id) {
       setWatchHistory([]);
@@ -95,6 +115,10 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     loadUserMovies();
   }, [loadUserMovies]);
 
+  /**
+   * Adds a new emotion detection session to the history.
+   * @param params - Object containing emotion scores, detection method, and optional movie ID and confidence
+   */
   const addEmotionSession = useCallback((params: { emotionScores: EmotionScores; detectionMethod: 'webcam' | 'manual' | 'upload'; movieId?: number; confidence?: number }) => {
     const newSession: EmotionSession = {
       id: Date.now().toString(),
@@ -118,6 +142,13 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     });
   }, [addEmotionSession]);
 
+  /**
+   * Adds a movie to the user's watch history with optional emotion data.
+   * @param movie - The movie object to add to watch history
+   * @param emotions - Optional emotion scores for the movie
+   * @param rating - Optional user rating for the movie
+   * @param confidence - Optional confidence score for emotion detection
+   */
   const addToWatchHistory = useCallback(async (movie: Movie, emotions?: EmotionScores, rating?: number, confidence?: number) => {
     if (!user?.id) return;
     
@@ -187,6 +218,12 @@ export const EmotionProvider: React.FC<EmotionProviderProps> = ({ children }) =>
     return watchHistory.some(movie => movie.movie_id === movieId);
   }, [watchHistory]);
 
+  /**
+   * Converts emotion scores to display format with icons and colors.
+   * @param emotions - The emotion scores object
+   * @param threshold - Minimum threshold for emotions to be displayed (default: 0.008)
+   * @returns Array of emotion display objects with icon and color information
+   */
   const getEmotionDisplayString = useCallback((emotions: EmotionScores, threshold: number = 0.008): { emotion: keyof EmotionScores; value: number; icon: string; color: string }[] => {
     const emotionEntries = Object.entries(emotions) as [keyof EmotionScores, number][];
     

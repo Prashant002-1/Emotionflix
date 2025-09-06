@@ -1,3 +1,10 @@
+/**
+ * RecommendationRow Component
+ * 
+ * Displays a horizontal scrollable row of recommended movies.
+ * Used for various recommendation categories with customizable icons and titles.
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -9,6 +16,12 @@ interface RecommendationRowProps {
   icon?: string;
 }
 
+/**
+ * RecommendationRow component that displays a row of recommended movies.
+ * @param title - Section title for the recommendation row
+ * @param movies - Array of movie objects to display
+ * @param icon - FontAwesome icon class for the section header
+ */
 const RecommendationRow: React.FC<RecommendationRowProps> = ({ 
   title, 
   movies,

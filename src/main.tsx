@@ -1,3 +1,9 @@
+/**
+ * Application Entry Point
+ * 
+ * Main entry file that initializes the React application.
+ */
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

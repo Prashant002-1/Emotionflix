@@ -1,4 +1,10 @@
-// src/index.ts - Main server file for EmotionFlix
+/**
+ * EmotionFlix Server Entry Point
+ * 
+ * Main server file that initializes the Express application for EmotionFlix,
+ * configures middleware, establishes database connections, and sets up API routes.
+ * Handles environment validation, CORS configuration, and graceful error handling.
+ */
 
 import express from 'express';
 import cors from 'cors';
@@ -31,6 +37,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/**
+ * Health check endpoint
+ * 
+ * Provides server status and uptime information for monitoring purposes.
+ * 
+ * @returns JSON object with server status and timestamp
+ */
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -43,6 +56,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/emotion-mappings', emotionMappingRoutes);
 app.use('/api/user-movies', userMoviesRoutes);
 
+/**
+ * Initializes and starts the EmotionFlix server
+ * 
+ * Attempts database connection, starts the Express server on the configured port,
+ * and provides graceful error handling for startup failures.
+ * 
+ * @throws Process exits with code 1 if server startup fails
+ */
 const startServer = async () => {
   try {
     console.log('Starting EmotionFlix server...');

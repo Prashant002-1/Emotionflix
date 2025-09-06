@@ -7,7 +7,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Professional Cinema-Inspired Color Palette
         cinema: {
           50: '#fef7f0',
           100: '#fdeee0',
@@ -20,7 +19,6 @@ export default {
           800: '#913320',
           900: '#762b1e',
         },
-        // Deep Film Blue
         film: {
           50: '#eff9ff',
           100: '#def1ff',
@@ -33,7 +31,6 @@ export default {
           800: '#035a89',
           900: '#0a4a72',
         },
-        // Sophisticated Charcoal
         charcoal: {
           50: '#f6f7f8',
           100: '#eaecef',

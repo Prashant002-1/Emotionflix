@@ -1,16 +1,39 @@
-// src/middleware/auth.ts - Middleware for authenticating requests using JWT tokens
+/**
+ * Authentication Middleware
+ * 
+ * JWT-based authentication middleware for protecting API routes.
+ * Validates Bearer tokens and attaches user information to requests.
+ * Provides type-safe authentication interface for controllers.
+ */
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+/**
+ * Extended Request interface that includes authenticated user information.
+ * Used by protected routes to access user data after token validation.
+ */
 export interface AuthRequest extends Request {
+  /** Authenticated user information extracted from JWT token */
   user?: {
+    /** User's unique identifier */
     id: number;
+    /** User's email address */
     email: string;
+    /** User's username */
     username: string;
   };
 }
 
+/**
+ * Middleware function that validates JWT tokens and authenticates requests.
+ * Extracts Bearer token from Authorization header, verifies it, and attaches
+ * user information to the request object for use by protected routes.
+ * 
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Next middleware function in the chain
+ */
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];

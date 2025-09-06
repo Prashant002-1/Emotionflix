@@ -1,3 +1,10 @@
+/**
+ * AuthModal Component
+ * 
+ * Modal dialog for user authentication that supports both login and registration.
+ * Provides toggle between login/register modes and handles authentication success.
+ */
+
 import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import LoginForm from './LoginForm';
@@ -9,12 +16,21 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
 }
 
+/**
+ * AuthModal component that renders login or registration forms in a modal dialog.
+ * @param isOpen - Controls modal visibility
+ * @param onClose - Callback to close the modal
+ * @param initialMode - Initial form mode ('login' or 'register')
+ */
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
 
   if (!isOpen) return null;
 
+  /**
+   * Handles successful authentication by closing the modal.
+   */
   const handleSuccess = () => {
     onClose();
   };

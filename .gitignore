@@ -69,3 +69,6 @@ TESTING.md
 postgres_data/
 
 *.mdc
+
+# Server scripts
+.src/server/scripts/

@@ -1,3 +1,11 @@
+/**
+ * ProtectedRoute Component
+ * 
+ * Route wrapper that enforces user authentication requirements.
+ * Redirects unauthenticated users to a fallback path and shows loading
+ * state while checking authentication status.
+ */
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
@@ -8,6 +16,11 @@ interface ProtectedRouteProps {
   fallbackPath?: string;
 }
 
+/**
+ * ProtectedRoute component that guards routes requiring authentication.
+ * @param children - Components to render when user is authenticated
+ * @param fallbackPath - Path to redirect to when user is not authenticated
+ */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   fallbackPath = '/' 
@@ -30,7 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // If not authenticated, don't render children (will redirect)
+  // If not authenticated, don't render children
   if (!user) {
     return null;
   }

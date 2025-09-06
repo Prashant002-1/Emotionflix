@@ -1,3 +1,14 @@
+/**
+ * Recommendations Page Component
+ * 
+ * Advanced movie recommendation interface with multiple filtering and sorting options:
+ * - Emotion-based recommendations using current mood
+ * - Genre filtering and search functionality
+ * - Popular and trending movie discovery
+ * - Personalized recommendations for logged-in users
+ * - Watchlist management integration
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -16,6 +27,10 @@ type EnhancedMovie = Movie & {
   emotionScore?: number;
 };
 
+/**
+ * Recommendations page component providing intelligent movie suggestions.
+ * Offers emotion-based filtering, genre selection, and personalized recommendations.
+ */
 const Recommendations: React.FC = () => {
   const { theme } = useTheme();
   const { isInWatchlist } = useEmotion();

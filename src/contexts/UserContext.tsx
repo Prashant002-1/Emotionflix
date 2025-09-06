@@ -1,3 +1,10 @@
+/**
+ * UserContext
+ * 
+ * React context for managing user authentication, profile data, and preferences.
+ * Handles login, registration, logout, and maintains user statistics and preferences.
+ */
+
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService, AuthUser } from '../services/authService';
 import { userMoviesService } from '../services/userMoviesService';
@@ -38,6 +45,11 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+/**
+ * Hook to access the UserContext.
+ * @returns {UserContextType} The user context value with authentication state and functions
+ * @throws {Error} If used outside of a UserProvider
+ */
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
@@ -50,6 +62,11 @@ interface UserProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * Creates a User object from AuthUser data with default preferences and stats.
+ * @param authUser - Authenticated user data from the server
+ * @returns Complete User object with default preferences and empty stats
+ */
 const createUserFromAuth = (authUser: AuthUser): User => ({
   id: authUser.id,
   username: authUser.username,
@@ -74,6 +91,10 @@ const createUserFromAuth = (authUser: AuthUser): User => ({
   }
 });
 
+/**
+ * UserProvider component that manages user authentication and profile state.
+ * @param children - Child components that will have access to the user context
+ */
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -131,6 +152,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     initializeUser();
   }, []);
 
+  /**
+   * Authenticates user with email and password.
+   * @param email - User's email address
+   * @param password - User's password
+   * @throws {Error} If authentication fails
+   */
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -147,6 +174,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Registers a new user account.
+   * @param email - User's email address
+   * @param username - Desired username
+   * @param password - User's password
+   * @throws {Error} If registration fails
+   */
   const register = async (email: string, username: string, password: string) => {
     setLoading(true);
     try {
@@ -162,6 +196,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Logs out the current user and redirects to home page.
+   */
   const logout = () => {
     authService.logout();
     setUser(null);

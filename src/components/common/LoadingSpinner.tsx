@@ -1,3 +1,10 @@
+/**
+ * LoadingSpinner Component
+ * 
+ * Reusable loading indicator with animated spinner and bouncing dots.
+ * Supports different sizes and customizable loading messages.
+ */
+
 import React from 'react';
 
 interface LoadingSpinnerProps {
@@ -6,6 +13,12 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
+/**
+ * LoadingSpinner component that displays an animated loading indicator.
+ * @param size - Size variant ('sm', 'md', 'lg')
+ * @param className - Additional CSS classes for styling
+ * @param message - Loading message to display below the spinner
+ */
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
   size = 'md', 
   className = '',

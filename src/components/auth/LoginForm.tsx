@@ -1,3 +1,10 @@
+/**
+ * LoginForm Component
+ * 
+ * User authentication form for existing users to sign in.
+ * Handles form validation, error states, and success callbacks.
+ */
+
 import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
@@ -7,6 +14,11 @@ interface LoginFormProps {
   onSwitchToRegister?: () => void;
 }
 
+/**
+ * LoginForm component for user authentication.
+ * @param onSuccess - Callback function called after successful login
+ * @param onSwitchToRegister - Callback to switch to registration mode
+ */
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegister }) => {
   const { theme } = useTheme();
   const { login } = useUser();

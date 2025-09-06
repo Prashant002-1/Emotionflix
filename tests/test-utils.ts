@@ -1,8 +1,24 @@
+/**
+ * Test Utilities for EmotionFlix Frontend Tests
+ * 
+ * Provides mock data creators, test helper functions, and utility methods
+ * for testing emotion detection, movie data, and UI interactions across
+ * the frontend application test suite.
+ */
+
 import { vi } from 'vitest';
 import { EmotionScores } from '../src/types/emotion';
 import { Movie } from '../src/types/movie';
 
-// Mock data creators
+/**
+ * Creates mock emotion scores for testing
+ * 
+ * Generates normalized emotion data with optional overrides for testing
+ * specific emotion states and detection scenarios.
+ * 
+ * @param overrides - Partial emotion scores to override defaults
+ * @returns Normalized emotion scores object
+ */
 export function createMockEmotionScores(overrides: Partial<EmotionScores> = {}): EmotionScores {
   const defaultEmotions: EmotionScores = {
     happy: 0.3,
@@ -41,6 +57,15 @@ export function createMockEmotionScores(overrides: Partial<EmotionScores> = {}):
   return defaultEmotions;
 }
 
+/**
+ * Creates mock movie data for testing
+ * 
+ * Generates complete movie objects with TMDB-compatible structure
+ * for testing movie display, search, and recommendation functionality.
+ * 
+ * @param overrides - Partial movie properties to override defaults
+ * @returns Complete movie object for testing
+ */
 export function createMockMovie(overrides: Partial<Movie> = {}): Movie {
   return {
     id: 1,
@@ -61,6 +86,15 @@ export function createMockMovie(overrides: Partial<Movie> = {}): Movie {
   };
 }
 
+/**
+ * Creates mock TMDB search response for testing
+ * 
+ * Generates paginated movie search response structure compatible
+ * with TMDB API format for testing search functionality.
+ * 
+ * @param movies - Array of movies to include in response
+ * @returns TMDB-compatible search response object
+ */
 export function createMockMovieSearchResponse(movies: Movie[] = []) {
   const defaultMovies = movies.length > 0 ? movies : [
     createMockMovie({ id: 1, title: 'Movie 1' }),
@@ -76,11 +110,27 @@ export function createMockMovieSearchResponse(movies: Movie[] = []) {
   };
 }
 
-// Test helper functions
+/**
+ * Utility function for async test delays
+ * 
+ * Provides Promise-based delay mechanism for testing async operations
+ * and timing-dependent functionality.
+ * 
+ * @param ms - Milliseconds to delay execution
+ * @returns Promise that resolves after specified delay
+ */
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Mocks console methods for clean test output
+ * 
+ * Temporarily replaces console methods with Vitest mocks to prevent
+ * console noise during testing and enable assertion on console calls.
+ * 
+ * @returns Object with restore method to revert console methods
+ */
 export function mockConsole() {
   const originalConsole = { ...console };
   console.log = vi.fn();
@@ -94,6 +144,11 @@ export function mockConsole() {
   };
 }
 
-// Re-export testing library utilities (without custom render for now)
+/**
+ * Re-export React Testing Library utilities
+ * 
+ * Provides centralized access to testing utilities with user event
+ * handling for comprehensive component testing capabilities.
+ */
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';

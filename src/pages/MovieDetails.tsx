@@ -1,3 +1,14 @@
+/**
+ * Movie Details Page Component
+ * 
+ * Displays comprehensive information about a specific movie including:
+ * - Movie poster, title, overview, and metadata
+ * - Release date, rating, runtime, and genres
+ * - Watchlist management (add/remove)
+ * - Navigation to emotion logging
+ * - Error handling for invalid movie IDs
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Movie } from '../types/movie';
@@ -6,6 +17,10 @@ import { GetMovieDetails } from '../services/tmdbApi';
 import { useTheme } from '../contexts/ThemeContext';
 import { useEmotion } from '../contexts/EmotionContext';
 
+/**
+ * MovieDetails page component for displaying detailed movie information.
+ * Fetches movie data by ID and provides watchlist management functionality.
+ */
 const MovieDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

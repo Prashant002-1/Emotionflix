@@ -1,3 +1,11 @@
+/**
+ * Recommendation Service
+ * 
+ * Core recommendation engine that generates personalized movie suggestions
+ * based on user emotions, preferences, and viewing history. Combines
+ * emotion-to-genre mapping with collaborative filtering techniques.
+ */
+
 import { EmotionScores } from '../types/emotion';
 import { Movie } from '../types/movie';
 import { GetMoviesByGenres, GetMovieDetails } from './tmdbApi';

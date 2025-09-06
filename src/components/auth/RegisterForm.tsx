@@ -1,3 +1,10 @@
+/**
+ * RegisterForm Component
+ * 
+ * User registration form for new account creation.
+ * Includes password strength validation and handles form submission.
+ */
+
 import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
@@ -7,7 +14,11 @@ interface RegisterFormProps {
   onSwitchToLogin?: () => void;
 }
 
-// Password strength validation function (matching backend logic)
+/**
+ * Validates password strength according to security requirements.
+ * @param password - Password string to validate
+ * @returns Object with validation result and error message if invalid
+ */
 const validatePasswordStrength = (password: string): { isValid: boolean; error?: string } => {
   if (password.length < 6) {
     return { isValid: false, error: 'Password must be at least 6 characters long' };
@@ -48,6 +59,11 @@ const validatePasswordStrength = (password: string): { isValid: boolean; error?:
   return { isValid: true };
 };
 
+/**
+ * RegisterForm component for new user account creation.
+ * @param onSuccess - Callback function called after successful registration
+ * @param onSwitchToLogin - Callback to switch to login mode
+ */
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const { theme } = useTheme();
   const { register } = useUser();

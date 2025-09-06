@@ -1,6 +1,12 @@
-// src/controllers/emotionMappingController.ts - Controller for user emotion-to-genre mappings
+/**
+ * Emotion Mapping Controller
+ * 
+ * Manages user-specific emotion-to-genre mappings for personalized recommendations.
+ * Handles CRUD operations for emotion mappings, batch updates from user interactions,
+ * and authorization checks to ensure users can only access their own data.
+ */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { UserEmotionMappingModel, PersonalizedMapping } from '../models/UserEmotionMapping';
 import { z } from 'zod';
 import { AuthRequest } from '../middleware/auth';
@@ -19,10 +25,23 @@ const updateMappingsSchema = z.object({
   )
 });
 
+/**
+ * Checks if authenticated user has authorization to access another user's resources.
+ * @param authenticatedUserId - ID of the authenticated user
+ * @param resourceUserId - ID of the user whose resource is being accessed
+ * @returns True if authorized, false otherwise
+ */
 const checkUserAuthorization = (authenticatedUserId: number, resourceUserId: number): boolean => {
   return authenticatedUserId === resourceUserId;
 };
 
+/**
+ * Retrieves emotion-to-genre mappings for a specific user.
+ * Enforces authorization to ensure users can only access their own mappings.
+ * 
+ * @param req - Authenticated request with user ID parameter
+ * @param res - Express response object
+ */
 export const getUserEmotionMappings = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);

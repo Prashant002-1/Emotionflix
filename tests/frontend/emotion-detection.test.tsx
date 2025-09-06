@@ -1,3 +1,11 @@
+/**
+ * Frontend Emotion Detection Component Tests
+ * 
+ * Comprehensive test suite for emotion detection UI components including
+ * EmotionCapture, EmotionDisplay, and ManualEmotionInput. Tests webcam integration,
+ * file upload, manual input, and emotion visualization functionality.
+ */
+
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -10,7 +18,12 @@ import { ThemeProvider } from '../../src/contexts/ThemeContext';
 import { BrowserRouter } from 'react-router-dom';
 import { createMockEmotionScores } from '../test-utils';
 
-// Mock emotion detection service
+/**
+ * Mock emotion detection service for component testing
+ * 
+ * Provides mock implementations of face-api.js emotion detection functions
+ * to enable testing without actual model loading or image processing.
+ */
 vi.mock('../../src/services/emotionDetection', () => ({
   LoadModels: vi.fn().mockResolvedValue(undefined),
   DetectEmotionsFromImage: vi.fn(),
@@ -27,7 +40,12 @@ vi.mock('../../src/services/emotionDetection', () => ({
   GetEmotionColor: vi.fn().mockReturnValue('#10B981'),
 }));
 
-// Mock auth service
+/**
+ * Mock authentication service for context support
+ * 
+ * Required for UserProvider context in test wrapper, provides mock
+ * auth operations for isolated component testing.
+ */
 vi.mock('../../src/services/authService', () => ({
   authService: {
     login: vi.fn(),
@@ -37,7 +55,12 @@ vi.mock('../../src/services/authService', () => ({
   },
 }));
 
-// Mock MediaDevices API
+/**
+ * Mock MediaDevices API for webcam testing
+ * 
+ * Provides mock getUserMedia implementation to test webcam functionality
+ * without requiring actual camera permissions or hardware access.
+ */
 Object.defineProperty(navigator, 'mediaDevices', {
   writable: true,
   value: {
@@ -47,6 +70,15 @@ Object.defineProperty(navigator, 'mediaDevices', {
   },
 });
 
+/**
+ * Test wrapper component with all required providers
+ * 
+ * Wraps components with Router, Theme, User, and Emotion providers
+ * to ensure full context support for emotion detection components.
+ * 
+ * @param children - Components to wrap with providers
+ * @returns Wrapped component tree
+ */
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
     <ThemeProvider>

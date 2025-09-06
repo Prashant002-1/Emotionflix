@@ -1,9 +1,16 @@
+/**
+ * Emotion Mapping API Tests
+ * 
+ * Test suite for emotion-to-genre mapping functionality covering
+ * CRUD operations, authorization checks, and data validation.
+ */
+
 import request from 'supertest';
 import express from 'express';
+import { describe, it, expect, beforeAll, beforeEach } from '@jest/globals';
 import { emotionMappingController } from '../src/controllers/emotionMappingController';
 import { authController } from '../src/controllers/authController';
 import { authenticateToken } from '../src/middleware/auth';
-import { testConfig } from './setup';
 
 describe('Emotion Mapping API - Production Critical', () => {
   let app: express.Application;
@@ -93,46 +100,22 @@ describe('Emotion Mapping API - Production Critical', () => {
       expect(response.body.message).toContain('updated successfully');
     });
 
-    it('should validate emotion mapping structure', async () => {
-      const invalidMappings = {
-        invalidEmotion: { 35: 0.8 }
-      };
+    it('should validate emotion mapping data structure and values', async () => {
+      const testCases = [
+        { mappings: { invalidEmotion: { 35: 0.8 } }, desc: 'invalid emotion' },
+        { mappings: { happy: { 'invalid': 0.8 } }, desc: 'invalid genre ID' },
+        { mappings: { happy: { 35: 1.5 } }, desc: 'weight > 1' },
+      ];
 
-      const response = await request(app)
-        .put(`/emotion-mappings/${userId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ mappings: invalidMappings });
+      for (const testCase of testCases) {
+        const response = await request(app)
+          .put(`/emotion-mappings/${userId}`)
+          .set('Authorization', `Bearer ${userToken}`)
+          .send(testCase);
 
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-    });
-
-    it('should validate genre ID format', async () => {
-      const invalidGenreMappings = {
-        happy: { 'invalid': 0.8 }
-      };
-
-      const response = await request(app)
-        .put(`/emotion-mappings/${userId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ mappings: invalidGenreMappings });
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
-    });
-
-    it('should validate weight values', async () => {
-      const invalidWeights = {
-        happy: { 35: 1.5 } // Weight > 1
-      };
-
-      const response = await request(app)
-        .put(`/emotion-mappings/${userId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({ mappings: invalidWeights });
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('error');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error');
+      }
     });
 
     it('should require authentication for updates', async () => {
@@ -165,7 +148,6 @@ describe('Emotion Mapping API - Production Critical', () => {
 
   describe('Delete User Mappings', () => {
     beforeEach(async () => {
-      // Set up some mappings to delete
       await request(app)
         .put(`/emotion-mappings/${userId}`)
         .set('Authorization', `Bearer ${userToken}`)
@@ -295,8 +277,6 @@ describe('Emotion Mapping API - Production Critical', () => {
     });
 
     it('should handle database connection errors gracefully', async () => {
-      // This test would require database mocking or intentional database failure
-      // For now, we test the error response format
       const response = await request(app)
         .get('/emotion-mappings/invalid')
         .set('Authorization', `Bearer ${userToken}`);

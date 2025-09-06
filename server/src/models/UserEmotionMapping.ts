@@ -1,22 +1,57 @@
-// src/models/UserEmotionMapping.ts - Model for user personalized emotion-to-genre mappings
+/**
+ * User Emotion Mapping Model
+ * 
+ * Data model for user-specific emotion-to-genre mappings that enable
+ * personalized movie recommendations. Tracks how individual users'
+ * emotions correlate with their movie genre preferences over time.
+ */
 
 import pool from '../config/database';
 
+/**
+ * Individual emotion-to-genre mapping record in the database.
+ * Represents a single user's association between an emotion and a movie genre.
+ */
 export interface UserEmotionMapping {
+  /** Unique mapping record identifier */
   id: number;
+  /** ID of the user this mapping belongs to */
   user_id: number;
+  /** Emotion name (e.g., 'happy', 'sad', 'angry') */
   emotion: string;
+  /** TMDB genre ID */
   genre_id: number;
+  /** Strength of emotion-genre association (0.0 to 1.0) */
   weight: number;
+  /** When this mapping was created */
   created_at: Date;
+  /** When this mapping was last updated */
   updated_at: Date;
 }
 
+/**
+ * Nested mapping structure for efficient emotion-genre lookups.
+ * Organizes mappings by emotion type and genre ID for quick access.
+ */
 export interface PersonalizedMapping {
-  [emotion: string]: { [genreId: number]: number };
+  /** Maps emotion names to their genre associations */
+  [emotion: string]: { 
+    /** Maps genre IDs to their weights for this emotion */
+    [genreId: number]: number 
+  };
 }
 
+/**
+ * UserEmotionMappingModel class providing static methods for emotion mapping operations.
+ * Handles retrieval, updates, and management of user-specific emotion-genre associations.
+ */
 export class UserEmotionMappingModel {
+  /**
+   * Retrieves all emotion-to-genre mappings for a specific user.
+   * 
+   * @param userId - ID of the user whose mappings to retrieve
+   * @returns Promise resolving to organized mapping structure
+   */
   static async getUserMappings(userId: number): Promise<PersonalizedMapping> {
     const query = `
       SELECT emotion, genre_id, weight 

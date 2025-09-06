@@ -1,3 +1,12 @@
+/**
+ * Home Page Component
+ * 
+ * The main dashboard/landing page of EmotionFlix application.
+ * Displays user welcome message, recent watch history with emotions,
+ * quick action buttons for movie discovery, and authentication prompts
+ * for non-logged-in users.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -6,6 +15,10 @@ import { useEmotion } from '../contexts/EmotionContext';
 import AuthModal from '../components/auth/AuthModal';
 import EmotionDisplay from '../components/features/emotion/EmotionDisplay';
 import { convertToEmotionScores } from '../services/userMoviesService';
+/**
+ * Home page component serving as the main dashboard.
+ * Provides navigation to key features and displays personalized content for logged-in users.
+ */
 const Home: React.FC = () => {
   const { theme } = useTheme();
   const { user, updateUserStats } = useUser();
@@ -28,7 +41,8 @@ const Home: React.FC = () => {
     if (user) {
       updateUserStats();
     }
-  }, [user?.id]); // Only depend on user ID, not the entire user object or updateUserStats function
+    // Only depend on user ID, not the entire user object or updateUserStats function
+  }, [user?.id]); 
 
   const handleSignInPrompt = () => {
     setShowAuthModal(true);
@@ -401,7 +415,7 @@ const Home: React.FC = () => {
                     }`}>Get Personalized</h4>
                     <p className={`text-sm ${
                       theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                    }`}>AI learns your emotional patterns</p>
+                    }`}>App learns your emotional patterns</p>
                   </div>
                   <div className={`p-6 rounded-xl border ${
                     theme === 'dark' 

@@ -1,4 +1,10 @@
-// src/routes/userMovies.ts - Routes for user movie management
+/**
+ * User Movies Routes
+ * 
+ * Express router for managing user movie interactions including watchlist,
+ * watch history, ratings, and emotion data. Provides endpoints for CRUD
+ * operations on user movies and retrieval of user statistics and profiles.
+ */
 
 import express from 'express';
 import { getUserMovies, addUserMovie, updateUserMovie, removeUserMovie, getUserStats, getUserEmotionalProfile } from '../controllers/userMoviesController';
@@ -6,25 +12,25 @@ import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// All routes require authentication
+/** Apply authentication middleware to all routes */
 router.use(authenticateToken);
 
-// Get user's movies (with optional status filter)
+/** GET /user-movies - Get user's movies with optional status filter (watchlist/watched) */
 router.get('/', getUserMovies);
 
-// Add movie to user's list
+/** POST /user-movies - Add movie to user's watchlist or mark as watched */
 router.post('/', addUserMovie);
 
-// Update movie in user's list
+/** PUT /user-movies/:movieId - Update movie status, rating, or emotion data */
 router.put('/:movieId', updateUserMovie);
 
-// Remove movie from user's list
+/** DELETE /user-movies/:movieId - Remove movie from user's list */
 router.delete('/:movieId', removeUserMovie);
 
-// Get user statistics
+/** GET /user-movies/stats - Get user's movie and emotion statistics */
 router.get('/stats', getUserStats);
 
-// Get user's emotional profile
+/** GET /user-movies/emotional-profile - Get user's aggregated emotional profile */
 router.get('/emotional-profile', getUserEmotionalProfile);
 
 export default router;

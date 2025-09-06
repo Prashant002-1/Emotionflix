@@ -1,14 +1,26 @@
-// src/controllers/userMoviesController.ts - Controller for user movie data (watchlist, watched)
+/**
+ * User Movies Controller
+ * 
+ * Manages user movie interactions including watchlist and watch history.
+ * Handles CRUD operations for user movies with emotion data, integrates
+ * with TMDB API for movie details, and updates user emotional profiles.
+ */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 import pool from '../config/database';
-import { getMovieDetails, TMDBMovie } from '../services/tmdbService';
+import { getMovieDetails } from '../services/tmdbService';
 
 const VALID_STATUSES = ['watchlist', 'watched'] as const;
 
-// Helper function to update user's emotional profile
+/**
+ * Updates user's emotional profile based on their recent emotion history.
+ * Calculates average emotions from last 10 entries and updates user profile.
+ * 
+ * @param userId - ID of the user whose profile to update
+ * @param emotions - New emotion data to contribute to the profile
+ */
 const updateUserEmotionalProfile = async (userId: number, emotions: Record<string, number>) => {
   try {
     // Calculate average emotions from user's recent emotion history (last 10 emotions)

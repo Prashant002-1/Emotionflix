@@ -1,12 +1,20 @@
+/**
+ * Test Environment Setup
+ * 
+ * Global test configuration and setup utilities for Jest test suite.
+ * Initializes test database, loads environment variables, and provides
+ * shared test utilities and configuration across all test files.
+ */
+
 import dotenv from 'dotenv';
-import { expect } from '@jest/globals';
+import { expect, jest, beforeAll, afterAll, beforeEach, afterEach } from '@jest/globals';
 import { setupTestDatabase, cleanupTestDatabase } from './setup-test-db';
 
 // Load test environment variables
 dotenv.config({ path: '.env.test' });
 
 // Global test setup
-global.beforeAll(async () => {
+beforeAll(async () => {
   console.log('Setting up test environment...');
   
   try {
@@ -22,7 +30,7 @@ global.beforeAll(async () => {
   }
 });
 
-global.afterAll(async () => {
+afterAll(async () => {
   console.log('Cleaning up test environment...');
   
   try {
@@ -34,12 +42,12 @@ global.afterAll(async () => {
 
 // Mock console for cleaner test output
 const originalConsole = console;
-global.beforeEach(() => {
+beforeEach(() => {
   console.error = jest.fn();
   console.warn = jest.fn();
 });
 
-global.afterEach(() => {
+afterEach(() => {
   console.error = originalConsole.error;
   console.warn = originalConsole.warn;
 });

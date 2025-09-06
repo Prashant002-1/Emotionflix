@@ -1,3 +1,15 @@
+/**
+ * Log Page Component
+ * 
+ * Movie emotion logging interface that allows users to:
+ * 1. Search for movies they've watched
+ * 2. Capture or input their emotions while watching
+ * 3. Save the movie to their watch history with emotion data
+ * 
+ * Supports movie search with autocomplete, emotion detection via webcam/upload,
+ * and manual emotion input as fallback options.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -9,6 +21,10 @@ import { LoadingSpinner } from '../components/common';
 import { EmotionCapture } from '../components/EmotionCapture';
 import EmotionDisplay from '../components/features/emotion/EmotionDisplay';
 
+/**
+ * Log page component for recording movie emotions.
+ * Multi-step process: movie search → emotion capture → save to history.
+ */
 const Log: React.FC = () => {
   const { theme } = useTheme();
   const { updateMovieEmotion, addToWatchHistory } = useEmotion();

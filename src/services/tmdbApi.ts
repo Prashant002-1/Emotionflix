@@ -1,6 +1,9 @@
 /**
- * TMDB API SERVICE
- *   Service for integrating with The Movie Database API
+ * TMDB API Service
+ * 
+ * Service for integrating with The Movie Database (TMDB) API.
+ * Provides functions for fetching movie data, genres, search results,
+ * and detailed movie information from TMDB's REST API.
  */
 
 import axios from 'axios';
@@ -17,18 +20,11 @@ const tmdbClientV3 = axios.create({
 });
 
 /**
- * NAME
- *   GetGenres - Fetches all available movie genres from TMDB
- *
- * SYNOPSIS
- *   GetGenres(): Promise<GenreResponse>
- *
- * DESCRIPTION
- *   Retrieves the complete list of movie genres available in TMDB.
- *   This data is used for mapping emotions to genre categories.
- *
- * RETURNS
- *   Promise resolving to GenreResponse containing array of genres
+ * Fetches all available movie genres from TMDB.
+ * Retrieves the complete list of movie genres available in TMDB,
+ * used for mapping emotions to genre categories.
+ * 
+ * @returns Promise resolving to GenreResponse containing array of genres
  */
 export const GetGenres = async (): Promise<GenreResponse> => {
   const response = await tmdbClientV3.get('/genre/movie/list');
@@ -36,69 +32,48 @@ export const GetGenres = async (): Promise<GenreResponse> => {
 };
 
 /**
- * NAME
- *   SearchMovies - Searches for movies by query string
- *
- * SYNOPSIS
- *   SearchMovies(a_query: string, a_page?: number): Promise<MovieSearchResponse>
- *     a_query: The search term for movies
- *     a_page: Optional page number for pagination (default: 1)
- *
- * DESCRIPTION
- *   Searches TMDB database for movies matching the provided query string.
- *   Returns paginated results with movie basic information.
- *
- * RETURNS
- *   Promise resolving to MovieSearchResponse with search results
+ * Searches for movies by query string.
+ * Searches TMDB database for movies matching the provided query string
+ * and returns paginated results with basic movie information.
+ * 
+ * @param query - The search term for movies
+ * @param page - Optional page number for pagination (default: 1)
+ * @returns Promise resolving to MovieSearchResponse with search results
  */
-export const SearchMovies = async (a_query: string, a_page = 1): Promise<MovieSearchResponse> => {
+export const SearchMovies = async (query: string, page = 1): Promise<MovieSearchResponse> => {
   const response = await tmdbClientV3.get('/search/movie', {
-    params: { query: a_query, page: a_page },
+    params: { query: query, page: page },
   });
   return response.data;
 };
 
 /**
- * NAME
- *   GetMovieDetails - Fetches detailed information for a specific movie
- *
- * SYNOPSIS
- *   GetMovieDetails(a_movieId: number): Promise<Movie>
- *     a_movieId: The TMDB movie ID
- *
- * DESCRIPTION
- *   Retrieves comprehensive movie details including genres, cast,
- *   and additional metadata for a specific movie.
- *
- * RETURNS
- *   Promise resolving to Movie object with complete details
+ * Fetches detailed information for a specific movie.
+ * Retrieves comprehensive movie details including genres, cast,
+ * and additional metadata for a specific movie.
+ * 
+ * @param movieId - The TMDB movie ID
+ * @returns Promise resolving to Movie object with complete details
  */
-export const GetMovieDetails = async (a_movieId: number): Promise<Movie> => {
-  const response = await tmdbClientV3.get(`/movie/${a_movieId}`);
+export const GetMovieDetails = async (movieId: number): Promise<Movie> => {
+  const response = await tmdbClientV3.get(`/movie/${movieId}`);
   return response.data;
 };
 
 /**
- * NAME
- *   GetMoviesByGenres - Discovers movies filtered by genre IDs
- *
- * SYNOPSIS
- *   GetMoviesByGenres(a_genreIds: number[], a_page?: number): Promise<MovieSearchResponse>
- *     a_genreIds: Array of genre IDs to filter by
- *     a_page: Optional page number for pagination (default: 1)
- *
- * DESCRIPTION
- *   Uses TMDB's discover endpoint to find movies matching specific genres.
- *   This is the core function for emotion-based recommendations.
- *
- * RETURNS
- *   Promise resolving to MovieSearchResponse with filtered results
+ * Discovers movies filtered by genre IDs.
+ * Uses TMDB's discover endpoint to find movies matching specific genres.
+ * This is the core function for emotion-based recommendations.
+ * 
+ * @param genreIds - Array of genre IDs to filter by
+ * @param page - Optional page number for pagination (default: 1)
+ * @returns Promise resolving to MovieSearchResponse with filtered results
  */
-export const GetMoviesByGenres = async (a_genreIds: number[], a_page = 1): Promise<MovieSearchResponse> => {
+export const GetMoviesByGenres = async (genreIds: number[], page = 1): Promise<MovieSearchResponse> => {
   const response = await tmdbClientV3.get('/discover/movie', {
     params: {
-      with_genres: a_genreIds.join(','),
-      page: a_page,
+      with_genres: genreIds.join(','),
+      page: page,
       sort_by: 'popularity.desc',
     },
   });
@@ -106,45 +81,31 @@ export const GetMoviesByGenres = async (a_genreIds: number[], a_page = 1): Promi
 };
 
 /**
- * NAME
- *   GetTrendingMovies - Fetches currently trending movies
- *
- * SYNOPSIS
- *   GetTrendingMovies(a_page?: number): Promise<MovieSearchResponse>
- *     a_page: Optional page number for pagination (default: 1)
- *
- * DESCRIPTION
- *   Retrieves movies that are currently trending on TMDB.
- *   Used for dashboard display and general discovery.
- *
- * RETURNS
- *   Promise resolving to MovieSearchResponse with trending movies
+ * Fetches currently trending movies.
+ * Retrieves movies that are currently trending on TMDB,
+ * used for dashboard display and general discovery.
+ * 
+ * @param page - Optional page number for pagination (default: 1)
+ * @returns Promise resolving to MovieSearchResponse with trending movies
  */
-export const GetTrendingMovies = async (a_page = 1): Promise<MovieSearchResponse> => {
+export const GetTrendingMovies = async (page = 1): Promise<MovieSearchResponse> => {
   const response = await tmdbClientV3.get('/trending/movie/day', {
-    params: { page: a_page },
+    params: { page: page },
   });
   return response.data;
 };
 
 /**
- * NAME
- *   GetPopularMovies - Fetches popular movies
- *
- * SYNOPSIS
- *   GetPopularMovies(a_page?: number): Promise<MovieSearchResponse>
- *     a_page: Optional page number for pagination (default: 1)
- *
- * DESCRIPTION
- *   Retrieves currently popular movies from TMDB.
- *   Used for dashboard display and general discovery.
- *
- * RETURNS
- *   Promise resolving to MovieSearchResponse with popular movies
+ * Fetches popular movies from TMDB.
+ * Retrieves currently popular movies from TMDB,
+ * used for dashboard display and general discovery.
+ * 
+ * @param page - Optional page number for pagination (default: 1)
+ * @returns Promise resolving to MovieSearchResponse with popular movies
  */
-export const GetPopularMovies = async (a_page = 1): Promise<MovieSearchResponse> => {
+export const GetPopularMovies = async (page = 1): Promise<MovieSearchResponse> => {
   const response = await tmdbClientV3.get('/movie/popular', {
-    params: { page: a_page },
+    params: { page: page },
   });
   return response.data;
 };

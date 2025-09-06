@@ -1,3 +1,11 @@
+/**
+ * MovieRow Component
+ * 
+ * Renders a horizontal scrollable row of movie cards with poster images,
+ * ratings, and optional emotion displays. Used for displaying watch history,
+ * recommendations, and other movie collections.
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -12,6 +20,14 @@ interface MovieRowProps {
   detailsPath?: string;
 }
 
+/**
+ * MovieRow component that displays a horizontal row of movie cards.
+ * @param title - Section title displayed above the movie row
+ * @param movies - Array of movie objects to display
+ * @param showEmotions - Whether to show emotion data for each movie
+ * @param onLogEmotion - Callback function for logging emotions for a movie
+ * @param detailsPath - Path for "view all" link in the section header
+ */
 const MovieRow: React.FC<MovieRowProps> = ({ 
   title, 
   movies, 

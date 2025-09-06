@@ -1,6 +1,6 @@
 /**
  * INLINE EMOTION DISPLAY COMPONENT
- *   Simple inline component for displaying emotions with icons
+ *   Inline component for displaying emotions with icons
  */
 
 import React from 'react';

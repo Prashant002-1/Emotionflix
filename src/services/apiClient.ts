@@ -1,7 +1,19 @@
+/**
+ * API Client Service
+ * 
+ * Centralized HTTP client configuration using Axios.
+ * Handles authentication tokens, request/response interceptors,
+ * and automatic token-based authentication for all API calls.
+ */
+
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+/**
+ * Pre-configured Axios instance for API communication.
+ * Automatically includes authentication headers and handles common scenarios.
+ */
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {

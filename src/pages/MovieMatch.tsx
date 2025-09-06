@@ -1,3 +1,14 @@
+/**
+ * Movie Match Page Component
+ * 
+ * Interactive movie discovery tool that finds films matching user's current emotions.
+ * Features:
+ * - Manual emotion input with sliders for each emotion type
+ * - Real-time movie recommendations based on emotion state
+ * - Search functionality to find specific movies
+ * - Responsive emotion-based filtering and sorting
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../contexts/UserContext';
@@ -8,6 +19,10 @@ import { Movie } from '../types/movie';
 import { EmotionScores } from '../types/emotion';
 import { LoadingSpinner } from '../components/common';
 
+/**
+ * MovieMatch page component for emotion-based movie discovery.
+ * Provides real-time recommendations as users adjust their emotion sliders.
+ */
 const MovieMatch: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useUser();
@@ -61,7 +76,7 @@ const MovieMatch: React.FC = () => {
     const emotionCompatibility = await recommendationService.calculateEmotionCompatibility(
       emotions, 
       movie.genre_ids, 
-      user?.id?.toString() || '' // Get from user context
+      user?.id?.toString() || '' 
     );
     
     // Quality score from rating and popularity
@@ -90,7 +105,6 @@ const MovieMatch: React.FC = () => {
 
   const handleMovieSearchQueryChange = (value: string) => {
     setMovieSearchQuery(value);
-    // Debounce autocomplete search
     clearTimeout((window as any).autocompleteTimeout);
     (window as any).autocompleteTimeout = setTimeout(() => {
       handleAutocompleteSearch(value);

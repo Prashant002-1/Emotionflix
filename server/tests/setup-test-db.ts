@@ -1,9 +1,24 @@
-// Test database setup script to ensure schema exists
+/**
+ * Test Database Setup Utilities
+ * 
+ * Provides database initialization and cleanup utilities for Jest test suite.
+ * Handles test database creation, schema application, and data cleanup
+ * to ensure isolated and consistent test environments.
+ */
+
 import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
-// Helper function to create database connection configs from environment
+/**
+ * Creates database connection configuration from environment variables
+ * 
+ * Parses DATABASE_URL or uses default test database connection parameters
+ * to create PostgreSQL connection configuration objects.
+ * 
+ * @param database - Optional database name override
+ * @returns PostgreSQL connection configuration object
+ */
 const createDbConfig = (database?: string) => {
   const url = new URL(process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/test_emotionflix');
   
@@ -16,6 +31,14 @@ const createDbConfig = (database?: string) => {
   };
 };
 
+/**
+ * Sets up the test database environment
+ * 
+ * Creates test database if it doesn't exist, applies database schema,
+ * and verifies that all required tables are present and accessible.
+ * 
+ * @throws Error if database setup fails or required tables are missing
+ */
 const setupTestDatabase = async () => {
   // Connect to postgres (default database) to create test database if it doesn't exist
   const adminConfig = createDbConfig('postgres');
@@ -66,6 +89,14 @@ const setupTestDatabase = async () => {
   }
 };
 
+/**
+ * Cleans up test database by removing all test data
+ * 
+ * Clears all data from test tables while preserving the database schema
+ * to ensure clean state between test runs.
+ * 
+ * @throws Logs errors but continues execution if cleanup fails
+ */
 const cleanupTestDatabase = async () => {
   // Clean up any open database connections
   const testConfig = createDbConfig();

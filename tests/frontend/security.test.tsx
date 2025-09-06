@@ -1,3 +1,11 @@
+/**
+ * Frontend Security Component Tests
+ * 
+ * Security-focused test suite for frontend components covering XSS prevention,
+ * input sanitization, data storage security, and protection against common
+ * web vulnerabilities in the user interface layer.
+ */
+
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -6,7 +14,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { UserProvider } from '../../src/contexts/UserContext';
 import { ThemeProvider } from '../../src/contexts/ThemeContext';
 
-// Mock services
+/**
+ * Mock authentication service for security testing
+ * 
+ * Provides controlled mock responses to test security-related component
+ * behavior without actual authentication service calls.
+ */
 vi.mock('../../src/services/authService', () => ({
   authService: {
     login: vi.fn(),
@@ -16,6 +29,15 @@ vi.mock('../../src/services/authService', () => ({
   },
 }));
 
+/**
+ * Test wrapper component for security tests
+ * 
+ * Provides necessary context providers for testing security-related
+ * component behavior in isolation from external dependencies.
+ * 
+ * @param children - Components to wrap with providers
+ * @returns Wrapped component tree
+ */
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
     <ThemeProvider>

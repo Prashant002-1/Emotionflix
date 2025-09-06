@@ -1,4 +1,16 @@
 
+/**
+ * EmotionCapture Component
+ * 
+ * A comprehensive emotion capture component that provides three methods for emotion detection:
+ * - Live webcam capture with real-time emotion analysis
+ * - Photo upload with emotion detection from static images
+ * - Manual emotion input with sliders for user-defined emotion scores
+ * 
+ * Uses face-api.js for facial emotion recognition and provides confidence scoring
+ * for automated detection methods. Supports both dark and light themes.
+ */
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { EmotionScores } from '../types/emotion';
 import { useTheme } from '../contexts/ThemeContext';
@@ -45,7 +57,6 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emotionUpdateInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       StopWebcamStream();
@@ -55,6 +66,11 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     };
   }, []);
 
+  /**
+   * Initiates webcam capture for live emotion detection.
+   * Loads emotion detection models, starts webcam stream, and begins real-time emotion analysis.
+   * Handles various error states including model loading failures and webcam access issues.
+   */
   const handleWebcamCapture = useCallback(async () => {
     setCurrentStep('webcam');
     setWebcamError('');
@@ -144,7 +160,7 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
               setCurrentEmotions(emotions);
             }
           } catch (detectionError) {
-            // Silent retry
+            // Silent retry for error handling
           }
         }
       }, 1500);
@@ -167,6 +183,11 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     }
   }, [webcamError]);
 
+  /**
+   * Captures a photo from the live webcam stream and analyzes emotions.
+   * Processes the captured image for emotion detection and transitions to review step.
+   * @returns {Promise<void>} Resolves when photo capture and analysis is complete
+   */
   const handleCapturePhoto = useCallback(async () => {
     if (!videoRef.current) return;
 
@@ -195,6 +216,12 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     }
   }, []);
 
+  /**
+   * Handles file upload for emotion detection from static images.
+   * Validates file type, processes the uploaded image, and analyzes emotions.
+   * @param {React.ChangeEvent<HTMLInputElement>} event - File input change event
+   * @returns {Promise<void>} Resolves when file processing is complete
+   */
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -227,6 +254,10 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     }
   }, []);
 
+  /**
+   * Switches to manual emotion input mode.
+   * Stops any active webcam streams and transitions to manual slider interface.
+   */
   const handleManualInput = useCallback(() => {
     // Stop webcam if active
     StopWebcamStream();
@@ -237,6 +268,10 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     setCurrentStep('manual');
   }, []);
 
+  /**
+   * Confirms and submits the detected emotions to the parent component.
+   * Determines the detection method based on the captured image source.
+   */
   const handleConfirmEmotions = useCallback(() => {
     if (detectedEmotions) {
       const method = capturedImage?.startsWith('data:') && capturedImage.includes('base64') ? 'upload' : 'webcam';
@@ -244,6 +279,10 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     }
   }, [detectedEmotions, confidence, capturedImage, onEmotionsDetected]);
 
+  /**
+   * Resets the component state to allow for a new emotion capture attempt.
+   * Clears captured data and returns to the initial selection screen.
+   */
   const handleRetryCapture = useCallback(() => {
     setCapturedImage(null);
     setDetectedEmotions(null);
@@ -252,6 +291,10 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     setCurrentStep('choose');
   }, []);
 
+  /**
+   * Submits manually entered emotion scores to the parent component.
+   * Converts percentage values (0-100) to decimal scores (0-1) and validates input.
+   */
   const handleManualSubmit = useCallback(() => {
     const total = Object.values(manualEmotions).reduce((sum, val) => sum + val, 0);
     if (total > 0) {
@@ -269,10 +312,22 @@ export const EmotionCapture: React.FC<EmotionCaptureProps> = ({
     }
   }, [manualEmotions, onEmotionsDetected]);
 
+  /**
+   * Updates a specific emotion value in the manual input state.
+   * @param {keyof EmotionScores} emotion - The emotion type to update
+   * @param {number} value - The new value (0-100 percentage)
+   */
   const updateManualEmotion = useCallback((emotion: keyof EmotionScores, value: number) => {
     setManualEmotions(prev => ({ ...prev, [emotion]: value }));
   }, []);
 
+  /**
+   * Renders emotion scores as styled badges with icons and percentages.
+   * Filters out emotions below threshold and sorts by intensity.
+   * @param {EmotionScores} emotions - The emotion scores to display
+   * @param {boolean} showTitle - Whether to show the "Detected Emotions" title
+   * @returns {JSX.Element} The rendered emotion display component
+   */
   const renderEmotionDisplay = (emotions: EmotionScores, showTitle: boolean = true) => {
     const sortedEmotions = Object.entries(emotions)
       .filter(([_, score]) => score > 0.008) // VERY low threshold to capture subtle emotions

@@ -1,3 +1,10 @@
+/**
+ * ThemeContext
+ * 
+ * React context for managing application theme state (dark/light mode).
+ * Persists theme preference in localStorage and applies theme to document.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Theme = 'dark' | 'light';
@@ -9,6 +16,11 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * Hook to access the ThemeContext.
+ * @returns {ThemeContextType} The theme context value with current theme and toggle function
+ * @throws {Error} If used outside of a ThemeProvider
+ */
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
@@ -21,6 +33,10 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * ThemeProvider component that manages theme state and persistence.
+ * @param children - Child components that will have access to the theme context
+ */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
@@ -47,6 +63,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
+  /**
+   * Toggles between dark and light theme modes.
+   */
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };

@@ -1,3 +1,10 @@
+/**
+ * EmotionDisplay Component
+ * 
+ * Displays emotion scores with icons and percentages in a styled format.
+ * Optionally includes a button to log emotions for a movie.
+ */
+
 import React from 'react';
 import { EmotionScores } from '../../../types/emotion';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -38,6 +45,12 @@ const EMOTION_BG_COLORS = {
   surprised: 'bg-gradient-to-r from-orange-100/80 to-amber-100/80 dark:from-orange-900/40 dark:to-amber-900/40',
 } as const;
 
+/**
+ * EmotionDisplay component that renders emotion scores with icons and optional log button.
+ * @param emotions - Emotion scores object to display
+ * @param showLogButton - Whether to show the "Log Emotion" button
+ * @param onLogEmotion - Callback function for logging emotions
+ */
 const EmotionDisplay: React.FC<EmotionDisplayProps> = ({ 
   emotions, 
   showLogButton = false, 

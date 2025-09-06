@@ -1,3 +1,14 @@
+/**
+ * User Profile Page Component
+ * 
+ * Comprehensive user profile management page with multiple tabs:
+ * - Profile: Basic user information and stats
+ * - Watchlist: User's saved movies to watch later
+ * - Watch History: Previously watched movies with emotion data
+ * - Emotion Analytics: Personalized emotion patterns and insights
+ * - Settings: Account settings and password management
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
@@ -11,6 +22,10 @@ import { Genre } from '../types/movie';
 import { convertToEmotionScores } from '../services/userMoviesService';
 import { authService, ChangePasswordData } from '../services/authService';
 
+/**
+ * UserProfile page component with tabbed interface for user account management.
+ * Handles profile viewing, watchlist management, emotion analytics, and settings.
+ */
 const UserProfile: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useUser();
@@ -18,6 +33,10 @@ const UserProfile: React.FC = () => {
   const [searchParams] = useSearchParams();
   
   const [activeTab, setActiveTab] = useState<'profile' | 'stats' | 'watchlist' | 'emotions' | 'settings'>('profile');
+  const [watchHistoryPage, setWatchHistoryPage] = useState(1);
+  const [watchlistPage, setWatchlistPage] = useState(1);
+  
+  const ITEMS_PER_PAGE = 12;
 
   // Handle tab query parameter
   useEffect(() => {
@@ -27,10 +46,26 @@ const UserProfile: React.FC = () => {
     }
   }, [searchParams]);
 
+  // Reset pagination when switching tabs
+  useEffect(() => {
+    if (activeTab === 'stats') {
+      setWatchHistoryPage(1);
+    } else if (activeTab === 'watchlist') {
+      setWatchlistPage(1);
+    }
+  }, [activeTab]);
 
+  // Pagination calculations for watch history
+  const watchHistoryTotalPages = Math.ceil(watchHistory.length / ITEMS_PER_PAGE);
+  const watchHistoryStartIndex = (watchHistoryPage - 1) * ITEMS_PER_PAGE;
+  const watchHistoryEndIndex = watchHistoryStartIndex + ITEMS_PER_PAGE;
+  const paginatedWatchHistory = watchHistory.slice(watchHistoryStartIndex, watchHistoryEndIndex);
 
-
-  const recentWatchHistory = watchHistory.slice(0, 10);
+  // Pagination calculations for watchlist
+  const watchlistTotalPages = Math.ceil(watchlist.length / ITEMS_PER_PAGE);
+  const watchlistStartIndex = (watchlistPage - 1) * ITEMS_PER_PAGE;
+  const watchlistEndIndex = watchlistStartIndex + ITEMS_PER_PAGE;
+  const paginatedWatchlist = watchlist.slice(watchlistStartIndex, watchlistEndIndex);
 
   // ProtectedRoute ensures user is not null, but TypeScript doesn't know that
   if (!user) return null;
@@ -205,69 +240,151 @@ const UserProfile: React.FC = () => {
 
           {activeTab === 'stats' && (
             <div className="space-y-8">
-              <h2 className={`text-2xl font-bold mb-6 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                Watch History
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className={`text-2xl font-bold ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Watch History
+                </h2>
+                {watchHistory.length > 0 && (
+                  <div className={`text-sm ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
+                    {watchHistory.length} total movies
+                  </div>
+                )}
+              </div>
               
-              {recentWatchHistory.length > 0 ? (
-                <div className="space-y-4">
-                  {recentWatchHistory.map((movie) => (
-                    <div key={`${movie.movie_id}-${movie.created_at}`} className={`p-4 rounded-xl border ${
-                      theme === 'dark' 
-                        ? 'bg-slate-700/50 border-slate-600' 
-                        : 'bg-gray-50 border-gray-200'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : '/placeholder-movie.png'}
-                            alt={movie.title}
-                            className="w-12 h-18 object-cover rounded-lg"
-                          />
-                          <div>
-                            <h3 className={`font-semibold ${
-                              theme === 'dark' ? 'text-white' : 'text-gray-900'
-                            }`}>
-                              {movie.title}
-                            </h3>
-                            <p className={`text-sm ${
-                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                            }`}>
-                              Watched on {new Date(movie.created_at).toLocaleDateString()}
-                            </p>
-                            {(() => {
-                              const emotions = convertToEmotionScores(movie);
-                              return emotions && (
-                                <div className="mt-2">
-                                  <EmotionDisplay emotions={emotions} />
-                                </div>
-                              );
-                            })()}
+              {paginatedWatchHistory.length > 0 ? (
+                <>
+                  <div className="space-y-4">
+                    {paginatedWatchHistory.map((movie) => (
+                      <div key={`${movie.movie_id}-${movie.created_at}`} className={`p-4 rounded-xl border ${
+                        theme === 'dark' 
+                          ? 'bg-slate-700/50 border-slate-600' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : '/placeholder-movie.png'}
+                              alt={movie.title}
+                              className="w-12 h-18 object-cover rounded-lg"
+                            />
+                            <div>
+                              <h3 className={`font-semibold ${
+                                theme === 'dark' ? 'text-white' : 'text-gray-900'
+                              }`}>
+                                {movie.title}
+                              </h3>
+                              <p className={`text-sm ${
+                                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                              }`}>
+                                Watched on {new Date(movie.created_at).toLocaleDateString()}
+                              </p>
+                              {(() => {
+                                const emotions = convertToEmotionScores(movie);
+                                return emotions && (
+                                  <div className="mt-2">
+                                    <EmotionDisplay emotions={emotions} />
+                                  </div>
+                                );
+                              })()}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-star text-yellow-400"></i>
-                            <span className={`font-semibold ${
-                              theme === 'dark' ? 'text-white' : 'text-gray-900'
-                            }`}>
-                              {movie.vote_average.toFixed(1)}
-                            </span>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <i className="fas fa-star text-yellow-400"></i>
+                              <span className={`font-semibold ${
+                                theme === 'dark' ? 'text-white' : 'text-gray-900'
+                              }`}>
+                                {movie.vote_average.toFixed(1)}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => removeFromWatchHistory(movie.movie_id)}
+                              className="text-red-500 hover:text-red-700 transition-colors p-1"
+                              title="Remove from watch history"
+                            >
+                              <i className="fas fa-trash text-sm"></i>
+                            </button>
                           </div>
-                          <button
-                            onClick={() => removeFromWatchHistory(movie.movie_id)}
-                            className="text-red-500 hover:text-red-700 transition-colors p-1"
-                            title="Remove from watch history"
-                          >
-                            <i className="fas fa-trash text-sm"></i>
-                          </button>
                         </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Watch History Pagination */}
+                  {watchHistoryTotalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8">
+                      <button
+                        onClick={() => setWatchHistoryPage(prev => Math.max(1, prev - 1))}
+                        disabled={watchHistoryPage === 1}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          watchHistoryPage === 1
+                            ? theme === 'dark'
+                              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : theme === 'dark'
+                              ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        <i className="fas fa-chevron-left mr-2"></i>
+                        Previous
+                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        {Array.from({ length: watchHistoryTotalPages }, (_, i) => {
+                          const page = i + 1;
+                          const isCurrentPage = page === watchHistoryPage;
+                          const isNearCurrent = Math.abs(page - watchHistoryPage) <= 2;
+                          const isFirstOrLast = page === 1 || page === watchHistoryTotalPages;
+                          
+                          if (!isNearCurrent && !isFirstOrLast) {
+                            if (page === 2 || page === watchHistoryTotalPages - 1) {
+                              return <span key={page} className="px-2">...</span>;
+                            }
+                            return null;
+                          }
+                          
+                          return (
+                            <button
+                              key={page}
+                              onClick={() => setWatchHistoryPage(page)}
+                              className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                                isCurrentPage
+                                  ? 'bg-cinema-600 text-white'
+                                  : theme === 'dark'
+                                    ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setWatchHistoryPage(prev => Math.min(watchHistoryTotalPages, prev + 1))}
+                        disabled={watchHistoryPage === watchHistoryTotalPages}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          watchHistoryPage === watchHistoryTotalPages
+                            ? theme === 'dark'
+                              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : theme === 'dark'
+                              ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        Next
+                        <i className="fas fa-chevron-right ml-2"></i>
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-12">
                   <i className="fas fa-film text-6xl text-gray-400 mb-4"></i>
@@ -283,70 +400,152 @@ const UserProfile: React.FC = () => {
 
           {activeTab === 'watchlist' && (
             <div className="space-y-8">
-              <h2 className={`text-2xl font-bold mb-6 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                My Watchlist
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className={`text-2xl font-bold ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                  My Watchlist
+                </h2>
+                {watchlist.length > 0 && (
+                  <div className={`text-sm ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
+                    {watchlist.length} total movies
+                  </div>
+                )}
+              </div>
               
-              {watchlist.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {watchlist.map((movie) => (
-                    <div key={movie.movie_id} className={`p-4 rounded-xl border transition-all hover:shadow-lg ${
-                      theme === 'dark' 
-                        ? 'bg-slate-700/50 border-slate-600 hover:border-slate-500' 
-                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                    }`}>
-                      <div className="flex items-start gap-4">
-                        <img
-                          src={movie.poster_path ? `https://image.tmdb.org/t/p/w154${movie.poster_path}` : '/placeholder-movie.png'}
-                          alt={movie.title}
-                          className="w-16 h-24 object-cover rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h3 className={`font-semibold mb-2 ${
-                            theme === 'dark' ? 'text-white' : 'text-gray-900'
-                          }`}>
-                            {movie.title}
-                          </h3>
-                          <div className="flex items-center gap-2 mb-2">
-                            <i className="fas fa-star text-yellow-400 text-sm"></i>
-                            <span className={`text-sm ${
-                              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              {paginatedWatchlist.length > 0 ? (
+                <>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {paginatedWatchlist.map((movie) => (
+                      <div key={movie.movie_id} className={`p-4 rounded-xl border transition-all hover:shadow-lg ${
+                        theme === 'dark' 
+                          ? 'bg-slate-700/50 border-slate-600 hover:border-slate-500' 
+                          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                      }`}>
+                        <div className="flex items-start gap-4">
+                          <img
+                            src={movie.poster_path ? `https://image.tmdb.org/t/p/w154${movie.poster_path}` : '/placeholder-movie.png'}
+                            alt={movie.title}
+                            className="w-16 h-24 object-cover rounded-lg"
+                          />
+                          <div className="flex-1">
+                            <h3 className={`font-semibold mb-2 ${
+                              theme === 'dark' ? 'text-white' : 'text-gray-900'
                             }`}>
-                              {movie.vote_average.toFixed(1)}
-                            </span>
-                            <span className={`text-sm ${
-                              theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                            }`}>
-                              • {new Date(movie.release_date).getFullYear()}
-                            </span>
-                          </div>
-                          <div className="flex gap-2 mt-3">
-                            <button
-                              onClick={() => window.location.href = `/movie/${movie.movie_id}`}
-                              className="text-xs px-3 py-1 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
-                            >
-                              View Details
-                            </button>
-                            <button
-                              onClick={() => window.location.href = `/log?movieId=${movie.movie_id}`}
-                              className="text-xs px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
-                            >
-                              Log Emotions
-                            </button>
-                            <button
-                              onClick={() => removeFromWatchlist(movie.movie_id)}
-                              className="text-xs px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
-                            >
-                              Remove
-                            </button>
+                              {movie.title}
+                            </h3>
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-star text-yellow-400 text-sm"></i>
+                              <span className={`text-sm ${
+                                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                              }`}>
+                                {movie.vote_average.toFixed(1)}
+                              </span>
+                              <span className={`text-sm ${
+                                theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                              }`}>
+                                • {new Date(movie.release_date).getFullYear()}
+                              </span>
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              <button
+                                onClick={() => window.location.href = `/movie/${movie.movie_id}`}
+                                className="text-xs px-3 py-1 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => window.location.href = `/log?movieId=${movie.movie_id}`}
+                                className="text-xs px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
+                              >
+                                Log Emotions
+                              </button>
+                              <button
+                                onClick={() => removeFromWatchlist(movie.movie_id)}
+                                className="text-xs px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Watchlist Pagination */}
+                  {watchlistTotalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8">
+                      <button
+                        onClick={() => setWatchlistPage(prev => Math.max(1, prev - 1))}
+                        disabled={watchlistPage === 1}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          watchlistPage === 1
+                            ? theme === 'dark'
+                              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : theme === 'dark'
+                              ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        <i className="fas fa-chevron-left mr-2"></i>
+                        Previous
+                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        {Array.from({ length: watchlistTotalPages }, (_, i) => {
+                          const page = i + 1;
+                          const isCurrentPage = page === watchlistPage;
+                          const isNearCurrent = Math.abs(page - watchlistPage) <= 2;
+                          const isFirstOrLast = page === 1 || page === watchlistTotalPages;
+                          
+                          if (!isNearCurrent && !isFirstOrLast) {
+                            if (page === 2 || page === watchlistTotalPages - 1) {
+                              return <span key={page} className="px-2">...</span>;
+                            }
+                            return null;
+                          }
+                          
+                          return (
+                            <button
+                              key={page}
+                              onClick={() => setWatchlistPage(page)}
+                              className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                                isCurrentPage
+                                  ? 'bg-cinema-600 text-white'
+                                  : theme === 'dark'
+                                    ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setWatchlistPage(prev => Math.min(watchlistTotalPages, prev + 1))}
+                        disabled={watchlistPage === watchlistTotalPages}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          watchlistPage === watchlistTotalPages
+                            ? theme === 'dark'
+                              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : theme === 'dark'
+                              ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        Next
+                        <i className="fas fa-chevron-right ml-2"></i>
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-12">
                   <i className="fas fa-bookmark text-6xl text-gray-400 mb-4"></i>
@@ -649,9 +848,10 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
         if (!info || Object.keys(genreWeights).length === 0) return null;
 
         const isExpanded = selectedEmotion === emotion;
-        const sortedGenres = Object.entries(genreWeights)
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, isExpanded ? 12 : 6);
+        const totalGenres = Object.entries(genreWeights).sort(([, a], [, b]) => b - a);
+        const INITIAL_DISPLAY_COUNT = 6;
+        const EXPANDED_DISPLAY_COUNT = 12;
+        const sortedGenres = totalGenres.slice(0, isExpanded ? EXPANDED_DISPLAY_COUNT : INITIAL_DISPLAY_COUNT);
 
         return (
           <div key={emotion} className={`p-6 rounded-xl border transition-all duration-300 ${
@@ -680,7 +880,7 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
                 <span className={`text-sm font-medium ${
                   theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                 }`}>
-                  {Object.keys(genreWeights).length} total genres
+                  {totalGenres.length} total genres
                 </span>
               </div>
             </div>
@@ -724,7 +924,7 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
                 ))}
               </div>
               
-              {!isExpanded && Object.keys(genreWeights).length > 6 && (
+              {!isExpanded && totalGenres.length > INITIAL_DISPLAY_COUNT && (
                 <div className="text-center mt-6">
                   <button 
                     onClick={(e) => {
@@ -738,12 +938,12 @@ const EmotionalProfileDisplay: React.FC<{ theme: string; user: any }> = ({ theme
                     }`}
                   >
                     <i className="fas fa-plus text-sm"></i>
-                    Show {Object.keys(genreWeights).length - 6} more genres
+                    Show {Math.min(totalGenres.length - INITIAL_DISPLAY_COUNT, EXPANDED_DISPLAY_COUNT - INITIAL_DISPLAY_COUNT)} more genres
                   </button>
                 </div>
               )}
 
-              {isExpanded && Object.keys(genreWeights).length > 6 && (
+              {isExpanded && totalGenres.length > INITIAL_DISPLAY_COUNT && (
                 <div className="text-center mt-6">
                   <button 
                     onClick={(e) => {

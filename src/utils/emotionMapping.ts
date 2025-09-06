@@ -1,13 +1,17 @@
 /**
- * EMOTION TO GENRE MAPPING UTILITY
- *   Logic for mapping detected emotions to movie genres
+ * Emotion Mapping Utilities
+ * 
+ * Utilities for mapping detected emotions to movie genres and generating
+ * human-readable emotion descriptions. Uses probable psychological associations
+ * between emotional states and movie genre preferences.
  */
 
 import { EmotionScores } from '../types/emotion';
 
 /**
- * Basic emotion-to-genre mappings based on psychological associations
- * These will be refined as we gather more data and user feedback
+ * Emotion-to-genre mappings based on psychological associations.
+ * Maps each emotion type to relevant TMDB genre IDs.
+ * These mappings are refined based on user feedback and data analysis.
  */
 const EMOTION_GENRE_MAP = {
   happy: [35, 16, 10402], // Comedy, Animation, Music
@@ -20,31 +24,24 @@ const EMOTION_GENRE_MAP = {
 };
 
 /**
- * NAME
- *   MapEmotionsToGenres - Converts emotion scores to weighted genre recommendations
- *
- * SYNOPSIS
- *   MapEmotionsToGenres(a_emotionScores: EmotionScores): number[]
- *     a_emotionScores: The detected or manually input emotion scores
- *
- * DESCRIPTION
- *   Analyzes emotion scores and maps them to TMDB genre IDs based on
- *   psychological associations. Returns sorted array of genre IDs
- *   weighted by emotion intensity.
- *
- * RETURNS
- *   Array of genre IDs sorted by relevance to emotional state
+ * Converts emotion scores to weighted genre recommendations.
+ * Analyzes emotion scores and maps them to TMDB genre IDs based on
+ * psychological associations, with exponential weighting for stronger emotions.
+ * 
+ * @param emotionScores - The detected or manually input emotion scores
+ * @returns Array of top 5 genre IDs sorted by relevance to emotional state
  */
-export const MapEmotionsToGenres = (a_emotionScores: EmotionScores): number[] => {
+export const MapEmotionsToGenres = (emotionScores: EmotionScores): number[] => {
   const genreWeights: Record<number, number> = {};
 
   // Calculate weighted genre scores based on emotion intensities
-  Object.entries(a_emotionScores).forEach(([emotion, intensity]) => {
-    if (intensity > 0.01) { // Lower threshold for broader genre matching
+  Object.entries(emotionScores).forEach(([emotion, intensity]) => {
+    // Lower threshold for broader genre matching
+    if (intensity > 0.01) { 
       const genreIds = EMOTION_GENRE_MAP[emotion as keyof typeof EMOTION_GENRE_MAP];
       genreIds?.forEach(genreId => {
         // Apply exponential weighting to amplify stronger emotions
-        const amplifiedWeight = Math.pow(intensity, 0.7) * 2; // Amplify by factor of 2 with exponential scaling
+        const amplifiedWeight = Math.pow(intensity, 0.7) * 2; 
         genreWeights[genreId] = (genreWeights[genreId] || 0) + amplifiedWeight;
       });
     }
@@ -53,28 +50,22 @@ export const MapEmotionsToGenres = (a_emotionScores: EmotionScores): number[] =>
   // Sort genres by weight and return top matches
   return Object.entries(genreWeights)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 5) // Top 5 genres
+    // Top 5 genres
+    .slice(0, 5) 
     .map(([genreId]) => parseInt(genreId));
 };
 
 /**
- * NAME
- *   GetEmotionDescription - Provides human-readable emotion summary
- *
- * SYNOPSIS
- *   GetEmotionDescription(a_emotionScores: EmotionScores): string
- *     a_emotionScores: The emotion scores to describe
- *
- * DESCRIPTION
- *   Analyzes emotion scores and returns a descriptive text
- *   explaining the detected emotional state for user feedback.
- *
- * RETURNS
- *   Human-readable description of the emotional state
+ * Provides a readable description of the dominant emotional state.
+ * Analyzes emotion scores and returns descriptive text explaining
+ * the detected emotional state.
+ * 
+ * @param emotionScores - The emotion scores to analyze and describe
+ * @returns Readable description of the emotional state
  */
-export const GetEmotionDescription = (a_emotionScores: EmotionScores): string => {
-  const dominantEmotion = Object.entries(a_emotionScores).reduce((a, b) => 
-    a_emotionScores[a[0] as keyof EmotionScores] > a_emotionScores[b[0] as keyof EmotionScores] ? a : b
+export const GetEmotionDescription = (emotionScores: EmotionScores): string => {
+  const dominantEmotion = Object.entries(emotionScores).reduce((a, b) => 
+    emotionScores[a[0] as keyof EmotionScores] > emotionScores[b[0] as keyof EmotionScores] ? a : b
   );
 
   const [emotion, intensity] = dominantEmotion;

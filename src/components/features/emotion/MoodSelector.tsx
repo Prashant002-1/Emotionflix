@@ -1,3 +1,10 @@
+/**
+ * MoodSelector Component
+ * 
+ * Provides quick mood selection with predefined emotion presets.
+ * Allows users to select common moods or switch to complex emotion input.
+ */
+
 import React, { useState } from 'react';
 import { EmotionScores } from '../../../types/emotion';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -19,6 +26,11 @@ const MOOD_PRESETS = {
 } as const;
 
 
+/**
+ * MoodSelector component for quick emotion preset selection.
+ * @param onMoodSelect - Callback function when a mood preset is selected
+ * @param onComplexSearch - Callback to switch to complex emotion input mode
+ */
 const MoodSelector: React.FC<MoodSelectorProps> = ({ onMoodSelect, onComplexSearch }) => {
   const { theme } = useTheme();
   const [selectedMood, setSelectedMood] = useState<string>('happy'); // Default to happy

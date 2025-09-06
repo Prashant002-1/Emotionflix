@@ -1,5 +1,14 @@
+/**
+ * Authentication API Tests
+ * 
+ * Comprehensive test suite for authentication endpoints covering
+ * user registration, login, password security, and JWT token validation.
+ * Focuses on security-critical authentication functionality.
+ */
+
 import request from 'supertest';
 import express from 'express';
+import { describe, it, expect, beforeAll, beforeEach } from '@jest/globals';
 import { authController } from '../src/controllers/authController';
 import { testConfig } from './setup';
 
@@ -26,7 +35,7 @@ describe('Authentication API - Security Critical', () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('token');
-      expect(response.body.token).toBeValidJWT();
+      expect(response.body.token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
       expect(response.body).toHaveProperty('user');
       expect(response.body.user.email).toBe('newuser@test.com');
       expect(response.body.user).not.toHaveProperty('password');
@@ -111,7 +120,7 @@ describe('Authentication API - Security Critical', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('token');
-      expect(response.body.token).toBeValidJWT();
+      expect(response.body.token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
       expect(response.body).toHaveProperty('user');
       expect(response.body.user.email).toBe(testConfig.testUser.email);
     });
@@ -184,7 +193,7 @@ describe('Authentication API - Security Critical', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('user');
-      expect(response.body.user.email).toBeValidEmail();
+      expect(response.body.user.email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
     });
 
     it('should reject invalid token', async () => {
