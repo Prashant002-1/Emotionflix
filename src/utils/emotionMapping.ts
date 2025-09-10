@@ -26,10 +26,10 @@ const EMOTION_GENRE_MAP = {
 /**
  * Converts emotion scores to weighted genre recommendations.
  * Analyzes emotion scores and maps them to TMDB genre IDs based on
- * psychological associations, with exponential weighting for stronger emotions.
+ * psychological associations, with enhanced weighting and diversity.
  * 
  * @param emotionScores - The detected or manually input emotion scores
- * @returns Array of top 5 genre IDs sorted by relevance to emotional state
+ * @returns Array of top 5-8 genre IDs sorted by relevance to emotional state
  */
 export const MapEmotionsToGenres = (emotionScores: EmotionScores): number[] => {
   const genreWeights: Record<number, number> = {};
@@ -39,20 +39,31 @@ export const MapEmotionsToGenres = (emotionScores: EmotionScores): number[] => {
     // Lower threshold for broader genre matching
     if (intensity > 0.01) { 
       const genreIds = EMOTION_GENRE_MAP[emotion as keyof typeof EMOTION_GENRE_MAP];
-      genreIds?.forEach(genreId => {
+      genreIds?.forEach((genreId, index) => {
         // Apply exponential weighting to amplify stronger emotions
-        const amplifiedWeight = Math.pow(intensity, 0.7) * 2; 
+        const baseWeight = Math.pow(intensity, 0.7) * 2;
+        
+        // Give higher weight to primary genres for each emotion
+        const genrePriority = 1.0 - (index * 0.1); 
+        
+        const amplifiedWeight = baseWeight * genrePriority;
         genreWeights[genreId] = (genreWeights[genreId] || 0) + amplifiedWeight;
       });
     }
   });
 
   // Sort genres by weight and return top matches
-  return Object.entries(genreWeights)
+  const sortedGenres = Object.entries(genreWeights)
     .sort(([, a], [, b]) => b - a)
-    // Top 5 genres
-    .slice(0, 5) 
     .map(([genreId]) => parseInt(genreId));
+
+  // Return 5-8 genres for better diversity, but ensure we have meaningful weights
+  const meaningfulGenres = sortedGenres.filter((_, index) => {
+    const weight = Object.values(genreWeights)[index];
+    return weight > 0.1; 
+  });
+
+  return meaningfulGenres.slice(0, Math.max(5, Math.min(8, meaningfulGenres.length)));
 };
 
 /**

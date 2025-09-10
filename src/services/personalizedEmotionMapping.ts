@@ -113,26 +113,43 @@ class PersonalizedEmotionMappingService {
     userId: string,
     emotions: EmotionScores
   ): Promise<number[]> {
-    const userMappings = await this.getUserEmotionGenreMappings(userId);
-    const genreWeights: Record<number, number> = {};
+    try {
+      const userMappings = await this.getUserEmotionGenreMappings(userId);
+      const genreWeights: Record<number, number> = {};
 
-    // Calculate weighted scores for each genre
-    Object.entries(emotions).forEach(([emotion, intensity]) => {
-      if (intensity > 0.01 && userMappings[emotion]) {
-        Object.entries(userMappings[emotion]).forEach(([genreId, weight]) => {
-          const genreIdNum = parseInt(genreId);
-          // Apply exponential weighting to amplify stronger emotions
-          const amplifiedWeight = Math.pow(intensity, 0.7) * weight * 2;
-          genreWeights[genreIdNum] = (genreWeights[genreIdNum] || 0) + amplifiedWeight;
-        });
+      // Calculate weighted scores for each genre
+      Object.entries(emotions).forEach(([emotion, intensity]) => {
+        if (intensity > 0.01 && userMappings[emotion]) {
+          Object.entries(userMappings[emotion]).forEach(([genreId, weight]) => {
+            const genreIdNum = parseInt(genreId);
+            // Apply exponential weighting to amplify stronger emotions
+            const amplifiedWeight = Math.pow(intensity, 0.7) * weight * 2;
+            genreWeights[genreIdNum] = (genreWeights[genreIdNum] || 0) + amplifiedWeight;
+          });
+        }
+      });
+
+      // If no personalized mappings found, fall back to static mapping
+      if (Object.keys(genreWeights).length === 0) {
+        console.warn(`No personalized mappings found for user ${userId}, using static mapping`);
+        const { MapEmotionsToGenres } = await import('../utils/emotionMapping');
+        return MapEmotionsToGenres(emotions);
       }
-    });
 
-    // Sort and return top genres
-    return Object.entries(genreWeights)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([genreId]) => parseInt(genreId));
+      // Sort and return top genres with meaningful weights
+      const sortedGenres = Object.entries(genreWeights)
+        .filter(([, weight]) => weight > 0.1) // Only include meaningful weights
+        .sort(([, a], [, b]) => b - a)
+        .map(([genreId]) => parseInt(genreId));
+
+      // Return 5-8 genres for better diversity
+      return sortedGenres.slice(0, Math.max(5, Math.min(8, sortedGenres.length)));
+    } catch (error) {
+      console.error('Error getting personalized genre recommendations:', error);
+      // Fallback to static mapping
+      const { MapEmotionsToGenres } = await import('../utils/emotionMapping');
+      return MapEmotionsToGenres(emotions);
+    }
   }
 
   /**
