@@ -1,6 +1,9 @@
 /**
- * MANUAL EMOTION INPUT COMPONENT
- *   Interface for users to manually score their emotional state
+ * Manual Emotion Input Component
+ * 
+ * Interface for users to manually score their emotional state using sliders.
+ * Provides fallback functionality when automatic emotion detection fails or
+ * when users prefer manual input over camera-based detection.
  */
 
 import React, { useState } from 'react';
@@ -15,13 +18,18 @@ interface ManualEmotionInputProps {
 }
 
 /**
- * NAME
- *   ManualEmotionInput - Manual emotion scoring interface
- *
- * DESCRIPTION
- *   Provides sliders for users to manually input their emotional intensities
- *   across the seven emotion categories supported by face-api.js.
- *   Used as fallback when image analysis is unsuccessful.
+ * Manual emotion scoring interface component.
+ * Provides sliders for users to manually input their emotional intensities
+ * across the seven emotion categories supported by face-api.js.
+ * Used as fallback when image analysis is unsuccessful or when users
+ * prefer manual control over their emotion input.
+ * 
+ * @param props - Component props
+ * @param props.onEmotionScores - Callback fired when emotion scores change
+ * @param props.onEmotionChange - Callback fired when any emotion value changes
+ * @param props.onSubmit - Callback fired when submit button is clicked
+ * @param props.showSubmitButton - Whether to display the submit button
+ * @returns JSX element containing emotion input interface
  */
 const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({ 
   onEmotionScores, 
@@ -39,6 +47,14 @@ const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({
     surprised: 0,
   });
 
+  /**
+   * Updates a specific emotion value and triggers callbacks.
+   * Creates a new emotion state object with the updated value and
+   * notifies parent components through the provided callbacks.
+   * 
+   * @param emotion - The emotion key to update
+   * @param value - The new intensity value (0-1)
+   */
   const updateEmotion = (emotion: keyof EmotionScores, value: number) => {
     const updatedEmotions = { ...emotions, [emotion]: value };
     setEmotions(updatedEmotions);
@@ -46,10 +62,19 @@ const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({
     onEmotionChange?.(updatedEmotions);
   };
 
+  /**
+   * Handles form submission by calling the onSubmit callback.
+   * Passes the current emotion scores to the parent component.
+   */
   const handleSubmit = () => {
     onSubmit?.(emotions);
   };
 
+  /**
+   * Color mapping for each emotion type used in the sliders.
+   * Provides visual distinction between different emotion categories
+   * to enhance user experience and interface clarity.
+   */
   const emotionColors = {
     neutral: '#9CA3AF',
     happy: '#FCD34D',

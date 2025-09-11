@@ -1,6 +1,9 @@
 /**
- * EMOTION SLIDER COMPONENT
- *   Individual slider for scoring emotional intensity
+ * Emotion Slider Component
+ * 
+ * Individual slider component for scoring emotional intensity.
+ * Provides a visual range input for users to manually set emotion
+ * intensity values from 0 to 1 with customizable styling.
  */
 
 import React from 'react';
@@ -14,13 +17,19 @@ interface EmotionSliderProps {
 }
 
 /**
- * NAME
- *   EmotionSlider - Individual emotion intensity slider component
- *
- * DESCRIPTION
- *   Renders a slider input for users to manually score the intensity
- *   of a specific emotion from 0 to 1. Used as fallback when image
- *   analysis fails or for manual preference input.
+ * Individual emotion intensity slider component.
+ * Renders a slider input for users to manually score the intensity
+ * of a specific emotion from 0 to 1. Features visual feedback with
+ * color-coded progress and percentage display. Used as fallback when
+ * image analysis fails or for manual preference input.
+ * 
+ * @param props - Component props
+ * @param props.label - The emotion name to display as the slider label
+ * @param props.value - Current intensity value (0-1)
+ * @param props.onChange - Callback fired when slider value changes
+ * @param props.color - Optional color for the slider track and thumb
+ * @param props.disabled - Whether the slider is disabled
+ * @returns JSX element containing the emotion intensity slider
  */
 const EmotionSlider: React.FC<EmotionSliderProps> = ({ 
   label, 
