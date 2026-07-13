@@ -1,25 +1,23 @@
 /**
- * Frontend Emotion Detection Component Tests
+ * Frontend Emotional Record Component Tests
  * 
- * Comprehensive test suite for emotion detection UI components including
- * EmotionCapture, EmotionDisplay, and ManualEmotionInput. Tests webcam integration,
- * file upload, manual input, and emotion visualization functionality.
+ * Covers the direct emotional-record controls, emotional display, and the
+ * optional camera and photo expression adapters.
  */
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { EmotionCapture } from '../../src/components/EmotionCapture';
 import EmotionDisplay from '../../src/components/features/emotion/EmotionDisplay';
 import ManualEmotionInput from '../../src/components/features/emotion/ManualEmotionInput';
-import { EmotionProvider } from '../../src/contexts/EmotionContext';
 import { UserProvider } from '../../src/contexts/UserContext';
-import { ThemeProvider } from '../../src/contexts/ThemeContext';
 import { BrowserRouter } from 'react-router-dom';
 import { createMockEmotionScores } from '../test-utils';
 
 /**
- * Mock emotion detection service for component testing
+ * Mock expression-estimate adapter for component testing
  * 
  * Provides mock implementations of face-api.js emotion detection functions
  * to enable testing without actual model loading or image processing.
@@ -51,7 +49,10 @@ vi.mock('../../src/services/authService', () => ({
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
-    getCurrentUser: vi.fn(),
+    getStoredToken: vi.fn().mockReturnValue(null),
+    getStoredUser: vi.fn().mockReturnValue(null),
+    getProfile: vi.fn(),
+    storeAuthData: vi.fn(),
   },
 }));
 
@@ -81,17 +82,11 @@ Object.defineProperty(navigator, 'mediaDevices', {
  */
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      <UserProvider>
-        <EmotionProvider>
-          {children}
-        </EmotionProvider>
-      </UserProvider>
-    </ThemeProvider>
+    <UserProvider>{children}</UserProvider>
   </BrowserRouter>
 );
 
-describe('Frontend Emotion Detection - UI Components', () => {
+describe('Frontend Emotional Record - UI Components', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -102,16 +97,18 @@ describe('Frontend Emotion Detection - UI Components', () => {
   });
 
   describe('EmotionCapture Component', () => {
-    it('should render emotion capture interface', () => {
+    it('presents direct input before optional expression estimates', async () => {
+      const user = userEvent.setup();
       render(
         <TestWrapper>
           <EmotionCapture onEmotionsDetected={vi.fn()} />
         </TestWrapper>
       );
 
-      expect(screen.getByText(/camera/i)).toBeInTheDocument();
-      expect(screen.getByText(/upload/i)).toBeInTheDocument();
-      expect(screen.getByText(/manually/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /set it yourself/i })).toBeInTheDocument();
+      await user.click(screen.getByText(/optional expression estimate/i));
+      expect(screen.getByRole('button', { name: /use camera/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /use a photo/i })).toBeInTheDocument();
     });
 
   });
@@ -159,9 +156,9 @@ describe('Frontend Emotion Detection - UI Components', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText(/happy/i)).toBeInTheDocument();
-      expect(screen.getByText(/sad/i)).toBeInTheDocument();
-      expect(screen.getByText(/angry/i)).toBeInTheDocument();
+      expect(screen.getByRole('slider', { name: /joy intensity/i })).toBeInTheDocument();
+      expect(screen.getByRole('slider', { name: /melancholy intensity/i })).toBeInTheDocument();
+      expect(screen.getByRole('slider', { name: /friction intensity/i })).toBeInTheDocument();
     });
 
   });

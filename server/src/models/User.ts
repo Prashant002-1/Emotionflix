@@ -26,6 +26,7 @@ export interface User {
   created_at: Date;
   /** Last update timestamp */
   updated_at: Date;
+  bio?: string;
 }
 
 /**
@@ -60,7 +61,7 @@ export class UserModel {
     const query = `
       INSERT INTO users (email, username, password_hash)
       VALUES ($1, $2, $3)
-      RETURNING id, email, username, created_at, updated_at
+      RETURNING id, email, username, bio, created_at, updated_at
     `;
 
     const result = await pool.query(query, [email, username, hashedPassword]);
@@ -80,7 +81,7 @@ export class UserModel {
   }
 
   static async findById(id: number): Promise<User | null> {
-    const query = 'SELECT id, email, username, created_at, updated_at FROM users WHERE id = $1';
+    const query = 'SELECT id, email, username, bio, created_at, updated_at FROM users WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rows[0] || null;
   }
@@ -101,5 +102,14 @@ export class UserModel {
     
     const result = await pool.query(query, [hashedPassword, userId]);
     return (result.rowCount ?? 0) > 0;
+  }
+
+  static async updateBio(userId: number, bio: string): Promise<User | null> {
+    const result = await pool.query(
+      `UPDATE users SET bio = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
+       RETURNING id, email, username, bio, created_at, updated_at`,
+      [bio, userId],
+    );
+    return result.rows[0] || null;
   }
 }

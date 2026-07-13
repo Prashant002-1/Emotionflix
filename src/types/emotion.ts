@@ -1,12 +1,12 @@
 /**
  * Emotion Type Definitions
  * 
- * Type definitions for emotion detection, scoring, and mapping functionality.
- * These types support face-api.js integration and emotion-based movie recommendations.
+ * Type definitions for reviewed emotional records and adapter suggestions.
+ * The current seven-key shape is a prototype constraint, not the final product vocabulary.
  */
 
 /**
- * Emotion scores detected by face-api.js or entered manually.
+ * Reviewed emotional values entered directly or suggested by a supported adapter.
  * All values are normalized between 0 and 1, representing the intensity of each emotion.
  */
 export interface EmotionScores {
@@ -27,25 +27,25 @@ export interface EmotionScores {
 }
 
 /**
- * Records a single emotion detection session with metadata.
- * Tracks how emotions were captured and when they were detected.
+ * Records one prototype emotion-input session with source metadata.
+ * The target model separates source observations from the reviewed emotional record.
  */
 export interface EmotionSession {
   /** Unique identifier for the session */
   id: string;
-  /** Method used to detect emotions */
+  /** Prototype input source */
   type: 'webcam' | 'manual' | 'upload';
-  /** The detected or entered emotion scores */
+  /** The suggested or directly entered values */
   emotionScores: EmotionScores;
-  /** Confidence level of the detection (0-1), 1.0 for manual input */
+  /** Adapter confidence (0-1). Direct input should become nullable in the target model. */
   confidence: number;
   /** When the emotion session was recorded */
   timestamp: Date;
 }
 
 /**
- * Maps emotions to movie genres for recommendation algorithms.
- * Defines how specific emotions correlate with movie genre preferences.
+ * Legacy emotion-to-genre mapping shape.
+ * @deprecated The product learns personal relationships instead of universal emotion-to-genre rules.
  */
 export interface EmotionToGenreMapping {
   /** The emotion being mapped */

@@ -7,29 +7,19 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService, AuthUser } from '../services/authService';
-import { userMoviesService } from '../services/userMoviesService';
+import { diaryService } from '../services/diaryService';
 
 export interface User {
   id: number;
   username: string;
   email: string;
   displayName: string;
-  preferences: {
-    favoriteGenres: number[];
-    emotionWeights: {
-      neutral: number;
-      happy: number;
-      sad: number;
-      angry: number;
-      fearful: number;
-      disgusted: number;
-      surprised: number;
-    };
-  };
+  bio: string;
   stats: {
-    moviesWatched: number;
-    emotionsLogged: number;
-    favoriteEmotion: string;
+    diaryEntries: number;
+    publicEntries: number;
+    savedFilms: number;
+    averageRating: number | null;
   };
 }
 
@@ -40,7 +30,7 @@ interface UserContextType {
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
   updateUserStats: () => void;
-  updatePreferences: (preferences: Partial<User['preferences']>) => void;
+  updateBio: (bio: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -50,6 +40,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
  * @returns {UserContextType} The user context value with authentication state and functions
  * @throws {Error} If used outside of a UserProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
@@ -72,22 +63,12 @@ const createUserFromAuth = (authUser: AuthUser): User => ({
   username: authUser.username,
   email: authUser.email,
   displayName: authUser.username.charAt(0).toUpperCase() + authUser.username.slice(1),
-  preferences: {
-    favoriteGenres: [],
-    emotionWeights: {
-      neutral: 0.14,
-      happy: 0.14,
-      sad: 0.14,
-      angry: 0.14,
-      fearful: 0.14,
-      disgusted: 0.14,
-      surprised: 0.16
-    }
-  },
+  bio: authUser.bio || '',
   stats: {
-    moviesWatched: 0,
-    emotionsLogged: 0,
-    favoriteEmotion: 'neutral'
+    diaryEntries: 0,
+    publicEntries: 0,
+    savedFilms: 0,
+    averageRating: null,
   }
 });
 
@@ -109,14 +90,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (!userToUpdate.id) return;
 
     try {
-      const stats = await userMoviesService.getUserStats();
+      const stats = await diaryService.summary();
       
       const updatedUser = {
         ...userToUpdate,
         stats: {
-          moviesWatched: stats.movies.watched,
-          emotionsLogged: stats.emotions.total,
-          favoriteEmotion: stats.emotions.favoriteEmotion
+          diaryEntries: stats.entries,
+          publicEntries: stats.public_entries,
+          savedFilms: stats.saved,
+          averageRating: stats.average_rating,
         }
       };
 
@@ -139,11 +121,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             setTimeout(() => {
               updateUserStatsInternal(userWithStats);
             }, 0);
-          } catch (error) {
+          } catch {
             authService.logout();
           }
         }
-      } catch (error) {
       } finally {
         setLoading(false);
       }
@@ -167,8 +148,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       
       setUser(userWithStats);
       await updateUserStatsInternal(userWithStats);
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -189,8 +168,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const userWithStats = createUserFromAuth(response.user);
       setUser(userWithStats);
       await updateUserStatsInternal(userWithStats);
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -211,18 +188,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     updateUserStatsInternal(userRef.current);
   }, []);
 
-  const updatePreferences = (newPreferences: Partial<User['preferences']>) => {
-    if (!user) return;
-
-    const updatedUser = {
-      ...user,
-      preferences: {
-        ...user.preferences,
-        ...newPreferences
-      }
-    };
-
-    setUser(updatedUser);
+  const updateBio = async (bio: string) => {
+    const response = await authService.updateProfile({ bio });
+    setUser(current => current ? { ...current, bio: response.user.bio || '' } : current);
   };
 
   return (
@@ -233,7 +201,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       register,
       logout,
       updateUserStats,
-      updatePreferences
+      updateBio,
     }}>
       {children}
     </UserContext.Provider>

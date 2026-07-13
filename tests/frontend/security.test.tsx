@@ -12,7 +12,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { UserProvider } from '../../src/contexts/UserContext';
-import { ThemeProvider } from '../../src/contexts/ThemeContext';
 
 /**
  * Mock authentication service for security testing
@@ -25,7 +24,10 @@ vi.mock('../../src/services/authService', () => ({
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
-    getCurrentUser: vi.fn(),
+    getStoredToken: vi.fn().mockReturnValue(null),
+    getStoredUser: vi.fn().mockReturnValue(null),
+    getProfile: vi.fn(),
+    storeAuthData: vi.fn(),
   },
 }));
 
@@ -40,11 +42,7 @@ vi.mock('../../src/services/authService', () => ({
  */
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      <UserProvider>
-        {children}
-      </UserProvider>
-    </ThemeProvider>
+    <UserProvider>{children}</UserProvider>
   </BrowserRouter>
 );
 

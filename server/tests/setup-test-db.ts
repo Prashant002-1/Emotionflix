@@ -72,12 +72,12 @@ const setupTestDatabase = async () => {
     const result = await testPool.query(`
       SELECT tablename FROM pg_tables 
       WHERE schemaname = 'public' 
-      AND tablename IN ('users', 'user_emotion_mappings', 'genres')
+      AND tablename IN ('users', 'diary_entries', 'saved_films', 'genres')
     `);
     
     console.log('Available tables:', result.rows.map(row => row.tablename));
     
-    if (result.rows.length >= 3) {
+    if (result.rows.length >= 4) {
       console.log('✅ Test database setup complete');
     } else {
       throw new Error('❌ Missing required tables in test database');
@@ -104,8 +104,7 @@ const cleanupTestDatabase = async () => {
 
   try {
     // Clear test data but keep schema
-    await testPool.query('DELETE FROM user_emotion_mappings');
-    await testPool.query('DELETE FROM users');
+    await testPool.query('TRUNCATE entry_reactions, follows, diary_entries, saved_films, users RESTART IDENTITY CASCADE');
     console.log('✅ Test database cleaned up');
   } catch (error) {
     console.error('Error cleaning up test database:', error);

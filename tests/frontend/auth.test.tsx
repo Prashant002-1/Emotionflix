@@ -14,7 +14,6 @@ import AuthModal from '../../src/components/auth/AuthModal';
 import LoginForm from '../../src/components/auth/LoginForm';
 import RegisterForm from '../../src/components/auth/RegisterForm';
 import { UserProvider } from '../../src/contexts/UserContext';
-import { ThemeProvider } from '../../src/contexts/ThemeContext';
 import { BrowserRouter } from 'react-router-dom';
 
 /**
@@ -28,7 +27,10 @@ vi.mock('../../src/services/authService', () => ({
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
-    getCurrentUser: vi.fn(),
+    getStoredToken: vi.fn().mockReturnValue(null),
+    getStoredUser: vi.fn().mockReturnValue(null),
+    getProfile: vi.fn(),
+    storeAuthData: vi.fn(),
   },
 }));
 
@@ -43,11 +45,7 @@ vi.mock('../../src/services/authService', () => ({
  */
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      <UserProvider>
-        {children}
-      </UserProvider>
-    </ThemeProvider>
+    <UserProvider>{children}</UserProvider>
   </BrowserRouter>
 );
 

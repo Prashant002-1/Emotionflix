@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contractVersion": "1.1.0",
+  "purpose": "Populate the diary-first EmotionFlix product with enough credible history and public activity to exercise recommendations and social discovery.",
+  "executionOwner": "A separate seed-data agent. The product-overhaul agent must not author or apply the records.",
+  "productFraming": "Seed records represent reviewed human responses to films. Facial-expression analysis is an optional provenance source, not the meaning of the emotional data or the product identity.",
+  "sourceOfTruth": {
+    "schema": "database/schema.sql",
+    "movieProvider": "TMDB",
+    "requiredApiKey": "TMDB_API_KEY",
+    "movieValidation": "Every movie ID must be resolved through TMDB before insertion and cached in movies plus movie_genres. Do not guess IDs or artwork paths."
+  },
+  "demoAccess": {
+    "email": "demo@demo.com",
+    "password": "demo123!",
+    "accountRule": "Create the demo account when absent and update it safely when present. The Enter demo action must remain usable after every seed run."
+  },
+  "executionRequirements": {
+    "entryPoint": "Create server/src/scripts/seedData.ts and expose it as npm run seed from server/package.json.",
+    "verificationEntryPoint": "Create server/src/scripts/verifySeedData.ts and expose it as npm run seed:verify from server/package.json.",
+    "idempotency": "Running the seed command twice must not duplicate accounts, diary entries, saved films, follows, reactions, movie genres, or movie cache records.",
+    "transactionSafety": "Write seed records inside a database transaction. Roll back the complete run when a required TMDB lookup or database write fails.",
+    "dataOwnership": "Use a deterministic manifest of seed-owned email addresses and records. A rerun may replace or reconcile only those seed-owned records and must never delete or rewrite unrelated user data.",
+    "startupBoundary": "Do not run seeding from API startup, database schema initialization, Docker startup, or frontend startup. Seeding must remain an explicit command.",
+    "environment": "Read DATABASE_URL and TMDB_API_KEY from the server environment. Fail with a direct message when either is unavailable.",
+    "completionOutput": "Print a concise count of accounts, movies, diary entries, public entries, saved films, follows, and reactions, then run or instruct the operator to run the verification command."
+  },
+  "requiredCohorts": [
+    {
+      "name": "portfolio_demo",
+      "accounts": 1,
+      "minimumDiaryEntriesPerAccount": 14,
+      "minimumSavedFilmsPerAccount": 8,
+      "publicEntryRange": [4, 7],
+      "notes": "Create or safely update demo@demo.com with the credentials in demoAccess. Build a coherent history with recurring patterns and a few deliberate outliers."
+    },
+    {
+      "name": "community",
+      "accounts": 8,
+      "minimumDiaryEntriesPerAccount": 8,
+      "minimumSavedFilmsPerAccount": 3,
+      "publicEntryRange": [5, 10],
+      "notes": "Each account needs a distinct, internally consistent taste pattern. Do not create generic personas or AI-styled biographies."
+    }
+  ],
+  "diaryEntryRequirements": {
+    "ratingScale": "0.5 to 5.0 in 0.5 increments, with at least 15 percent of entries left unrated",
+    "watchedOn": "Spread across the previous 18 months. Include at least one repeat viewing for two community accounts.",
+    "noteLength": "0 to 420 characters. At least 70 percent of public entries need a note.",
+    "noteVoice": "Specific to the viewer's response. No plot summaries, marketing copy, review-template prose, em dashes, or claims that the system diagnosed the viewer.",
+    "visibility": "Demo entries are private by default. Community entries must include both public and private records.",
+    "captureMethodMix": {
+      "manualMinimumPercent": 85,
+      "uploadMaximumPercent": 10,
+      "webcamMaximumPercent": 5,
+      "implementationNote": "The current schema cannot represent text-derived or combined sources. Treat manual as the temporary storage source for reviewed seed records. Do not imply that the values came from facial analysis."
+    },
+    "emotionVector": "All seven values must be between 0 and 1. They do not need to sum to 1. Avoid one-hot vectors in more than 10 percent of entries.",
+    "emotionalCoverage": "Every emotion key must be dominant in multiple entries across the full seed. Each account should have two or three recurring dominant feelings rather than a uniform distribution."
+  },
+  "socialRequirements": {
+    "bios": "Every community account needs a 40 to 160 character bio about what tends to stay with that person after a film. Keep it specific and plain.",
+    "follows": "Create a sparse directed graph. Every community account follows 1 to 4 others. The demo account follows 3 accounts. No self-follows.",
+    "reactions": "React only to public entries. Each public entry may have 0 to 5 reactions. At least 25 percent must have none.",
+    "feedDiversity": "The first 24 public entries by created_at must include at least 6 people and 12 films."
+  },
+  "recommendationCoverage": {
+    "minimumDistinctGenresPerAccount": 5,
+    "minimumHighRatingsPerAccount": 3,
+    "minimumLowRatingsPerAccount": 1,
+    "minimumDistinctDominantEmotionsPerAccount": 2,
+    "excludedMovieRule": "A user's recommendation result must not return a movie already present in that user's diary."
+  },
+  "prohibited": [
+    "Do not call removed /api/user-movies or /api/emotion-mappings routes.",
+    "Do not insert directly into the legacy emotions, user_movies, user_emotion_profiles, user_emotion_mappings, or recommendations tables.",
+    "Do not use lorem ipsum, placeholder titles, fake TMDB IDs, or stock biography templates.",
+    "Do not make every diary entry public.",
+    "Do not attach or persist camera frames or uploaded images.",
+    "Do not write notes, biographies, or verification output that presents facial expression as the source of the product's emotional understanding.",
+    "Do not encode a universal rule that a particular emotion always maps to a particular genre."
+  ],
+  "acceptanceChecks": [
+    "POST /api/auth/login with the demoAccess credentials returns 200 and a valid token.",
+    "GET /api/discovery/feed returns at least 24 public entries after seeding.",
+    "GET /api/discovery/people returns at least 8 community accounts.",
+    "GET /api/diary and GET /api/diary/summary agree on the demo account entry count.",
+    "POST /api/recommendations for the demo account returns non-empty forYou, adjacent, and community arrays.",
+    "The recommendation profile source is diary for the demo account without a temporary discovery intent.",
+    "No seeded note contains an em dash or a generic current-state capture prompt.",
+    "Running the seed command a second time succeeds and leaves all seed-owned table counts unchanged.",
+    "No non-seed account or record is modified or deleted by a seed rerun."
+  ]
+}

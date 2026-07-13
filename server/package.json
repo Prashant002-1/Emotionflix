@@ -13,7 +13,9 @@
     "test:security": "jest --testNamePattern=\"Security\"",
     "test:integration": "jest --testNamePattern=\"Integration\"",
     "seed:test": "ts-node src/scripts/seedTestData.ts",
-    "verify:test": "ts-node src/scripts/verifyTestData.ts"
+    "verify:test": "ts-node src/scripts/verifyTestData.ts",
+    "seed": "ts-node src/scripts/seedData.ts",
+    "seed:verify": "ts-node src/scripts/verifySeedData.ts"
   },
   "dependencies": {
     "@types/axios": "^0.9.36",

@@ -9,6 +9,7 @@
 import dotenv from 'dotenv';
 import { expect, jest, beforeAll, afterAll, beforeEach, afterEach } from '@jest/globals';
 import { setupTestDatabase, cleanupTestDatabase } from './setup-test-db';
+import pool from '../src/config/database';
 
 // Load test environment variables
 dotenv.config({ path: '.env.test' });
@@ -35,6 +36,7 @@ afterAll(async () => {
   
   try {
     await cleanupTestDatabase();
+    await pool.end();
   } catch (error) {
     console.error('Error cleaning up test database:', error);
   }

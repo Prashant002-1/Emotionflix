@@ -34,6 +34,7 @@ export interface AuthUser {
   email: string;
   /** User's username */
   username: string;
+  bio?: string;
 }
 
 /** Authentication response from login/register */
@@ -84,6 +85,11 @@ export const authService = {
    */
   async getProfile(): Promise<{ user: AuthUser }> {
     const response = await apiClient.get('/auth/profile');
+    return response.data;
+  },
+
+  async updateProfile(data: { bio: string }): Promise<{ user: AuthUser }> {
+    const response = await apiClient.patch('/auth/profile', data);
     return response.data;
   },
 

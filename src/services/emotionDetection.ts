@@ -1,9 +1,9 @@
 /**
- * Emotion Detection Service
+ * Optional Facial Expression Estimate Adapter
  * 
- * Service for analyzing emotions from images and webcam using face-api.js.
- * Provides face detection, emotion recognition, and utility functions
- * for capturing photos and managing webcam streams.
+ * Uses face-api.js to turn an opt-in image or camera frame into a reviewable
+ * expression estimate. This adapter does not define the product's emotional
+ * model and must not be described as knowing how a person felt about a film.
  */
 
 import * as faceapi from 'face-api.js';
@@ -14,8 +14,8 @@ let currentStream: MediaStream | null = null;
 let modelLoadingPromise: Promise<void> | null = null;
 
 /**
- * Loads face-api.js neural network models for emotion detection.
- * Must be called before performing any emotion detection operations.
+ * Loads the face-api.js models used by the expression estimate adapter.
+ * Must be called before producing an expression estimate.
  * Includes validation and retry logic for robust model loading.
  * 
  * @returns Promise that resolves when all required models are loaded
@@ -70,9 +70,9 @@ export const LoadModels = async (): Promise<void> => {
 };
 
 /**
- * Detects emotions from a static image element
+ * Estimates facial-expression values from a static image element.
  * 
- * Uses face-api.js to detect faces and analyze emotional expressions
+ * Uses face-api.js to locate a face and estimate visible expression values.
  * from the provided image. Returns scores from the highest-confidence face.
  * 
  * @param imageElement - HTML image element to analyze
@@ -112,7 +112,7 @@ export const DetectEmotionsFromImage = async (imageElement: HTMLImageElement): P
     };
 
     return EnhanceEmotionScores(rawEmotions);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -133,7 +133,7 @@ export const GetDominantEmotion = (a_emotionScores: EmotionScores): keyof Emotio
 };
 
 /**
- * Starts webcam stream for live emotion detection
+ * Starts a webcam stream for an opt-in expression estimate.
  * 
  * Requests webcam access and returns the media stream for live video feed.
  * Includes comprehensive error handling for various webcam access issues.
@@ -198,7 +198,7 @@ export const StopWebcamStream = (): void => {
  * Analyzes emotions from video element in real-time
  * 
  * Analyzes emotions from a live video stream using face-api.js.
- * Should be called repeatedly for real-time emotion detection.
+ * Used only to provide live feedback before the person chooses one frame.
  * Includes comprehensive validation and error handling.
  * 
  * @param video - HTML video element to analyze
@@ -258,7 +258,6 @@ export const DetectEmotionsFromVideo = async (video: HTMLVideoElement): Promise<
 
     return EnhanceEmotionScores(rawEmotions);
   } catch (error) {
-    
     if (error instanceof Error && error.message.includes('tensor')) {
       modelsLoaded = false;
       modelLoadingPromise = null;
@@ -304,7 +303,7 @@ export const CapturePhotoFromVideo = async (video: HTMLVideoElement): Promise<{ 
     const confidence = GetConfidenceLevel(emotions);
 
     return { emotions, imageDataUrl, confidence };
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -347,7 +346,7 @@ export const DetectEmotionsFromFile = async (file: File): Promise<{ emotions: Em
     const confidence = GetConfidenceLevel(emotions);
 
     return { emotions, imageDataUrl, confidence };
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -355,7 +354,7 @@ export const DetectEmotionsFromFile = async (file: File): Promise<{ emotions: Em
 /**
  * Post-processes emotion scores for better sensitivity
  * 
- * Applies post-processing to make emotion detection more sensitive:
+ * Applies prototype post-processing to the expression estimate:
  * - Amplifies non-neutral emotions using power scaling
  * - Applies emotion-specific thresholds and amplification factors
  * - Redistributes scores to show more varied emotions
@@ -460,7 +459,7 @@ export const EnhanceEmotionScores = (a_emotionScores: EmotionScores): EmotionSco
 };
 
 /**
- * Calculates confidence level of emotion detection
+ * Calculates the adapter confidence for an expression estimate.
  * 
  * Calculates a confidence score based on the spread of emotion values.
  * Higher confidence when one emotion dominates, lower when emotions are similar.
@@ -480,65 +479,44 @@ export const GetConfidenceLevel = (a_emotionScores: EmotionScores): number => {
 /**
  * Formats emotion scores for UI display
  * 
- * Formats emotions as Font Awesome icons + percentages, showing only
- * emotions above threshold. Returns HTML string for direct DOM insertion.
+ * Formats emotion labels and percentages above the display threshold.
  * 
  * @param a_emotionScores - The emotion scores to format
  * @returns Formatted emotion string with icons and percentages
  */
 export const FormatEmotionsForDisplay = (a_emotionScores: EmotionScores): string => {
-  const emotionIcons = {
-    happy: 'fas fa-smile',
-    sad: 'fas fa-frown',
-    angry: 'fas fa-angry',
-    fearful: 'fas fa-grimace',
-    disgusted: 'fas fa-dizzy',
-    surprised: 'fas fa-surprise',
-    neutral: 'fas fa-meh'
-  };
-
   return Object.entries(a_emotionScores)
     .filter(([, score]) => score > 0.008)
     .sort(([, a], [, b]) => b - a)
-    .map(([emotion, score]) => `<i class="${emotionIcons[emotion as keyof typeof emotionIcons]}"></i> ${Math.round(score * 100)}%`)
+    .map(([emotion, score]) => `${emotion.charAt(0).toUpperCase() + emotion.slice(1)} ${Math.round(score * 100)}%`)
     .join(' ');
 };
 
 /**
- * Gets Font Awesome icon class for an emotion
+ * Gets a plain-text label for an emotion.
  * 
  * @param emotion - The emotion to get icon for
- * @returns Font Awesome CSS class string
+ * @returns Human-readable emotion label
  */
 export const GetEmotionIcon = (emotion: keyof EmotionScores): string => {
-  const emotionIcons = {
-    happy: 'fas fa-smile',
-    sad: 'fas fa-frown',
-    angry: 'fas fa-angry',
-    fearful: 'fas fa-grimace',
-    disgusted: 'fas fa-dizzy',
-    surprised: 'fas fa-surprise',
-    neutral: 'fas fa-meh'
-  };
-  
-  return emotionIcons[emotion];
+  return emotion.charAt(0).toUpperCase() + emotion.slice(1);
 };
 
 /**
- * Gets Tailwind CSS color class for an emotion
+ * Gets the design-system color for an emotion.
  * 
  * @param emotion - The emotion to get color for
- * @returns Tailwind CSS text color class string
+ * @returns Hex color string
  */
 export const GetEmotionColor = (emotion: keyof EmotionScores): string => {
   const emotionColors = {
-    happy: 'text-yellow-500',
-    sad: 'text-blue-500',
-    angry: 'text-red-500',
-    fearful: 'text-purple-500',
-    disgusted: 'text-green-500',
-    surprised: 'text-orange-500',
-    neutral: 'text-gray-500'
+    happy: '#D76358',
+    sad: '#557890',
+    angry: '#A9433F',
+    fearful: '#713B42',
+    disgusted: '#477B78',
+    surprised: '#78A6A0',
+    neutral: '#82908F'
   };
   
   return emotionColors[emotion];

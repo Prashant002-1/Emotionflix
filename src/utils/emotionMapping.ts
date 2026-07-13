@@ -1,9 +1,9 @@
 /**
- * Emotion Mapping Utilities
+ * Legacy Emotion Mapping Utilities
  * 
- * Utilities for mapping detected emotions to movie genres and generating
- * human-readable emotion descriptions. Uses probable psychological associations
- * between emotional states and movie genre preferences.
+ * @deprecated The current recommendation engine does not use this client utility.
+ * EmotionFlix learns personal film-response relationships and must not treat
+ * universal emotion-to-genre associations as product truth.
  */
 
 import { EmotionScores } from '../types/emotion';
@@ -82,5 +82,5 @@ export const GetEmotionDescription = (emotionScores: EmotionScores): string => {
   const [emotion, intensity] = dominantEmotion;
   const intensityLevel = intensity > 0.7 ? 'very' : intensity > 0.4 ? 'somewhat' : 'slightly';
 
-  return `You appear to be ${intensityLevel} ${emotion}`;
+  return `Recorded ${emotion} emphasis: ${intensityLevel}`;
 };

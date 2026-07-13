@@ -1,180 +1,118 @@
-/**
- * Movie Details Page Component
- * 
- * Displays comprehensive information about a specific movie including:
- * - Movie poster, title, overview, and metadata
- * - Release date, rating, runtime, and genres
- * - Watchlist management (add/remove)
- * - Navigation to emotion logging
- * - Error handling for invalid movie IDs
- */
-
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Bookmark, Check, Clock, Star } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import BrandMark from '../components/brand/BrandMark';
+import FilmRail from '../components/features/movie/FilmRail';
+import { useDiary } from '../contexts/DiaryContext';
+import { useUser } from '../contexts/UserContext';
+import { catalogService } from '../services/catalogService';
+import { CommunityEntry, discoveryService } from '../services/discoveryService';
 import { Movie } from '../types/movie';
-import { LoadingSpinner } from '../components/common';
-import { GetMovieDetails } from '../services/tmdbApi';
-import { useTheme } from '../contexts/ThemeContext';
-import { useEmotion } from '../contexts/EmotionContext';
+import { formatRuntime, imageUrl, releaseYear } from '../utils/display';
 
-/**
- * MovieDetails page component for displaying detailed movie information.
- * Fetches movie data by ID and provides watchlist management functionality.
- */
 const MovieDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  useTheme();
-  const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useEmotion();
+  const { user } = useUser();
+  const { isLogged, isSaved, saveFilm, unsaveFilm } = useDiary();
   const [movie, setMovie] = useState<Movie | null>(null);
+  const [similar, setSimilar] = useState<Movie[]>([]);
+  const [publicEntries, setPublicEntries] = useState<CommunityEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    const fetchMovie = async () => {
-      if (!id) return;
-      
-      try {
-        setLoading(true);
-        const movieData = await GetMovieDetails(parseInt(id));
-        setMovie(movieData);
-      } catch (err) {
-        setError('Failed to load movie details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovie();
+    const movieId = Number(id);
+    if (!movieId) {
+      setError('This film link is not valid.');
+      setLoading(false);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    Promise.all([catalogService.movie(movieId), catalogService.related(movieId), discoveryService.filmEntries(movieId).catch(() => [])])
+      .then(([details, related, entries]) => {
+        if (!active) return;
+        setMovie(details);
+        setSimilar(related.filter(item => item.poster_path));
+        setPublicEntries(entries);
+      })
+      .catch(() => active && setError('Film details could not be loaded.'))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
   }, [id]);
 
-  const handleLogEmotions = () => {
-    if (movie) {
-      navigate(`/log?movieId=${movie.id}`);
-    }
-  };
-
-  const handleWatchlistToggle = async () => {
-    if (!movie) return;
-
+  const toggleSaved = async () => {
+    if (!movie || !user) return;
+    setSaving(true);
+    setNotice('');
     try {
-      if (isInWatchlist(movie.id)) {
-        await removeFromWatchlist(movie.id);
-      } else {
-        await addToWatchlist(movie);
-      }
-    } catch (error) {
-      console.error('Error toggling watchlist:', error);
-      alert('Failed to update watchlist. Please try again.');
+      if (isSaved(movie.id)) await unsaveFilm(movie.id);
+      else await saveFilm(movie.id);
+      setNotice(isSaved(movie.id) ? 'Removed from saved films.' : 'Saved for later.');
+    } catch {
+      setNotice('That change could not be saved. Try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  if (loading) return <div className="loading-state page-loading"><div className="loading-spinner" /><span>Loading film</span></div>;
+  if (error || !movie) return <div className="error-state page-loading"><BrandMark /><h1>{error || 'Film not found'}</h1></div>;
 
-  if (error || !movie) {
-    return (
-      <div className="text-center py-12 px-6 bg-red-500/10 backdrop-blur-sm rounded-xl border border-red-500/20">
-        <i className="fas fa-exclamation-circle text-red-400 text-5xl mx-auto mb-4 block"></i>
-        <p className="text-red-300 text-xl mb-6">{error || 'Movie not found'}</p>
-        <Link
-          to="/"
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold"
-        >
-          Back to Home
-        </Link>
-      </div>
-    );
-  }
+  const backdrop = imageUrl(movie.backdrop_path, 'w1280');
+  const poster = imageUrl(movie.poster_path, 'w500');
+  const runtime = formatRuntime(movie.runtime);
 
   return (
-    <div
-      className="relative min-h-[80vh] bg-cover bg-center bg-no-repeat p-6 md:p-12"
-      style={{
-        backgroundImage: `linear-gradient(to top, rgba(17, 7, 22, 1) 0%, rgba(17, 7, 22, 0.8) 50%, rgba(17, 7, 22, 1) 100%), url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`,
-      }}
-    >
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative z-10">
-        <div className="md:col-span-1">
-          {movie.poster_path && (
-            <img
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={`${movie.title} movie poster`}
-              className="w-full rounded-2xl shadow-2xl shadow-cinema-500/20 border-2 border-cinema-500/30 transform hover:scale-105 transition-transform duration-300"
-            />
-          )}
-        </div>
-
-        <div className="md:col-span-2 flex flex-col justify-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-            {movie.title}
-          </h1>
-          <p className="text-lg text-cinema-300 font-semibold mb-6">
-            {movie.tagline}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <div className="flex items-center gap-2 text-yellow-400">
-              <i className="fas fa-star"></i>
-              <span className="font-bold text-xl">{movie.vote_average.toFixed(1)}</span>
-              <span className="text-gray-400 text-sm">/ 10</span>
+    <>
+      <section className="details-hero">
+        {backdrop && <img alt="" aria-hidden="true" className="details-hero__backdrop" src={backdrop} />}
+        <div className="details-hero__scrim" />
+        <div className="details-hero__content">
+          {poster ? <img alt={`Poster for ${movie.title}`} className="details-hero__poster" src={poster} /> : <div className="film-poster__fallback"><BrandMark /></div>}
+          <div className="details-hero__copy">
+            <h1 className="details-hero__title">{movie.title}</h1>
+            {movie.tagline && <p className="details-hero__tagline">{movie.tagline}</p>}
+            <div className="details-meta">
+              <span>{releaseYear(movie.release_date)}</span>
+              {runtime && <span className="rating"><Clock size={15} />{runtime}</span>}
+              {movie.vote_average > 0 && <span className="rating"><Star size={15} />{movie.vote_average.toFixed(1)} / 10</span>}
+              {movie.genres?.map(genre => <span key={genre.id}>{genre.name}</span>)}
             </div>
-            <span className="text-gray-300">{new Date(movie.release_date).getFullYear()}</span>
-            {movie.runtime && (
-              <span className="text-gray-300">{movie.runtime} min</span>
-            )}
-          </div>
-
-          {movie.genres && movie.genres.length > 0 && (
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-3">
-                {movie.genres.map((genre) => (
-                  <span
-                    key={genre.id}
-                    className="bg-white/10 backdrop-blur-sm text-cinema-200 px-4 py-2 rounded-full text-sm font-medium border border-cinema-400/20"
-                  >
-                    {genre.name}
-                  </span>
-                ))}
+            <p className="details-overview">{movie.overview || 'No synopsis is available for this film.'}</p>
+            {user ? (
+              <div className="details-actions">
+                <button className="button button--secondary" disabled={saving} onClick={() => void toggleSaved()} type="button">
+                  {isSaved(movie.id) ? <Check size={17} /> : <Bookmark size={17} />}{saving ? 'Saving' : isSaved(movie.id) ? 'Saved' : 'Save for later'}
+                </button>
+                <Link className="button button--primary" to={`/log?movieId=${movie.id}`}><Check size={17} />{isLogged(movie.id) ? 'Log another viewing' : 'Add to diary'}</Link>
               </div>
-            </div>
-          )}
-
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-white mb-3">Overview</h3>
-            <p className="text-gray-300 leading-relaxed">{movie.overview}</p>
-          </div>
-
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={handleLogEmotions}
-              className="inline-block bg-gradient-to-r from-cinema-600 to-film-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-cinema"
-            >
-              <i className="fas fa-heart mr-2"></i>
-              Log Emotions
-            </button>
-            <button 
-              onClick={handleWatchlistToggle}
-              className={`inline-block px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 border ${
-                isInWatchlist(movie?.id || 0)
-                  ? 'bg-green-600/20 border-green-500/50 text-green-300 hover:bg-green-600/30'
-                  : 'bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border-purple-400/20'
-              }`}
-            >
-              <i className={`mr-2 ${
-                isInWatchlist(movie?.id || 0) ? 'fas fa-check' : 'fas fa-plus'
-              }`}></i>
-              {isInWatchlist(movie?.id || 0) ? 'In Watchlist' : 'Add to Watchlist'}
-            </button>
+            ) : (
+              <p className="metadata details-auth-note">Sign in from the menu to save this film or add it to your history.</p>
+            )}
+            {notice && <p className="metadata details-status" role="status">{notice}</p>}
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {publicEntries.length > 0 && (
+        <section className="film-responses landing-section" aria-labelledby="film-responses-title">
+          <header className="section-heading-row"><div><h2 id="film-responses-title">What this film left with people</h2><p>Public entries for this film, in their own words.</p></div></header>
+          <div className="film-response-list">
+            {publicEntries.slice(0, 6).map(entry => (
+              <article className="film-response" key={entry.id}>
+                <div className="public-entry__byline"><Link className="person-avatar person-avatar--small" to={`/member/${entry.username}`}>{entry.username.charAt(0).toUpperCase()}</Link><p><Link to={`/member/${entry.username}`}><strong>@{entry.username}</strong></Link><small>{entry.rating ? `${entry.rating} / 5` : 'No rating'}</small></p></div>
+                <blockquote>{entry.note || 'No note on this viewing.'}</blockquote>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {similar.length > 0 && <div className="landing-section landing-section--tight"><FilmRail movies={similar} title="More like this" /></div>}
+    </>
   );
 };
 

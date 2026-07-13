@@ -51,6 +51,20 @@ export interface TMDBMovie {
   popularity: number;
   /** Array of TMDB genre IDs */
   genre_ids: number[];
+  genres?: { id: number; name: string }[];
+  runtime?: number;
+  tagline?: string;
+  adult?: boolean;
+  original_language?: string;
+  original_title?: string;
+  video?: boolean;
+}
+
+export interface TMDBResponse {
+  page: number;
+  results: TMDBMovie[];
+  total_pages: number;
+  total_results: number;
 }
 
 /**
@@ -62,7 +76,9 @@ export interface TMDBMovie {
  */
 export const getMovieDetails = async (movieId: number): Promise<TMDBMovie> => {
   const response = await tmdbClient.get(`/movie/${movieId}`);
-  return response.data as TMDBMovie;
+  const movie = response.data as TMDBMovie;
+  if (!movie.genre_ids?.length && movie.genres) movie.genre_ids = movie.genres.map(genre => genre.id);
+  return movie;
 };
 
 /**
@@ -72,9 +88,42 @@ export const getMovieDetails = async (movieId: number): Promise<TMDBMovie> => {
  * @returns Promise resolving to search results with movie array
  * @throws {Error} If API request fails
  */
-export const searchMovies = async (query: string): Promise<{ results: TMDBMovie[] }> => {
+export const searchMovies = async (query: string, page = 1): Promise<TMDBResponse> => {
   const response = await tmdbClient.get('/search/movie', {
-    params: { query }
+    params: { query, page, include_adult: false }
   });
-  return response.data as { results: TMDBMovie[] };
+  return response.data as TMDBResponse;
+};
+
+export const getGenres = async (): Promise<{ genres: { id: number; name: string }[] }> => {
+  const response = await tmdbClient.get('/genre/movie/list');
+  return response.data as { genres: { id: number; name: string }[] };
+};
+
+export const getTrendingMovies = async (page = 1): Promise<TMDBResponse> => {
+  const response = await tmdbClient.get('/trending/movie/week', { params: { page } });
+  return response.data as TMDBResponse;
+};
+
+export const getPopularMovies = async (page = 1): Promise<TMDBResponse> => {
+  const response = await tmdbClient.get('/movie/popular', { params: { page } });
+  return response.data as TMDBResponse;
+};
+
+export const discoverMovies = async (genreIds: number[], page = 1): Promise<TMDBResponse> => {
+  const response = await tmdbClient.get('/discover/movie', {
+    params: {
+      page,
+      with_genres: genreIds.join('|'),
+      sort_by: 'vote_count.desc',
+      'vote_count.gte': 80,
+      include_adult: false,
+    },
+  });
+  return response.data as TMDBResponse;
+};
+
+export const getRelatedMovies = async (movieId: number): Promise<TMDBResponse> => {
+  const response = await tmdbClient.get(`/movie/${movieId}/recommendations`);
+  return response.data as TMDBResponse;
 };

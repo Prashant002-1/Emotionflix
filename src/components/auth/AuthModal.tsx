@@ -1,12 +1,5 @@
-/**
- * AuthModal Component
- * 
- * Modal dialog for user authentication that supports both login and registration.
- * Provides toggle between login/register modes and handles authentication success.
- */
-
-import React, { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
@@ -16,56 +9,49 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
 }
 
-/**
- * AuthModal component that renders login or registration forms in a modal dialog.
- * @param isOpen - Controls modal visibility
- * @param onClose - Callback to close the modal
- * @param initialMode - Initial form mode ('login' or 'register')
- */
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
-  const { theme } = useTheme();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => setMode(initialMode), [initialMode, isOpen]);
 
   if (!isOpen) return null;
 
-  /**
-   * Handles successful authentication by closing the modal.
-   */
-  const handleSuccess = () => {
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      <div className="relative w-full max-w-md">
-        <button
-          onClick={onClose}
-          className={`absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10 ${
-            theme === 'dark'
-              ? 'bg-slate-800 text-white hover:bg-slate-700'
-              : 'bg-white text-gray-600 hover:bg-gray-100'
-          }`}
-        >
-          <i className="fas fa-times"></i>
+    <div className="dialog-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section aria-labelledby="auth-title" aria-modal="true" className="dialog" role="dialog">
+        <button aria-label="Close dialog" className="icon-button dialog__close" onClick={onClose} ref={closeRef} type="button">
+          <X size={20} />
         </button>
-
+        <h2 className="dialog__title" id="auth-title">{mode === 'login' ? 'Sign in' : 'Create an account'}</h2>
+        <p className="dialog__intro">
+          {mode === 'login' ? 'Open your diary, saved films, and personal recommendations.' : 'Keep a film diary and let the record change what you find next.'}
+        </p>
+        <div aria-label="Account action" className="auth-tabs" role="tablist">
+          <button aria-selected={mode === 'login'} className={`auth-tab${mode === 'login' ? ' auth-tab--active' : ''}`} onClick={() => setMode('login')} role="tab" type="button">Existing account</button>
+          <button aria-selected={mode === 'register'} className={`auth-tab${mode === 'register' ? ' auth-tab--active' : ''}`} onClick={() => setMode('register')} role="tab" type="button">New account</button>
+        </div>
         {mode === 'login' ? (
-          <LoginForm
-            onSuccess={handleSuccess}
-            onSwitchToRegister={() => setMode('register')}
-          />
+          <LoginForm onSuccess={onClose} onSwitchToRegister={() => setMode('register')} />
         ) : (
-          <RegisterForm
-            onSuccess={handleSuccess}
-            onSwitchToLogin={() => setMode('login')}
-          />
+          <RegisterForm onSuccess={onClose} onSwitchToLogin={() => setMode('login')} />
         )}
-      </div>
+      </section>
     </div>
   );
 };

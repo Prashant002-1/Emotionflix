@@ -7,7 +7,7 @@
  */
 
 import express from 'express';
-import { register, login, getProfile, changePassword } from '../controllers/authController';
+import { register, login, getProfile, changePassword, updateProfile } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
@@ -20,6 +20,7 @@ router.post('/login', login);
 
 /** GET /auth/profile - Get authenticated user's profile information */
 router.get('/profile', authenticateToken, getProfile);
+router.patch('/profile', authenticateToken, updateProfile);
 
 /** PUT /auth/change-password - Change authenticated user's password */
 router.put('/change-password', authenticateToken, changePassword);

@@ -6,8 +6,8 @@
  * state while checking authentication status.
  */
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import { LoadingSpinner } from './index';
 
@@ -26,26 +26,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   fallbackPath = '/' 
 }) => {
   const { user, loading } = useUser();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate(fallbackPath, { replace: true });
-    }
-  }, [user, loading, navigate, fallbackPath]);
 
   // Show loading spinner while checking authentication
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <LoadingSpinner message="Loading..." />
-      </div>
-    );
+    return <LoadingSpinner message="Loading account" />;
   }
 
   // If not authenticated, don't render children
   if (!user) {
-    return null;
+    return <Navigate replace to={fallbackPath} />;
   }
 
   // If authenticated, render children

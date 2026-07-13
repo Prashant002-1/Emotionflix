@@ -9,19 +9,48 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d emotionflix_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  app:
+  api:
     build: .
+    command: npm --prefix server run dev
+    env_file:
+      - ./server/.env
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:seniorproject450@postgres:5432/emotionflix_dev
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me}
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:5173
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - root_node_modules:/app/node_modules
+      - server_node_modules:/app/server/node_modules
+
+  web:
+    build: .
+    command: npm run dev -- --host 0.0.0.0
     ports:
       - "5173:5173"
     environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/emotionflix_dev
-      - VITE_TMDB_API_KEY=${VITE_TMDB_API_KEY}
+      VITE_API_URL: http://localhost:3001/api
     depends_on:
-      - postgres
+      - api
     volumes:
       - .:/app
-      - /app/node_modules
+      - root_node_modules:/app/node_modules
 
 volumes:
   postgres_data:
+  root_node_modules:
+  server_node_modules:

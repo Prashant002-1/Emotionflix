@@ -1,11 +1,6 @@
-/**
- * INLINE EMOTION DISPLAY COMPONENT
- *   Inline component for displaying emotions with icons
- */
-
 import React from 'react';
 import { EmotionScores } from '../../types/emotion';
-import { useEmotion } from '../../contexts/EmotionContext';
+import { emotionLabels } from '../../utils/display';
 
 interface EmotionDisplayInlineProps {
   emotions: EmotionScores;
@@ -13,32 +8,16 @@ interface EmotionDisplayInlineProps {
   className?: string;
 }
 
-export const EmotionDisplayInline: React.FC<EmotionDisplayInlineProps> = ({ 
-  emotions, 
-  threshold = 0.01,
-  className = ''
-}) => {
-  const { getEmotionDisplayString } = useEmotion();
-  const emotionData = getEmotionDisplayString(emotions, threshold);
+export const EmotionDisplayInline: React.FC<EmotionDisplayInlineProps> = ({ emotions, threshold = 0.01, className = '' }) => {
+  const values = (Object.entries(emotions) as [keyof EmotionScores, number][])
+    .filter(([, value]) => value > threshold)
+    .sort(([, first], [, second]) => second - first);
 
-  if (emotionData.length === 0) {
-    return (
-      <span className={`inline-flex items-center gap-1 ${className}`}>
-        <i className="fas fa-meh text-gray-500"></i>
-        <span className="text-gray-500">No significant emotions</span>
-      </span>
-    );
-  }
+  if (!values.length) return <span className={`metadata ${className}`}>No feeling saved</span>;
 
   return (
-    <span className={`inline-flex items-center gap-2 flex-wrap ${className}`}>
-      {emotionData.map(({ emotion, value, icon, color }, index) => (
-        <span key={emotion} className="inline-flex items-center gap-1">
-          <i className={`${icon} ${color}`}></i>
-          <span className="font-medium">{Math.round(value * 100)}%</span>
-          {index < emotionData.length - 1 && <span className="text-gray-400">•</span>}
-        </span>
-      ))}
+    <span className={`metadata ${className}`}>
+      {values.map(([emotion, value]) => `${emotionLabels[emotion]} ${Math.round(value * 100)}%`).join(' · ')}
     </span>
   );
 };

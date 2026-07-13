@@ -51,3 +51,25 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     next();
   });
 };
+
+/**
+ * Adds user context when a valid token is present without making authentication
+ * a requirement. Public discovery and recommendation routes use this to become
+ * personal for signed-in visitors while remaining useful before sign-in.
+ */
+export const optionalAuthentication = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return next();
+
+  const [scheme, token] = authHeader.split(' ');
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(401).json({ error: 'Invalid authorization header' });
+  }
+
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET!) as AuthRequest['user'];
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
