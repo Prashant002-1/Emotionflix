@@ -93,7 +93,7 @@ Private entries may help match their owner internally, but their film title, not
 
 ## Interaction rules
 
-The public landing page is a product overview. The signed-in home is the social feed.
+The public landing page is a product overview. The signed-in home is an activity and usage dashboard.
 
 The composer starts with the film and then asks how it felt and what it meant. Direct controls and writing are sufficient. Optional adapters sit in a secondary disclosure. Publishing and optional photo attachment are separate choices.
 

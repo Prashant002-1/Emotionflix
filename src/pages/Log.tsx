@@ -190,7 +190,7 @@ const Log: React.FC = () => {
                 )}
                 {photoError && <span className="error-text" role="alert">{photoError}</span>}
               </div>
-              <fieldset className="visibility-control field--full"><legend>Visibility</legend><label><input checked={visibility === 'private'} name="visibility" onChange={() => setVisibility('private')} type="radio" />Private</label><label><input checked={visibility === 'public'} name="visibility" onChange={() => setVisibility('public')} type="radio" />Public</label><p>Public responses appear in the feed.</p></fieldset>
+              <fieldset className="visibility-control field--full"><legend>Visibility</legend><label><input checked={visibility === 'private'} name="visibility" onChange={() => setVisibility('private')} type="radio" />Private</label><label><input checked={visibility === 'public'} name="visibility" onChange={() => setVisibility('public')} type="radio" />Public</label><p>Public responses appear in community activity.</p></fieldset>
             </div>
 
             <div className="feeling-divider"><span>Add your feelings</span></div>
@@ -203,7 +203,7 @@ const Log: React.FC = () => {
         <div className="completion-state">
           <Check size={32} />
           <div><h2>{selected.title} is in your diary.</h2></div>
-          <div className="completion-state__actions"><Link className="button button--primary" to="/feed">Open feed</Link><Link className="button button--secondary" to="/recommendations">Discover films</Link><button className="button button--quiet" onClick={reset} type="button">Add another film</button></div>
+          <div className="completion-state__actions"><Link className="button button--primary" to="/feed">Go home</Link><Link className="button button--secondary" to="/recommendations">Discover films</Link><button className="button button--quiet" onClick={reset} type="button">Add another film</button></div>
         </div>
       )}
     </div>

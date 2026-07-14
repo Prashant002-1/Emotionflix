@@ -74,7 +74,7 @@ const MemberProfile: React.FC = () => {
   };
 
   if (loading) return <div className="loading-state page-loading"><div className="loading-spinner" /><span>Opening public diary</span></div>;
-  if (error || !person) return <div className="page-shell"><div className="error-state"><h1>{error || 'Member not found'}</h1><Link className="button button--secondary" to="/feed">Return to feed</Link></div></div>;
+  if (error || !person) return <div className="page-shell"><div className="error-state"><h1>{error || 'Member not found'}</h1><Link className="button button--secondary" to="/feed">Return home</Link></div></div>;
 
   const emotion = dominantEmotion(person);
   const backdrop = entries.find(entry => entry.backdrop_path)?.backdrop_path;

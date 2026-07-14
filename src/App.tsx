@@ -18,7 +18,7 @@ const Home = lazy(() => import('./pages/Home'))
 const UserProfile = lazy(() => import('./pages/UserProfile'))
 const Log = lazy(() => import('./pages/Log'))
 const Diary = lazy(() => import('./pages/Diary'))
-const Feed = lazy(() => import('./pages/Community'))
+const HomeActivity = lazy(() => import('./pages/Community'))
 const MemberProfile = lazy(() => import('./pages/MemberProfile'))
 const Recommendations = lazy(() => import('./pages/Recommendations'))
 const MovieDetails = lazy(() => import('./pages/MovieDetails'))
@@ -60,7 +60,7 @@ function App() {
                                     } />
                                     <Route path="feed" element={
                                         <ProtectedRoute>
-                                            <Feed />
+                                            <HomeActivity />
                                         </ProtectedRoute>
                                     } />
                                     <Route path="community" element={<Navigate replace to="/feed" />} />

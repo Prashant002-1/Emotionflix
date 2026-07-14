@@ -33,6 +33,7 @@
     "test:report": "npm run test:coverage:full && echo 'Test results updated in TESTING.md'"
   },
   "dependencies": {
+    "@fontsource/newsreader": "^5.2.10",
     "@fontsource/oxygen": "^5.2.8",
     "@types/node": "^24.1.0",
     "axios": "^1.18.1",

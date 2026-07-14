@@ -19,8 +19,9 @@ layout:
   contentWidth: "1380px"
   readingWidth: "68ch"
   controlHeight: "50px"
-  navHeight: "68px"
+  navHeight: "48px"
   footerHeight: "88px"
+  interfaceScale: "110%"
 rounded:
   control: "8px"
   surface: "14px"
@@ -34,7 +35,7 @@ rounded:
 
 EmotionFlix should feel like leaving a repertory screening in the afternoon while the film is still present. It is warm, tactile, culturally literate, and alive with other people. Daylight and quiet neutral surfaces make room for film art; saturated color marks shifts in feeling and social connection.
 
-The public page is expressive and narrative. The signed-in product is calmer, but the feed still feels inhabited: human writing, film artwork, emotional traces, and occasional expression photos establish the atmosphere. It must never resemble a streaming catalog, a film-review scorecard, a generic SaaS dashboard, or a facial-analysis demo.
+The public page is expressive and narrative. The signed-in product is calmer, but the response stream still feels inhabited: human writing, film artwork, emotional traces, and occasional reaction photos establish the atmosphere. It must never resemble a streaming catalog, a film-review scorecard, a generic SaaS dashboard, an Instagram clone, or a facial-analysis demo.
 
 The visual story follows the product:
 
@@ -47,10 +48,9 @@ The visual story follows the product:
 
 The logo is intentionally unresolved.
 
-- Keep a stable `.brand-lockup` container and replaceable `.brand-slot`.
-- Treat `BrandMark` as a placeholder only.
-- Do not derive patterns, icons, motion, or layout motifs from the placeholder.
-- Replacing the mark must not require restructuring navigation.
+- Use the text wordmark alone in navigation until the logo direction is chosen.
+- Leave `BrandMark` untouched as an unused placeholder; do not turn it into a motif.
+- Reintroducing a future mark must not require restructuring navigation.
 
 ## Typography
 
@@ -65,7 +65,7 @@ Oxygen remains the only family. The design changes its scale and rhythm, not the
 - Metadata is compact but never faint.
 - Avoid repeated uppercase eyebrows as section scaffolding.
 
-Desktop uses a 17px root. Mobile uses 16px. Controls remain at least 50px high and touch targets at least 44px.
+The interface renders at a deliberate 110% scale so its 100% browser view matches the approved composition. Desktop starts from a 17px root before that scale; mobile uses the same proportional system. Controls remain at least 50px high and touch targets at least 44px.
 
 ## Palette
 
@@ -83,7 +83,7 @@ Desktop uses a 17px root. Mobile uses 16px. Controls remain at least 50px high a
 
 ### Human accents
 
-- **Oxide `#D76358`:** primary action and a major emotional field.
+- **Oxide `#D76358`:** a major emotional field and selective human accent, not the default button color.
 - **Fig `#713B42`:** resonance, intimacy, and reaction state.
 
 Default text is Ink on Mineral, Mist, or Chalk. Small text on Teal uses `#FAF8F4`. Chalk on Fig and Ink is approved. Muted copy uses an Ink-derived color such as `#435258`. Oxide and Fig are not decorative confetti.
@@ -98,36 +98,35 @@ Texture behaves like photographic grain, never a visible pattern.
 - Grain sits below content and never reduces text clarity.
 - Keep it static.
 
-Section transitions may use large soft radial shapes that overlap their edges like diluted ink spreading into adjacent paper. These edges should be irregular, layered, and quiet. They are not sharp waves, geometric dividers, or decorative blobs floating behind every section.
+Section transitions use static SVG diffusion: layered color fields are displaced by fractal noise, feathered at different radii, and allowed to overlap like wet ink travelling through paper fibres. The source and destination colors must visibly mingle at the edge. Do not approximate this with a row of radial gradients, a smooth blurred wave, a geometric divider, or animated blobs.
 
 ## Public overview
 
 The logged-out home is a product overview, not a browse surface.
 
-- The opening composition pairs a clear statement with one convincing social response.
-- A real poster, first-person note, feelings, and optional expression photo prove the product in the first viewport.
-- The next section shows that writing and direct feeling controls are enough.
-- The social section keeps the line: “The social layer has a purpose.”
-- Do not repeat the same film in multiple examples.
+- The approved opening composition is preserved: “Films stay with people differently,” paired with one convincing social response. Its large candid expression photo, small Whiplash poster, response card, copy, and relative placement should not be redesigned during work on sections below it.
+- A real poster, first-person note, and reviewed feelings prove the product in the first viewport.
+- The page then follows the product story: the private after-film moment, words and direct feeling controls, a familiar person, and the films found through them.
+- Show several distinct films and people in the social section. One repeated example cannot explain a discovery network.
+- Explain who the product helps and why small choices matter without turning the page into a feature-card grid or marketing checklist.
 - The final invitation contains Enter demo and a quieter sign-in action without explaining what the demo does.
 - Public navigation contains overview anchors, Sign in, and a quiet Enter demo action.
 
 ## Signed-in product
 
-### Feed
+### Home and activity
 
-The feed is the primary home. It follows the familiar rhythm of a social timeline while keeping film responses distinct from lifestyle content.
+The signed-in home is an application dashboard, not another piece of the marketing page. It uses a Letterboxd-like film-and-activity density: the account's diary totals, public count, saved count, active films, recent community activity, recent diary entries, and saved films are visible together.
 
-Each post keeps together:
+Each activity row keeps together:
 
 - person and follow state;
 - first-person response;
 - reviewed feelings;
 - film poster and title;
-- optional expression photo;
 - reaction state.
 
-The optional photo should feel candid and human. It is attached media, never presented as analysis or proof. Posts without photos must remain equally complete.
+Reaction photos do not control the home layout. They remain available in the composer, diary, member, and film contexts where there is room to treat them as optional media.
 
 ### Discover
 
@@ -157,9 +156,9 @@ Account state, bio, password, and diary counts are task-focused. This page uses 
 
 ## Navigation and footer
 
-- Navigation is 68px on desktop and visually lighter on mobile.
-- Logged-out: logo slot, overview anchors, Sign in, quiet Enter demo.
-- Logged-in: logo slot, Feed, Discover, Diary, Add film, account.
+- Public navigation is a fixed 48px text layer on desktop and 46px on mobile, with no lower border. Its text changes tone with the section beneath it.
+- Logged-out: text wordmark, two useful overview anchors, Sign in, and quiet Enter demo.
+- The signed-in product does not reuse the public header. Desktop uses a compact Ink navigation rail with Home, Discover, Diary, Add response, profile, and sign out. Mobile turns that rail into a bottom navigation bar.
 - Enter demo signs in directly; never display credentials.
 - Protected routes return signed-out visitors to the public overview.
 - The footer is one compact 88px field with the TMDB mark and the required non-commercial attribution only.
@@ -168,10 +167,10 @@ Account state, bio, password, and diary counts are task-focused. This page uses 
 
 Motion should make the page feel continuous and responsive, not staged.
 
-- Lenis supplies restrained smooth scrolling and anchor movement.
+- Lenis supplies restrained smooth scrolling and anchor movement on the public landing page only. Every signed-in route uses native scrolling for a snappier product feel.
 - Large visual layers may move at subtly different scroll rates.
 - Content reveals once as it enters the viewport with short, low-distance motion.
-- Ink-spill edges may drift slowly, but grain never moves.
+- Ink diffusion and grain are static. Motion belongs to content and spatial layers, not simulated paper texture.
 - Hover motion is limited to a small lift, scale, or color change.
 - No scroll locking, autoplay carousels, particles, looping decoration, or long entrance sequences.
 - Respect `prefers-reduced-motion` globally; content must appear immediately when reduction is requested.
@@ -192,7 +191,7 @@ Do not encode emotion-to-genre rules. Do not use scanning graphics, camera frame
 
 ## Components
 
-- **Primary button:** Oxide, dark action text, 8px radius, 50px minimum height.
+- **Primary button:** Ink with Chalk text in the signed-in product, 8px radius, 50px minimum height. Oxide is reserved for emotional fields and rare emphasis.
 - **Secondary button:** Ink or Mist according to the field.
 - **Quiet button:** transparent at rest with a local-surface hover.
 - **Surface:** 14px maximum radius for grouped state; posters use 2 to 6px.
@@ -205,7 +204,7 @@ Do not encode emotion-to-genre rules. Do not use scanning graphics, camera frame
 
 ## Copy rules
 
-Use film, response, feelings, note, person, feed, diary, public, private, saved, follow, reaction, and recommendation literally.
+Use film, response, feelings, note, person, activity, diary, public, private, saved, follow, reaction, and recommendation literally. The `/feed` route remains an implementation detail; the interface calls it Home and labels the actual list Recent activity.
 
 Avoid invented feature names, technical architecture copy, privacy theater, marketing buzzwords, and mechanical explanations. Never claim that EmotionFlix understands, reads, detects, or diagnoses how a person feels.
 

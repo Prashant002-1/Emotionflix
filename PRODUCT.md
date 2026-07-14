@@ -4,7 +4,7 @@
 
 EmotionFlix is emotion-based social film discovery.
 
-A person shares a film alongside what it meant to them and the feelings that stayed with them. Other people who responded similarly to the same film become a path to what to watch next. The social feed is the product's signed-in home. The diary preserves a person's own history, and the catalog remains available underneath discovery, but neither should displace people from the center of the experience.
+A person shares a film alongside what it meant to them and the feelings that stayed with them. Other people who responded similarly to the same film become a path to what to watch next. The signed-in home combines the person's own usage with recent film activity. The diary preserves a person's history, and the catalog remains available underneath discovery, but neither should displace people from the center of the experience.
 
 EmotionFlix is not a review platform. It does not ask people to judge a film, assign a score, or write criticism. It asks for a first-person response: how the film felt, what it brought up, and what remained afterward.
 
@@ -22,7 +22,7 @@ One shared response contains:
 
 The note and feeling controls are the primary paths. Suggestions may later come from the writing or another consented source, but the person reviews them before saving.
 
-An expression photo is social media attached to a post. It is not emotional evidence, is never analyzed automatically, and is optional even when the response is public. Expression analysis is a separate opt-in adapter whose output is only a suggestion.
+An expression photo is an optional, playful reaction attached to a response. It adds a little life when the person wants it; it is not emotional evidence, is never analyzed automatically, and is optional even when the response is public. Expression analysis is a separate opt-in adapter whose output is only a suggestion.
 
 There are no user ratings. TMDB metadata may contain catalog values internally, but ratings and vote counts do not appear in the product experience and do not power personal recommendations.
 
@@ -30,11 +30,11 @@ There are no user ratings. TMDB metadata may contain catalog values internally, 
 
 ### Public overview
 
-The logged-out landing page explains the product. It shows a human response, the feeling input, and the connection from one person to another. It does not expose a streaming-style catalog. Sign in and the one-step demo are the routes into the product.
+The logged-out landing page explains the product as a human sequence: the small moment after a film, keeping words and feelings, recognizing another person, and finding films through them. It shows multiple films so the discovery network is legible, explains who the product is for, and makes the care behind privacy, contradiction, and optional media visible. It does not expose a streaming-style catalog. Sign in and the one-step demo are the routes into the product.
 
-### Feed
+### Home and activity
 
-The feed is the signed-in home and the main discovery surface. It is a timeline of public film responses from relevant people and the wider community. Posts keep the film, words, feelings, optional expression photo, author, and reactions together. Following changes whose responses appear first.
+Home is the signed-in orientation surface. It shows the account's diary, public-response and saved-film counts; active films across the community; compact recent activity; the latest diary entries; and saved films. It does not reuse landing-page storytelling, use a generic `Feed` heading, create portrait-first social cards, or duplicate publishing actions. Following changes whose activity appears first.
 
 ### Add a film
 

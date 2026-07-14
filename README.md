@@ -2,7 +2,7 @@
 
 EmotionFlix is emotion-based social film discovery.
 
-A person shares what a film meant to them and the feelings that stayed with them. The product finds people who responded similarly to the same films, then reveals what stayed with those people next. The signed-in home is a social feed; the personal diary and film catalog support that experience without replacing it.
+A person shares what a film meant to them and the feelings that stayed with them. The product finds people who responded similarly to the same films, then reveals what stayed with those people next. The signed-in home combines personal usage, active films, community activity, the diary, and saved films.
 
 Direct feeling controls and writing are the primary inputs. A public response may include an optional expression photo as attached media. Facial-expression analysis is a separate optional adapter whose output remains an editable suggestion. It is not the product identity.
 
@@ -21,7 +21,7 @@ There are no user ratings. Genres, TMDB vote values, and universal emotion-to-ge
 ## Product routes
 
 - `/`: public product overview
-- `/feed`: signed-in social home
+- `/feed`: signed-in home and activity
 - `/recommendations`: people-led discovery with catalog browse below
 - `/diary`: personal response history
 - `/log`: add a film response

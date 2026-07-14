@@ -11,6 +11,15 @@ const SmoothScroll = () => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let cleanupReveal: (() => void) | undefined;
 
+    if (location.pathname !== '/') {
+      lenisRef.current?.destroy();
+      lenisRef.current = null;
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(element => element.dataset.revealState = 'visible');
+      document.documentElement.style.removeProperty('--page-scroll');
+      document.documentElement.style.removeProperty('--page-progress');
+      return;
+    }
+
     const startRevealObserver = () => {
       const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
       if (motionQuery.matches) {
@@ -72,6 +81,7 @@ const SmoothScroll = () => {
         lenis.on('scroll', ({ scroll, limit }) => {
           document.documentElement.style.setProperty('--page-scroll', `${scroll}px`);
           document.documentElement.style.setProperty('--page-progress', String(limit > 0 ? scroll / limit : 0));
+          window.dispatchEvent(new Event('emotionflix:landing-scroll'));
         });
         lenisRef.current = lenis;
       }

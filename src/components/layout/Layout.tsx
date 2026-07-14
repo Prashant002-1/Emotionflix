@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { LoaderCircle, LogOut, Menu, Plus, UserRound, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Activity, BookOpen, Compass, LoaderCircle, LogOut, Menu, Plus, X } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import AuthModal from '../auth/AuthModal';
-import BrandMark from '../brand/BrandMark';
 
 const DEMO_EMAIL = 'demo@demo.com';
 const DEMO_PASSWORD = 'demo123!';
@@ -19,31 +18,54 @@ const Layout: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, login, logout } = useUser();
   const [authOpen, setAuthOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState('');
-  const accountRef = useRef<HTMLDivElement>(null);
+  const [navTone, setNavTone] = useState<'light' | 'dark'>('light');
 
   const productLinks = [
-    { path: '/feed', label: 'Feed' },
-    { path: '/recommendations', label: 'Discover' },
-    { path: '/diary', label: 'Diary' },
+    { path: '/feed', label: 'Home', icon: Activity },
+    { path: '/recommendations', label: 'Discover', icon: Compass },
+    { path: '/diary', label: 'Diary', icon: BookOpen },
+    { path: '/log', label: 'Add response', shortLabel: 'Add', icon: Plus },
   ];
 
   useEffect(() => {
     setMobileOpen(false);
-    setAccountOpen(false);
     setDemoError('');
   }, [location.pathname]);
 
   useEffect(() => {
-    const closeAccountMenu = (event: MouseEvent) => {
-      if (!accountRef.current?.contains(event.target as Node)) setAccountOpen(false);
+    if (user || location.pathname !== '/') {
+      setNavTone('light');
+      return;
+    }
+
+    let frame = 0;
+    const updateTone = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const sampleLine = Math.max(20, Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) * 0.5));
+        const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-tone]'));
+        const current = sections.find(section => {
+          const bounds = section.getBoundingClientRect();
+          return bounds.top <= sampleLine && bounds.bottom > sampleLine;
+        });
+        setNavTone(current?.dataset.navTone === 'dark' ? 'dark' : 'light');
+      });
     };
-    document.addEventListener('mousedown', closeAccountMenu);
-    return () => document.removeEventListener('mousedown', closeAccountMenu);
-  }, []);
+
+    updateTone();
+    window.addEventListener('scroll', updateTone, { passive: true });
+    window.addEventListener('emotionflix:landing-scroll', updateTone);
+    window.addEventListener('resize', updateTone);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', updateTone);
+      window.removeEventListener('emotionflix:landing-scroll', updateTone);
+      window.removeEventListener('resize', updateTone);
+    };
+  }, [location.pathname, user]);
 
   const openAuth = () => {
     setMobileOpen(false);
@@ -65,122 +87,81 @@ const Layout: React.FC = () => {
     }
   };
 
-  const renderProductLink = (path: string, label: string, mobile = false) => {
-    const active = location.pathname === path || location.pathname.startsWith(`${path}/`);
-    return (
-      <Link
-        aria-current={active ? 'page' : undefined}
-        className={`nav-link${active ? ' nav-link--active' : ''}`}
-        key={`${mobile ? 'mobile-' : ''}${path}`}
-        to={path}
-      >
-        {label}
-      </Link>
-    );
-  };
+  const activePath = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   return (
     <div className={`app-shell${user ? ' app-shell--product' : ' app-shell--public'}`}>
       <a className="skip-link" href="#main-content">Skip to content</a>
-      <header className={`nav-shell${user ? ' nav-shell--product' : ' nav-shell--public'}`}>
-        <div className="nav-inner">
-          <Link aria-label="EmotionFlix home" className="brand-lockup" to={user ? '/feed' : '/'}>
-            <span className="brand-slot" aria-hidden="true"><BrandMark /></span>
-            <span className="wordmark">EmotionFlix</span>
-          </Link>
 
-          {user ? (
-            <nav aria-label="Primary" className="nav-links">
-              {productLinks.map(link => renderProductLink(link.path, link.label))}
-            </nav>
-          ) : (
-            <nav aria-label="Product overview" className="nav-links nav-links--public">
-              <a className="nav-link" href="#feelings">Feelings</a>
-              <a className="nav-link" href="#people">People</a>
+      {user ? (
+        <aside className="product-rail" aria-label="Application navigation">
+          <Link aria-label="EmotionFlix home" className="product-rail__brand" to="/feed">EmotionFlix</Link>
+          <nav className="product-rail__nav">
+            {productLinks.map(link => {
+              const Icon = link.icon;
+              const active = activePath(link.path);
+              return (
+                <Link aria-current={active ? 'page' : undefined} className={`product-rail__link${active ? ' product-rail__link--active' : ''}`} key={link.path} to={link.path}>
+                  <Icon aria-hidden="true" size={17} />
+                  <span className="product-rail__label">{link.label}</span>
+                  <span className="product-rail__short-label">{link.shortLabel || link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="product-rail__account">
+            <Link className={`product-rail__profile${activePath('/profile') ? ' product-rail__profile--active' : ''}`} to="/profile">
+              <span className="product-rail__avatar">{user.displayName.charAt(0).toUpperCase()}</span>
+              <span><strong>{user.displayName}</strong><small>@{user.username}</small></span>
+            </Link>
+            <button aria-label="Sign out" className="product-rail__logout" onClick={logout} type="button"><LogOut size={16} /></button>
+          </div>
+        </aside>
+      ) : (
+        <header className={`nav-shell nav-shell--public nav-shell--tone-${navTone}`}>
+          <div className="nav-inner">
+            <Link aria-label="EmotionFlix home" className="brand-lockup" to="/"><span className="wordmark">EmotionFlix</span></Link>
+            <div className="nav-actions">
+              {!authLoading ? (
+                <>
+                  <button className="button button--quiet nav-sign-in" onClick={openAuth} type="button">Sign in</button>
+                  <button className="button button--secondary nav-demo" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
+                    {demoLoading && <LoaderCircle className="loading-icon" size={16} />}
+                    {demoLoading ? 'Opening demo' : 'Enter demo'}
+                  </button>
+                </>
+              ) : <span aria-label="Loading account" className="nav-auth-loading" />}
+              <button aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} className="icon-button mobile-menu-button" onClick={() => setMobileOpen(open => !open)} type="button">
+                {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
+          </div>
+          {demoError && <p className="nav-status" role="alert">{demoError}</p>}
+          {mobileOpen && (
+            <nav aria-label="Mobile" className="mobile-sheet">
+              <button className="nav-link" onClick={openAuth} type="button">Sign in</button>
+              <button className="button button--secondary" disabled={demoLoading} onClick={() => void enterDemo()} type="button">{demoLoading ? 'Opening demo' : 'Enter demo'}</button>
             </nav>
           )}
-
-          <div className="nav-actions">
-            {user && <Link className="button button--primary nav-log" to="/log"><Plus size={17} />Add film</Link>}
-            {user ? (
-              <div className="account-control" ref={accountRef}>
-                <button
-                  aria-expanded={accountOpen}
-                  aria-haspopup="menu"
-                  aria-label="Open account menu"
-                  className="avatar-button"
-                  onClick={() => setAccountOpen(open => !open)}
-                  type="button"
-                >
-                  {user.displayName.charAt(0).toUpperCase()}
-                </button>
-                {accountOpen && (
-                  <div className="account-menu" role="menu">
-                    <div className="account-menu__identity"><strong>{user.displayName}</strong><span>@{user.username}</span></div>
-                    <Link className="account-menu__item" role="menuitem" to="/profile"><UserRound size={17} />Account</Link>
-                    <button className="account-menu__item" onClick={logout} role="menuitem" type="button"><LogOut size={17} />Sign out</button>
-                  </div>
-                )}
-              </div>
-            ) : !authLoading ? (
-              <>
-                <button className="button button--quiet nav-sign-in" onClick={openAuth} type="button">Sign in</button>
-                <button className="button button--secondary nav-demo" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
-                  {demoLoading && <LoaderCircle className="loading-icon" size={16} />}
-                  {demoLoading ? 'Opening demo' : 'Enter demo'}
-                </button>
-              </>
-            ) : <span aria-label="Loading account" className="nav-auth-loading" />}
-
-            <button
-              aria-expanded={mobileOpen}
-              aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-              className="icon-button mobile-menu-button"
-              onClick={() => setMobileOpen(open => !open)}
-              type="button"
-            >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </div>
-
-        {demoError && <p className="nav-status" role="alert">{demoError}</p>}
-
-        {mobileOpen && (
-          <nav aria-label="Mobile" className="mobile-sheet">
-            {user ? (
-              <>
-                {productLinks.map(link => renderProductLink(link.path, link.label, true))}
-                <Link className="nav-link" to="/log">Add film</Link>
-              </>
-            ) : (
-              <>
-                <a className="nav-link" href="#feelings">Feelings</a>
-                <a className="nav-link" href="#people">People</a>
-                <button className="nav-link" onClick={openAuth} type="button">Sign in</button>
-                <button className="button button--secondary" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
-                  {demoLoading ? 'Opening demo' : 'Enter demo'}
-                </button>
-              </>
-            )}
-          </nav>
-        )}
-      </header>
+        </header>
+      )}
 
       <main id="main-content">
         <Outlet context={{ openAuth, enterDemo, demoLoading } satisfies LayoutOutletContext} />
       </main>
 
-      <footer className={`footer${user ? ' footer--product' : ''}`}>
-        <div className="footer__inner">
-          <div className="footer__credits">
-            <a aria-label="Visit TMDB" className="tmdb-credit" href="https://www.themoviedb.org" rel="noreferrer" target="_blank">
-              <img alt="TMDB" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg" />
-            </a>
-            <p>Non-commercial project. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+      {!user && (
+        <footer className="footer">
+          <div className="footer__inner">
+            <div className="footer__credits">
+              <a aria-label="Visit TMDB" className="tmdb-credit" href="https://www.themoviedb.org" rel="noreferrer" target="_blank">
+                <img alt="TMDB" src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg" />
+              </a>
+              <p>Non-commercial project. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
