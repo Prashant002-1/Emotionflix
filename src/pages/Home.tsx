@@ -1,7 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import {
+  ArrowRight,
+  Check,
+  Compass,
+  Film,
+  Image as ImageIcon,
+  Library,
+  LockKeyhole,
+  MessageCircle,
+  Search,
+  SlidersHorizontal,
+  Users,
+} from 'lucide-react';
 import { Navigate, useOutletContext } from 'react-router-dom';
 import HeroIdentity from '../components/landing/HeroIdentity';
+import InkBleed from '../components/landing/InkBleed';
 import { LayoutOutletContext } from '../components/layout/Layout';
 import { useUser } from '../contexts/UserContext';
 import { CommunityEntry, discoveryService } from '../services/discoveryService';
@@ -34,7 +47,6 @@ interface HeroBeat {
   };
   reaction: {
     src: string;
-    alt: string;
     caption: string;
   };
 }
@@ -51,7 +63,7 @@ const screamFeelings: Partial<EmotionScores> = { happy: 0.78, fearful: 0.27, sur
 const heroBeats: HeroBeat[] = [
   {
     meta: '@hiro_s',
-    context: 'Cure · public response',
+    context: 'Cure · 11:42 PM',
     note: <>I watched it alone, expecting a clean scare. Instead the ordinary rooms made me tense, and I kept wondering how little distance there might be between a person and becoming unrecognizable.</>,
     feeling: 'Stillness · Tension · Unease',
     scores: cureFeelings,
@@ -63,14 +75,13 @@ const heroBeats: HeroBeat[] = [
     },
     reaction: {
       src: '/social/hiro-after-cure-natural.webp',
-      alt: 'Hiro sitting quietly at his kitchen table after watching Cure',
       caption: 'Hiro, a few minutes later',
     },
   },
   {
-    meta: 'From Hiro',
-    context: 'Get Out · for you',
-    note: <>Hiro found the same slow unease in <em>Get Out</em>. Not because it is another horror film—because every polite gesture seems to close one more exit.</>,
+    meta: 'For you',
+    context: 'Get Out · from Hiro',
+    note: <>Hiro found the same slow unease in <em>Get Out</em>. Every polite gesture seems to close one more exit. His words, not its genre, are why it reaches you.</>,
     feeling: 'Quiet dread · Friction · Recognition',
     scores: { angry: 0.39, fearful: 0.78, disgusted: 0.21 },
     film: {
@@ -81,14 +92,13 @@ const heroBeats: HeroBeat[] = [
     },
     reaction: {
       src: '/social/hiro-after-cure-natural.webp',
-      alt: 'Hiro sitting quietly at his kitchen table',
       caption: 'A film carried by Hiro’s response',
     },
   },
   {
-    meta: 'You + Ananya',
-    context: 'Whiplash · felt familiar',
-    note: <>Your responses both circle the same anger: how quickly approval can make damage look necessary. That shared feeling gives Ananya’s other films a reason to reach you.</>,
+    meta: 'Shared film',
+    context: 'Whiplash · you + Ananya',
+    note: <>Your responses circle the same anger: how quickly approval can make damage look necessary. That common ground gives Ananya’s other film experiences a reason to reach you.</>,
     feeling: 'Anger · Tension · Recognition',
     scores: sharedWhiplashFeelings,
     film: {
@@ -99,12 +109,11 @@ const heroBeats: HeroBeat[] = [
     },
     reaction: {
       src: '/social/ananya-after-whiplash-natural.webp',
-      alt: 'Ananya talking with friends after watching Whiplash',
       caption: 'Ananya kept the feeling, not a score',
     },
   },
   {
-    meta: 'Your Joy list',
+    meta: 'You asked for happy',
     context: 'Scream · from Ananya',
     note: <>We put this on for horror night and spent most of it laughing together. The tension made every release brighter. I saved that mix for anyone wanting the same kind of night.</>,
     feeling: 'Joy · Wonder · Tension',
@@ -117,15 +126,14 @@ const heroBeats: HeroBeat[] = [
     },
     reaction: {
       src: '/social/ananya-after-whiplash-natural.webp',
-      alt: 'Ananya laughing with friends after a movie night',
-      caption: 'Horror to Ananya; joy to the people there',
+      caption: 'Horror to Ananya, joy to the people there',
     },
   },
   {
     meta: '@you',
-    context: 'Past Lives · public',
-    note: <>I expected regret. What stayed was the gentleness of letting grief sit beside a good life without asking that life to disappear. I left this here for someone living with that quieter ache.</>,
-    feeling: 'Saved by @devon_m · the trail continues',
+    context: 'Past Lives · saved by Devon',
+    note: <>I expected regret. What stayed was the gentleness of letting grief sit beside a good life without asking that life to disappear. Devon found those words later.</>,
+    feeling: 'Melancholy · Stillness · Connection',
     scores: pastLivesFeelings,
     film: {
       title: 'Past Lives',
@@ -135,7 +143,6 @@ const heroBeats: HeroBeat[] = [
     },
     reaction: {
       src: '/social/devon-after-past-lives.webp',
-      alt: 'Devon smiling after watching Past Lives',
       caption: 'Devon found your response later',
     },
   },
@@ -176,7 +183,7 @@ const fallbackMoments: LandingMoment[] = [
     id: 'fallback-spirited-away',
     username: 'maya_r',
     title: 'Spirited Away',
-    poster_path: '/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
+    poster_path: '/39wmItIWsg5ZMyRUHLkWBcuVCM.jpg',
     note: 'Rewatching it with friends made me feel brave in a childlike way, as if kindness could still be enough to guide us through a world we did not understand.',
     feeling: 'Wonder · Joy',
     surprised: 0.71,
@@ -194,12 +201,50 @@ const fallbackMoments: LandingMoment[] = [
   },
 ];
 
+const libraryRows = [
+  {
+    title: 'Past Lives',
+    year: '2023',
+    watched: 'Tonight',
+    note: 'The gentleness of letting grief sit beside a good life stayed with me.',
+    feeling: 'Melancholy · Stillness',
+    scores: pastLivesFeelings,
+    poster: pastLivesPoster,
+  },
+  {
+    title: 'Scream',
+    year: '1996',
+    watched: 'Jun 28',
+    note: 'Horror night turned into the kind of laughter that only works in a room together.',
+    feeling: 'Joy · Wonder',
+    scores: screamFeelings,
+    poster: screamPoster,
+  },
+  {
+    title: 'Cure',
+    year: '1997',
+    watched: 'Jun 14',
+    note: 'The ordinary rooms made my own apartment feel unfamiliar for the rest of the night.',
+    feeling: 'Stillness · Unease',
+    scores: cureFeelings,
+    poster: heroBeats[0].film.poster,
+  },
+];
+
 const FeelingTrace: React.FC<{ label: string; scores?: Partial<EmotionScores> }> = ({ label, scores }) => (
-  <div className="ef-feeling-trace" role="img" aria-label={label}>
+  <div className="mf-feeling-trace" role="img" aria-label={label}>
     {emotionKeys.map(key => {
       const value = Number(scores?.[key]) || 0;
       return value > 0.01 ? <span key={key} style={{ backgroundColor: emotionColors[key], flexGrow: value }} /> : null;
     })}
+  </div>
+);
+
+const ProductWindowBar: React.FC<{ path: string; status: string }> = ({ path, status }) => (
+  <div className="mf-window-bar">
+    <span aria-hidden="true" className="mf-window-dots"><i /><i /><i /></span>
+    <span>{path}</span>
+    <small>{status}</small>
   </div>
 );
 
@@ -240,28 +285,40 @@ const Home: React.FC = () => {
   if (user) return <Navigate replace to="/feed" />;
 
   return (
-    <div className="ef-landing">
-      <div aria-hidden="true" className="ef-landing__grain" />
+    <div className="mf-landing">
+      <div aria-hidden="true" className="mf-ambient-field" />
+      <div aria-hidden="true" className="mf-landing__grain" />
 
-      <section className="ef-hero" aria-labelledby="landing-title" data-nav-tone="light">
-        <div aria-hidden="true" className="ef-hero__projector" />
-        <div className="ef-hero__copy">
-          <HeroIdentity
-            demoLoading={demoLoading}
-            onEnterDemo={() => void enterDemo()}
-            onSignIn={openAuth}
-          />
-        </div>
+      <section className="mf-hero" aria-labelledby="landing-title" data-nav-tone="dark">
+        <div aria-hidden="true" className="mf-hero__projector" />
+        <HeroIdentity
+          demoLoading={demoLoading}
+          onEnterDemo={() => void enterDemo()}
+          onSignIn={openAuth}
+        />
 
-        <div className="ef-hero__scene" aria-label="Film responses moving quietly from one person to another">
-          <div aria-hidden="true" className="ef-hero-film-cycle">
+        <div className="mf-hero__scene" aria-label="A film response moving from one person to another through Moodie">
+          <p className="sr-only">
+            Hiro records how Cure made him feel. His response carries Get Out to someone who recognizes that unease.
+            A shared response to Whiplash connects that person to Ananya. When they ask for something happy, Ananya’s
+            joyful experience of Scream makes it relevant even though it is a horror film. A Past Lives response then
+            reaches Devon, and the trail continues.
+          </p>
+
+          <div aria-hidden="true" className="mf-hero__demo-label"><i />Live response trail</div>
+
+          <div aria-hidden="true" className="mf-hero-media-cycle">
             {heroBeats.map((beat, index) => (
-              <div className={`ef-hero-film-cycle__frame ef-cycle-frame--${index + 1}`} key={beat.film.title}>
-                {beat.film.backdrop && <img alt="" className="ef-hero__backdrop" src={beat.film.backdrop} />}
-                <div className="ef-hero__wash" />
+              <div
+                className="mf-cycle-frame mf-hero-media"
+                key={beat.film.title}
+                style={{ '--beat-delay': `${index * 6}s` } as React.CSSProperties}
+              >
+                {beat.film.backdrop && <img className="mf-hero__backdrop" src={beat.film.backdrop} alt="" />}
+                <div className="mf-hero__backdrop-wash" />
                 {beat.film.poster && (
-                  <figure className="ef-hero__poster">
-                    <img alt="" src={beat.film.poster} />
+                  <figure className="mf-hero__poster">
+                    <img src={beat.film.poster} alt="" />
                     <figcaption><strong>{beat.film.title}</strong><span>{beat.film.year}</span></figcaption>
                   </figure>
                 )}
@@ -269,166 +326,303 @@ const Home: React.FC = () => {
             ))}
           </div>
 
-          <article className="ef-hero-card">
-            <p className="sr-only">
-              Hiro records what Cure made him feel. His response carries Get Out to someone who recognizes that unease.
-              A shared response to Whiplash makes Ananya&apos;s joyful experience of Scream relevant, even though it is a
-              horror film. A new Past Lives response then reaches Devon and the trail continues.
-            </p>
-            <div aria-hidden="true" className="ef-hero-card__story">
-              {heroBeats.map((beat, index) => (
-                <div className={`ef-hero-card__beat ef-hero-card__beat--${index + 1}`} key={beat.context}>
-                  <div className="ef-response-meta"><span>{beat.meta}</span><span>{beat.context}</span></div>
-                  <blockquote>{beat.note}</blockquote>
-                  <FeelingTrace label={beat.feeling} scores={beat.scores} />
-                  <p>{beat.feeling}</p>
-                </div>
-              ))}
-            </div>
+          <article aria-hidden="true" className="mf-response-card mf-hero-response">
+            {heroBeats.map((beat, index) => (
+              <div
+                className="mf-cycle-frame mf-hero-response__beat"
+                key={beat.context}
+                style={{ '--beat-delay': `${index * 6}s` } as React.CSSProperties}
+              >
+                <div className="mf-response-card__meta"><span>{beat.meta}</span><span>{beat.context}</span></div>
+                <blockquote>{beat.note}</blockquote>
+                <FeelingTrace label={beat.feeling} scores={beat.scores} />
+                <p>{beat.feeling}</p>
+              </div>
+            ))}
           </article>
 
-          <div aria-hidden="true" className="ef-hero-reaction-cycle">
+          <div aria-hidden="true" className="mf-hero-reaction-cycle">
             {heroBeats.map((beat, index) => (
-              <div className={`ef-hero-reaction-cycle__frame ef-cycle-frame--${index + 1}`} key={`${beat.film.title}-reaction`}>
-                <figure className="ef-hero__reaction">
-                  <img alt="" src={beat.reaction.src} />
-                  <figcaption>{beat.reaction.caption}</figcaption>
-                </figure>
-              </div>
+              <figure
+                className="mf-cycle-frame mf-hero__reaction"
+                key={`${beat.film.title}-reaction`}
+                style={{ '--beat-delay': `${index * 6}s` } as React.CSSProperties}
+              >
+                <img src={beat.reaction.src} alt="" />
+                <figcaption>{beat.reaction.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <div aria-hidden="true" className="mf-hero__progress">
+            {heroBeats.map((beat, index) => (
+              <span key={`${beat.film.title}-progress`} style={{ '--beat-delay': `${index * 6}s` } as React.CSSProperties} />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="ef-capture" id="how-it-feels" aria-labelledby="capture-title" data-nav-tone="light">
-        <div className="ef-capture__statement" data-reveal>
-          <p className="ef-section-mark">After the credits</p>
-          <h2 id="capture-title">Most places ask if the film was good. <em>They rarely ask what it did to you.</em></h2>
-        </div>
+      <InkBleed from="#12141a" to="#090c11" mix="#4b2932" seed={19} />
 
-        <div className="ef-capture__stage" data-reveal>
-          {pastLivesPoster && (
-            <figure className="ef-capture__poster">
-              <img alt="Poster for Past Lives" loading="lazy" src={pastLivesPoster} />
-              <figcaption>Past Lives · 2023</figcaption>
-            </figure>
-          )}
-          <article className="ef-capture__response">
-            <div className="ef-response-meta"><span>@devon_m</span><span>Public response</span></div>
-            <blockquote>I expected regret. What caught me was the gentleness of letting grief sit beside a good life without asking that life to disappear.</blockquote>
-            <FeelingTrace label="Melancholy, stillness, joy, and wonder" scores={pastLivesFeelings} />
-            <p>Melancholy · Stillness · a little Joy</p>
-          </article>
-          <figure className="ef-capture__reaction">
-            <img alt="Devon smiling after watching Past Lives" loading="lazy" src="/social/devon-after-past-lives.webp" />
-            <figcaption>Attached because it felt worth keeping</figcaption>
-          </figure>
-        </div>
+      <section className="mf-section mf-capture" id="product" aria-labelledby="capture-title" data-nav-tone="dark">
+        <div className="mf-section__inner">
+          <header className="mf-section-heading" data-reveal>
+            <div>
+              <p className="mf-kicker">Capture</p>
+              <h2 id="capture-title">A response, not a rating.</h2>
+              <p>Moodie keeps the words, feeling mix, and optional image from a specific viewing. That record is the base unit for everything else.</p>
+            </div>
+            <dl className="mf-spec-list">
+              <div><dt>Input</dt><dd>Freeform response</dd></div>
+              <div><dt>Signal</dt><dd>Seven adjustable feelings</dd></div>
+              <div><dt>Media</dt><dd>Optional expression photo</dd></div>
+              <div><dt>Control</dt><dd>Visibility per response</dd></div>
+            </dl>
+          </header>
 
-        <div className="ef-capture__prompt" data-reveal>
-          <p>Write what stayed.</p>
-          <p>Set the feeling mix yourself.</p>
-          <p>Keep it private, or leave it where another person can find it.</p>
-        </div>
-      </section>
+          <div aria-hidden="true" className="mf-product-frame mf-capture-demo" data-reveal>
+            <ProductWindowBar path="Moodie / Add response" status="Draft" />
+            <div className="mf-capture-demo__body">
+              <nav className="mf-demo-rail" aria-label="Example product navigation">
+                <strong className="mf-demo-rail__mark">M</strong>
+                <span><MessageCircle size={15} />Home</span>
+                <span><Compass size={15} />Discover</span>
+                <span><Library size={15} />History</span>
+                <span className="is-active"><Film size={15} />Add response</span>
+              </nav>
 
-      <section className="ef-connection" id="people" aria-labelledby="connection-title" data-nav-tone="dark">
-        <div className="ef-connection__heading" data-reveal>
-          <p className="ef-section-mark">Discovery, with a memory</p>
-          <h2 id="connection-title">A recommendation should be able to tell you who brought it here.</h2>
-        </div>
-
-        <div className="ef-connection__shared" data-reveal>
-          <div className="ef-shared-film">
-            {whiplashPoster && <img alt="Poster for Whiplash" loading="lazy" src={whiplashPoster} />}
-            <div><span>Shared film</span><strong>Whiplash</strong></div>
-          </div>
-          <article className="ef-shared-response ef-shared-response--you">
-            <span>You</span>
-            <blockquote>I hated how quickly I started wanting the approval that was doing the damage.</blockquote>
-          </article>
-          <article className="ef-shared-response ef-shared-response--ananya">
-            <span>@ananya_sen</span>
-            <blockquote>I felt angry at the promise that suffering becomes worthwhile if the result impresses enough people.</blockquote>
-          </article>
-          <FeelingTrace label="Friction, tension, and unease shared across both responses" scores={sharedWhiplashFeelings} />
-        </div>
-
-        <div className="ef-connection__recommendation" data-reveal>
-          <div className="ef-connection__want"><span>You asked for</span><strong>Joy</strong></div>
-          {screamPoster && (
-            <figure className="ef-connection__poster">
-              <img alt="Poster for Scream" loading="lazy" src={screamPoster} />
-              <figcaption>Scream · 1996</figcaption>
-            </figure>
-          )}
-          <article className="ef-connection__response">
-            <div className="ef-response-meta"><span>@ananya_sen</span><span>Scream · public</span></div>
-            <blockquote>We put this on for a horror night and spent most of it laughing together. The tension made the release feel brighter. I saved that mix in case someone else wanted the same kind of night.</blockquote>
-            <FeelingTrace label="Joy, wonder, and tension" scores={screamFeelings} />
-            <p>Joy · Wonder · Tension</p>
-          </article>
-          <p className="ef-connection__reason">Scream reached you through Ananya&apos;s experience—not because horror was translated into a genre rule.</p>
-        </div>
-      </section>
-
-      <section className="ef-community" id="community" aria-labelledby="community-title" data-nav-tone="light">
-        <div className="ef-community__heading" data-reveal>
-          <p className="ef-section-mark">The people stay visible</p>
-          <h2 id="community-title">A room full of afterthoughts.</h2>
-          <p>Follow the people whose responses keep opening films for you. Their words—not a popularity chart—give the feed its shape.</p>
-        </div>
-
-        <div className="ef-community__wall" aria-label="Recent public film responses">
-          {communityMoments.map((entry, index) => {
-            const poster = imageUrl(entry.poster_path, 'w342');
-            return (
-              <article className="ef-community-card" data-reveal key={entry.id} style={{ '--card-order': index } as React.CSSProperties}>
-                {poster && <img alt={`Poster for ${entry.title}`} loading="lazy" src={poster} />}
-                <div>
-                  <div className="ef-response-meta"><span>@{entry.username}</span><span>{entry.title}</span></div>
-                  <blockquote>{entry.note}</blockquote>
-                  <FeelingTrace label={entry.feeling} scores={entry} />
-                  <p>{entry.feeling}</p>
+              <div className="mf-composer">
+                <div className="mf-composer__heading">
+                  <div><span className="mf-ui-label">New response</span><h3>What stayed with you?</h3></div>
+                  <span className="mf-ui-status"><i />Unsaved</span>
                 </div>
-              </article>
-            );
-          })}
+
+                <div className="mf-film-field">
+                  {pastLivesPoster && <img src={pastLivesPoster} alt="Poster for Past Lives" />}
+                  <div><span>Selected film</span><strong>Past Lives</strong><small>2023 · Celine Song</small></div>
+                  <span className="mf-ui-link">Change</span>
+                </div>
+
+                <div className="mf-response-field">
+                  <span>Response</span>
+                  <p>I expected regret. What caught me was the gentleness of letting grief sit beside a good life without asking that life to disappear.</p>
+                  <small>143 / 1,000</small>
+                </div>
+
+                <fieldset className="mf-feeling-controls">
+                  <legend><span>Feeling mix</span><small>Set by you</small></legend>
+                  <label><span>Melancholy</span><i><b style={{ width: '77%' }} /></i><strong>77</strong></label>
+                  <label><span>Stillness</span><i><b style={{ width: '64%' }} /></i><strong>64</strong></label>
+                  <label><span>Joy</span><i><b style={{ width: '18%' }} /></i><strong>18</strong></label>
+                </fieldset>
+
+                <div className="mf-composer__options">
+                  <span><ImageIcon size={16} /><i><strong>Add a photo</strong><small>Optional</small></i></span>
+                  <span><LockKeyhole size={16} /><i><strong>Only me</strong><small>Change any time</small></i></span>
+                  <span className="mf-ui-button"><Check size={16} />Save response</span>
+                </div>
+              </div>
+
+              <aside className="mf-record-spec">
+                <span className="mf-ui-label">Stored with this viewing</span>
+                <dl>
+                  <div><dt>Film</dt><dd>Past Lives</dd></div>
+                  <div><dt>Words</dt><dd>143 characters</dd></div>
+                  <div><dt>Feeling</dt><dd>3 active signals</dd></div>
+                  <div><dt>Photo</dt><dd>Not attached</dd></div>
+                  <div><dt>Visibility</dt><dd>Only me</dd></div>
+                </dl>
+                <p>Every viewing stays editable. Rewatches can become separate responses instead of overwriting the first one.</p>
+              </aside>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="ef-diary" id="diary" aria-labelledby="diary-title" data-nav-tone="light">
-        <div className="ef-diary__copy" data-reveal>
-          <p className="ef-section-mark">Your diary, first</p>
-          <h2 id="diary-title">The response belongs to you before it belongs to the network.</h2>
-          <p>A private entry can shape what you find without becoming somebody else&apos;s story. A public one can carry a film forward. You choose each time.</p>
-        </div>
-        <div className="ef-diary__sheet" data-reveal>
-          <div className="ef-diary__date"><span>Tonight</span><strong>What followed you home</strong></div>
-          <article>
-            <span className="ef-diary__visibility">Private</span>
-            <h3>Cure</h3>
-            <p>I am not ready to explain this one to anyone else. I only want to remember that the silence made my own apartment feel unfamiliar.</p>
-          </article>
-          <article>
-            <span className="ef-diary__visibility ef-diary__visibility--public">Public</span>
-            <h3>Past Lives</h3>
-            <p>I want to leave this where somebody living with a gentler kind of grief might find it.</p>
-          </article>
+      <section className="mf-section mf-discovery" id="discovery" aria-labelledby="discovery-title" data-nav-tone="dark">
+        <div className="mf-section__inner">
+          <header className="mf-section-heading" data-reveal>
+            <div>
+              <p className="mf-kicker">Discovery</p>
+              <h2 id="discovery-title">People first. Films second.</h2>
+              <p>Moodie finds someone who responded to the same film in a familiar way, then uses their other responses as evidence for what reaches you next.</p>
+            </div>
+            <dl className="mf-spec-list">
+              <div><dt>Match</dt><dd>Same film, similar response</dd></div>
+              <div><dt>Source</dt><dd>A person, kept visible</dd></div>
+              <div><dt>Request</dt><dd>Feeling optional, genre open</dd></div>
+              <div><dt>Output</dt><dd>Film with a human reason</dd></div>
+            </dl>
+          </header>
+
+          <div aria-hidden="true" className="mf-product-frame mf-discovery-demo" data-reveal>
+            <ProductWindowBar path="Moodie / Discover" status="People you overlap with" />
+            <div className="mf-discovery-demo__body">
+              <div className="mf-discovery-request">
+                <span className="mf-ui-label">Your request</span>
+                <div><Search size={17} /><strong>Something happy</strong><span>Any genre</span></div>
+              </div>
+
+              <div className="mf-discovery-reason">
+                <i />
+                <p>You and <strong>@ananya_sen</strong> described the cost of approval in <strong>Whiplash</strong> in a similar way.</p>
+              </div>
+
+              <div className="mf-discovery-grid">
+                <article className="mf-shared-film-panel">
+                  <span className="mf-ui-label">Common ground</span>
+                  <div className="mf-shared-film-panel__film">
+                    {whiplashPoster && <img src={whiplashPoster} alt="Poster for Whiplash" />}
+                    <div><strong>Whiplash</strong><span>2014</span><FeelingTrace label="Anger, tension, and unease" scores={sharedWhiplashFeelings} /></div>
+                  </div>
+                  <blockquote><span>You</span>I hated how quickly I started wanting the approval that was doing the damage.</blockquote>
+                  <blockquote><span>@ananya_sen</span>I felt angry at the promise that suffering becomes worthwhile if the result impresses enough people.</blockquote>
+                </article>
+
+                <aside className="mf-person-bridge">
+                  <img src="/social/ananya-after-whiplash-natural.webp" alt="Ananya talking with friends after watching Whiplash" />
+                  <span>Matched through one film</span>
+                  <strong>Ananya</strong>
+                  <small>12 other responses</small>
+                  <div><Users size={15} />Person kept in the trail</div>
+                </aside>
+
+                <article className="mf-output-panel">
+                  <span className="mf-ui-label">Recommendation</span>
+                  <div className="mf-output-panel__film">
+                    {screamPoster && <img src={screamPoster} alt="Poster for Scream" />}
+                    <div><strong>Scream</strong><span>1996 · Horror</span><em>Happy from Ananya’s viewing</em></div>
+                  </div>
+                  <blockquote>We put this on for horror night and spent most of it laughing together. The tension made every release brighter.</blockquote>
+                  <FeelingTrace label="Joy, wonder, and tension" scores={screamFeelings} />
+                  <p><Check size={14} />Fits the feeling request through a real experience, not a genre label.</p>
+                </article>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="ef-final" aria-labelledby="final-title" data-nav-tone="dark">
-        <div className="ef-final__copy" data-reveal>
-          <p className="ef-section-mark">Your turn</p>
+      <section className="mf-section mf-feed" id="people" aria-labelledby="feed-title" data-nav-tone="dark">
+        <div className="mf-section__inner">
+          <header className="mf-section-heading" data-reveal>
+            <div>
+              <p className="mf-kicker">People feed</p>
+              <h2 id="feed-title">The network stays human.</h2>
+              <p>Responses arrive as posts from people you follow or people whose film history overlaps with yours. You can always inspect why a person or film is here.</p>
+            </div>
+            <dl className="mf-spec-list">
+              <div><dt>Feed</dt><dd>Responses, not promotion</dd></div>
+              <div><dt>Context</dt><dd>Film and feeling attached</dd></div>
+              <div><dt>Control</dt><dd>Follow people directly</dd></div>
+              <div><dt>Reason</dt><dd>Connection can be inspected</dd></div>
+            </dl>
+          </header>
+
+          <div aria-hidden="true" className="mf-product-frame mf-feed-demo" data-reveal>
+            <ProductWindowBar path="Moodie / Home" status="For you" />
+            <div className="mf-feed-demo__body">
+              <div className="mf-feed-list">
+                <header><nav><span className="is-active">For you</span><span>Following</span></nav><span><SlidersHorizontal size={15} />Feelings</span></header>
+                {communityMoments.slice(0, 3).map(entry => {
+                  const poster = imageUrl(entry.poster_path, 'w342');
+                  return (
+                    <article className="mf-feed-row" key={entry.id}>
+                      <span className="mf-feed-row__avatar">{entry.username.charAt(0).toUpperCase()}</span>
+                      <div className="mf-feed-row__content">
+                        <div><strong>@{entry.username}</strong><span>responded to {entry.title}</span><small>recently</small></div>
+                        <blockquote>{entry.note}</blockquote>
+                        <FeelingTrace label={entry.feeling} scores={entry} />
+                        <p>{entry.feeling}</p>
+                      </div>
+                      {poster && <img className="mf-feed-row__poster" src={poster} alt={`Poster for ${entry.title}`} loading="lazy" />}
+                    </article>
+                  );
+                })}
+              </div>
+
+              <aside className="mf-feed-inspector">
+                <span className="mf-ui-label">Why this is here</span>
+                <div className="mf-feed-inspector__person">
+                  <img src="/social/ananya-after-whiplash-natural.webp" alt="Ananya talking with friends" />
+                  <div><strong>Ananya Sen</strong><span>@ananya_sen</span></div>
+                  <span className="mf-follow-state"><Check size={13} />Following</span>
+                </div>
+                <ol>
+                  <li><i>1</i><span>You both responded to <strong>Whiplash</strong></span></li>
+                  <li><i>2</i><span>Your feeling mixes share anger and tension</span></li>
+                  <li><i>3</i><span>Her other responses now have a reason to enter your feed</span></li>
+                </ol>
+                <p>Moodie never hides the person behind a recommendation.</p>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mf-section mf-history" id="history" aria-labelledby="history-title" data-nav-tone="dark">
+        <div className="mf-section__inner">
+          <header className="mf-section-heading" data-reveal>
+            <div>
+              <p className="mf-kicker">History</p>
+              <h2 id="history-title">Your film history, in your own language.</h2>
+              <p>Every response stays searchable and editable. Moodie uses the collection as personal context without reducing it to one permanent taste profile.</p>
+            </div>
+            <dl className="mf-spec-list">
+              <div><dt>Record</dt><dd>One entry per viewing</dd></div>
+              <div><dt>Recall</dt><dd>Search by film or feeling</dd></div>
+              <div><dt>Revision</dt><dd>Responses stay editable</dd></div>
+              <div><dt>Privacy</dt><dd>Chosen entry by entry</dd></div>
+            </dl>
+          </header>
+
+          <div aria-hidden="true" className="mf-product-frame mf-history-demo" data-reveal>
+            <ProductWindowBar path="Moodie / History" status="34 viewings" />
+            <div className="mf-history-demo__body">
+              <div className="mf-history-table">
+                <header><div><strong>Your responses</strong><span>All viewings</span></div><span><Search size={15} />Search history</span></header>
+                <div className="mf-history-table__head"><span>Film</span><span>What stayed</span><span>Feeling</span><span>Watched</span></div>
+                {libraryRows.map(row => (
+                  <article className="mf-history-row" key={row.title}>
+                    <div className="mf-history-row__film">
+                      {row.poster && <img src={row.poster} alt={`Poster for ${row.title}`} loading="lazy" />}
+                      <span><strong>{row.title}</strong><small>{row.year}</small></span>
+                    </div>
+                    <p>{row.note}</p>
+                    <div><FeelingTrace label={row.feeling} scores={row.scores} /><small>{row.feeling}</small></div>
+                    <time>{row.watched}</time>
+                  </article>
+                ))}
+              </div>
+
+              <aside className="mf-history-signal">
+                <span className="mf-ui-label">Recent pattern</span>
+                <h3>Quiet films are staying longer.</h3>
+                <p>This is a view of recent responses, not a permanent label.</p>
+                <div className="mf-history-signal__bars">
+                  <span><i>Stillness</i><b><em style={{ width: '82%' }} /></b><strong>82</strong></span>
+                  <span><i>Melancholy</i><b><em style={{ width: '68%' }} /></b><strong>68</strong></span>
+                  <span><i>Joy</i><b><em style={{ width: '37%' }} /></b><strong>37</strong></span>
+                </div>
+                <div className="mf-history-signal__note"><LockKeyhole size={15} /><span>Private responses still shape your own discovery without entering anyone else’s feed.</span></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mf-final" aria-labelledby="final-title" data-nav-tone="dark">
+        <div className="mf-final__glow" aria-hidden="true" />
+        <div>
+          <p className="mf-kicker">Start with one viewing</p>
           <h2 id="final-title">Bring the last film that followed you home.</h2>
-          <p>Keep what it meant. Find the person who felt something familiar. Let the next film arrive with a human reason.</p>
+          <p>Write what stayed. Moodie will keep the response, learn its shape, and show you where it can lead.</p>
         </div>
-        <div className="ef-final__actions" data-reveal>
-          <button className="ef-primary-action" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
+        <div className="mf-final__actions">
+          <button className="mf-primary-action" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
             {demoLoading ? 'Opening demo' : 'Enter demo'}<ArrowRight size={18} />
           </button>
-          <button className="ef-text-action" onClick={openAuth} type="button">Sign in</button>
+          <button className="mf-text-action" onClick={openAuth} type="button">Sign in</button>
         </div>
       </section>
     </div>

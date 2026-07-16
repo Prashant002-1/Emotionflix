@@ -89,8 +89,8 @@ const Layout: React.FC = () => {
           <div className="nav-inner">
             <Link aria-label="Moodie home" className="brand-lockup" to="/"><span className="wordmark">Moodie</span></Link>
             <nav aria-label="Overview" className="nav-overview-links">
-              <Link to="/#how-it-feels">How it feels</Link>
-              <Link to="/#people">People, not genres</Link>
+              <Link to="/#product">Product</Link>
+              <Link to="/#discovery">How it works</Link>
             </nav>
             <div className="nav-actions">
               {!authLoading ? (
@@ -110,8 +110,8 @@ const Layout: React.FC = () => {
           {demoError && <p className="nav-status" role="alert">{demoError}</p>}
           {mobileOpen && (
             <nav aria-label="Mobile" className="mobile-sheet">
-              <Link className="nav-link" to="/#how-it-feels">How it feels</Link>
-              <Link className="nav-link" to="/#people">People, not genres</Link>
+              <Link className="nav-link" to="/#product">Product</Link>
+              <Link className="nav-link" to="/#discovery">How it works</Link>
               <button className="nav-link" onClick={openAuth} type="button">Sign in</button>
               <button className="button button--secondary" disabled={demoLoading} onClick={() => void enterDemo()} type="button">{demoLoading ? 'Opening demo' : 'Enter demo'}</button>
             </nav>

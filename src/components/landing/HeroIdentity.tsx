@@ -8,21 +8,18 @@ interface HeroIdentityProps {
 }
 
 const HeroIdentity: React.FC<HeroIdentityProps> = ({ demoLoading, onEnterDemo, onSignIn }) => (
-  <div className="ef-hero-copy">
-    <p className="ef-hero-copy__eyebrow">Emotion-based film discovery</p>
-    <div className="ef-hero-copy__statement">
-      <h1 id="landing-title">
-        <span className="ef-hero-copy__line">No two people</span>
-        <span className="ef-hero-copy__line">leave <span className="ef-hero-copy__changing">the same film.</span></span>
-      </h1>
-      <p className="ef-hero-copy__conclusion">Find your next through people who felt something familiar.</p>
+  <div className="mf-hero-copy">
+    <p className="mf-hero-copy__eyebrow">A social film journal and recommendation system</p>
+    <div className="mf-hero-copy__statement">
+      <h1 id="landing-title">No two people leave the same film.</h1>
+      <p className="mf-hero-copy__conclusion">Find your next through people who felt something familiar.</p>
     </div>
 
-    <div className="ef-hero-copy__actions">
-      <button className="ef-primary-action" disabled={demoLoading} onClick={onEnterDemo} type="button">
+    <div className="mf-hero-copy__actions">
+      <button className="mf-primary-action" disabled={demoLoading} onClick={onEnterDemo} type="button">
         {demoLoading ? 'Opening demo' : 'Enter demo'}<ArrowRight size={18} />
       </button>
-      <button className="ef-text-action" onClick={onSignIn} type="button">Sign in</button>
+      <button className="mf-text-action" onClick={onSignIn} type="button">Sign in</button>
     </div>
   </div>
 );

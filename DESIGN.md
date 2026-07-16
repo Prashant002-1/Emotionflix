@@ -1,220 +1,193 @@
 ---
 name: Moodie
-description: Emotion-based social film discovery.
-direction: "Matinee Archive"
+description: Social film discovery through personal responses.
+direction: "Living Afterimage"
 colors:
-  mineral: "#D8D6D1"
-  mist: "#B9C4C0"
-  ink: "#1D2B33"
-  chalk: "#F4EFE9"
-  oxide: "#D76358"
-  fig: "#713B42"
-  blue: "#557890"
-  teal: "#477B78"
+  night: "#090C11"
+  panel: "#11161D"
+  paper: "#F1EDE5"
+  coral: "#E17868"
+  teal: "#67A8A1"
+  blue: "#7592B2"
 typography:
-  family: "Oxygen, sans-serif"
-  root: "17px"
-  weights: [300, 400, 700]
+  display: "Newsreader, serif"
+  interface: "Oxygen, sans-serif"
 layout:
-  contentWidth: "1380px"
-  readingWidth: "68ch"
-  controlHeight: "50px"
-  navHeight: "48px"
-  footerHeight: "88px"
-  interfaceScale: "110%"
+  landingWidth: "1440px"
+  productFrameWidth: "1360px"
+  navHeight: "62px"
 rounded:
-  control: "8px"
-  surface: "14px"
+  control: "9px"
+  productFrame: "18px"
+  poster: "3px"
 ---
 
 # Design system: Moodie
 
 ## Creative direction
 
-**Matinee Archive**
+**Living Afterimage**
 
-Moodie should feel like leaving a repertory screening in the afternoon while the film is still present. It is warm, tactile, culturally literate, and alive with other people. Daylight and quiet neutral surfaces make room for film art; saturated color marks shifts in feeling and social connection.
+Moodie should feel like the minutes after a film ends, when the room is ordinary again but the film is still moving through the people in it. The page is quiet, intimate, and cinematic. Its character comes from human writing, real film art, candid reaction photos, and a slowly changing field of light.
 
-The public page is expressive and narrative. The signed-in product is calmer, but the response stream still feels inhabited: human writing, film artwork, emotional traces, and occasional reaction photos establish the atmosphere. It must never resemble a streaming catalog, a film-review scorecard, a generic SaaS dashboard, an Instagram clone, or a facial-analysis demo.
+The landing page is a product demonstration, not an editorial campaign. It should show the interface and the data that moves through it with the same clarity a strong developer-tool landing page gives its product. Visitors should be able to see the inputs, the recommendation source, and the output without reading an abstract manifesto.
 
-The visual story follows the product:
+The visual identity has two connected modes:
 
-1. A person watches a film.
-2. They say what it meant and how it felt.
-3. Someone who felt something similar becomes visible.
-4. What that person watched next becomes a recommendation.
+- The hero is an expressive welcome built from posters, reaction photos, and one anchored paper response card.
+- Everything below the hero is a continuous product environment that exposes capture, discovery, the people feed, and history through real interface states.
 
-## Logo slot
+Do not split the page into alternating presentation slides. Do not treat each section as a poster or a separate campaign idea.
 
-The logo is intentionally unresolved.
+## Hero
 
-- Use the text wordmark alone in navigation until the logo direction is chosen.
-- Leave `BrandMark` untouched as an unused placeholder; do not turn it into a motif.
-- Reintroducing a future mark must not require restructuring navigation.
+The hero is the product story in motion.
+
+- Keep the left side quiet: one product descriptor, one headline, one conclusion, and two actions.
+- Do not underline or draw after the headline.
+- The right side cycles through five different films one at a time.
+- Poster, backdrop, reaction photo, response text, feeling trace, and context change together.
+- The paper response card stays physically anchored while its contents change.
+- Use the original paper-card behavior: warm paper, internal metadata divider, compact type, small feeling trace, modest radius, slight rotation, and a hard offset shadow.
+- A full loop lasts 30 seconds. Each film has room to register before the next crossfade.
+- The trail demonstrates a response being saved, reaching another person, creating common ground, satisfying a feeling request across genre, and continuing through another response.
+- Never label a card “public response.” Visibility is ordinary entry state, not a selling point.
+- Show film and human diversity through time, never as a pile of simultaneous posters.
+
+The hero must not contain flying quotes, stars, particles, wavy lines, decorative circles, or multiple competing effects.
+
+## Ambient field
+
+The page uses one continuous Night field from hero to final call to action.
+
+- Large coral, teal, blue, and warm projector light pools move slowly behind the page.
+- Motion is pronounced enough to make the page feel alive, but slow enough to remain peripheral.
+- Animate transform and opacity only. Do not animate blur or `backdrop-filter`.
+- Keep deterministic grain static and faint.
+- Color is atmospheric. It must not become neon fog, gradient text, or a set of disconnected matte backgrounds.
+
+One soft SVG ink bleed carries the hero into the product environment. It is an organic handoff, not a recurring divider. Keep its edges feathered and its colors close to the fields it joins.
+
+## Product overview
+
+The landing page shows four product surfaces in order.
+
+### Capture
+
+Show a real response composer with:
+
+- selected film;
+- freeform response;
+- manually adjusted feeling mix;
+- optional photo;
+- visibility state;
+- saved record summary.
+
+State the contract beside the demonstration: freeform input, seven temporary feeling signals, optional media, and visibility per response. Rewatches remain separate records.
+
+### Discovery
+
+Show the recommendation chain in one product frame:
+
+- the visitor asks for a feeling, with genre left open;
+- Whiplash is the shared film;
+- the visitor and Ananya describe it in a similar way;
+- Ananya remains visible as the source;
+- Scream satisfies a happy request because her actual viewing was joyful.
+
+The recommendation reason should read like product state, not a narrated tutorial. Do not show match percentages, universal emotion rules, or genre translation.
+
+### People feed
+
+Show a dense response feed with film, person, note, feeling trace, and poster kept together. The selected connection inspector explains why a person entered the feed and allows that person to be followed directly.
+
+### History
+
+Show film history as an application table, not a notebook or diary prop. A row contains the viewing, the person’s own words, the feeling trace, and the date. A secondary panel may summarize recent response patterns, but it must describe a window of time rather than assign a permanent identity.
 
 ## Typography
 
-Oxygen remains the only family. The design changes its scale and rhythm, not the font itself.
+Newsreader is the expressive display face. Oxygen is the product and reading face.
 
-- Weight 300 carries expressive display lines.
-- Weight 700 creates selective emphasis and functional headings.
-- Weight 400 carries body copy, posts, metadata, and controls.
-- Landing display text uses `clamp()` up to 6rem with a line height near 0.96.
-- Product titles remain practical, with a ceiling near 4.5rem.
-- Body copy stays between 65 and 72 characters per line with generous line height.
-- Metadata is compact but never faint.
-- Avoid repeated uppercase eyebrows as section scaffolding.
+- Use Newsreader for the hero headline, section headings, film titles in prominent cards, and rare human moments.
+- Use Oxygen for controls, specifications, response copy, metadata, and product frames.
+- Landing section headings should normally stop near 4.35rem. They share the viewport with the product, rather than becoming the entire viewport.
+- Interface copy stays compact but readable. Metadata may be small only when contrast and hierarchy remain clear.
+- Uppercase labels are reserved for functional categories such as Input, Signal, Capture, and Discovery.
 
-The interface renders at a deliberate 110% scale so its 100% browser view matches the approved composition. Desktop starts from a 17px root before that scale; mobile uses the same proportional system. Controls remain at least 50px high and touch targets at least 44px.
+## Material and depth
 
-## Palette
+Most product surfaces are dark, thin-bordered, and flat enough to scan. Depth is selective.
 
-### Light fields
-
-- **Mineral `#D8D6D1`:** public canvas and secondary product field.
-- **Mist `#B9C4C0`:** connective social surface and selected state.
-- **Chalk `#F4EFE9`:** reading, forms, posts, and high-clarity content.
-
-### Depth fields
-
-- **Ink `#1D2B33`:** primary text, cinematic depth, and footer.
-- **Teal `#477B78`:** film atmosphere and meaningful transitions.
-- **Blue `#557890`:** melancholy, distance, and cool counterweight.
-
-### Human accents
-
-- **Oxide `#D76358`:** a major emotional field and selective human accent, not the default button color.
-- **Fig `#713B42`:** resonance, intimacy, and reaction state.
-
-Default text is Ink on Mineral, Mist, or Chalk. Small text on Teal uses `#FAF8F4`. Chalk on Fig and Ink is approved. Muted copy uses an Ink-derived color such as `#435258`. Oxide and Fig are not decorative confetti.
-
-## Grain and material
-
-Texture behaves like photographic grain, never a visible pattern.
-
-- Use the deterministic monochrome raster tile exposed through `--grain-image`.
-- Do not use CSS dots, stripes, paper speckles, fake distress, or animated noise.
-- Blend light fields at roughly 8 to 10 percent and saturated fields at 14 to 20 percent.
-- Grain sits below content and never reduces text clarity.
-- Keep it static.
-
-Section transitions use static SVG diffusion: layered color fields are displaced by fractal noise, feathered at different radii, and allowed to overlap like wet ink travelling through paper fibres. The source and destination colors must visibly mingle at the edge. Do not approximate this with a row of radial gradients, a smooth blurred wave, a geometric divider, or animated blobs.
-
-## Public overview
-
-The logged-out home is a product overview, not a browse surface.
-
-- The approved opening composition is preserved: “Films stay with people differently,” paired with one convincing social response. Its large candid expression photo, small Whiplash poster, response card, copy, and relative placement should not be redesigned during work on sections below it.
-- A real poster, first-person note, and reviewed feelings prove the product in the first viewport.
-- The page then follows the product story: the private after-film moment, words and direct feeling controls, a familiar person, and the films found through them.
-- Show several distinct films and people in the social section. One repeated example cannot explain a discovery network.
-- Explain who the product helps and why small choices matter without turning the page into a feature-card grid or marketing checklist.
-- The final invitation contains Enter demo and a quieter sign-in action without explaining what the demo does.
-- Public navigation contains overview anchors, Sign in, and a quiet Enter demo action.
-
-## Signed-in product
-
-### Home and activity
-
-The signed-in home is an application dashboard, not another piece of the marketing page. It uses a Letterboxd-like film-and-activity density: the account's diary totals, public count, saved count, active films, recent community activity, recent diary entries, and saved films are visible together.
-
-Each activity row keeps together:
-
-- person and follow state;
-- first-person response;
-- reviewed feelings;
-- film poster and title;
-- reaction state.
-
-Reaction photos do not control the home layout. They remain available in the composer, diary, member, and film contexts where there is room to treat them as optional media.
-
-### Discover
-
-Lead with films found through people who felt something similar about a shared film. Keep the person and shared film visible in the reason. Do not show ratings, genres, match percentages, or mechanical scoring explanations.
-
-Search and catalog browsing appear below people-led recommendations. Poster rails are allowed there because the hierarchy has already established the social source.
-
-### Diary
-
-Show chronological responses and a restrained summary of feelings, public responses, and saved films. Notes, visibility, date, and emotional trace remain visible. Do not show average ratings, genre taste, or scoring controls.
-
-### Member page
-
-Show a person's public responses, recurring feelings, and films. It should feel like a social diary, not a generic profile or compatibility report.
-
-### Film page
-
-The film is the visual anchor. “How people felt” follows the synopsis. Related catalog films remain secondary.
-
-### Composer
-
-Film selection comes first. The next prompts are “How did it make you feel?” and “What did it mean to you?” Direct sliders and writing are primary. Camera and photo estimates live in a secondary disclosure. An expression photo can be attached through a separate explicit choice.
-
-### Account
-
-Account state, bio, password, and diary counts are task-focused. This page uses the quietest expression of the system.
+- The hero response card owns the strongest hard offset shadow.
+- Posters may use a smaller hard offset shadow.
+- Product frames use one restrained long shadow and a thin inside highlight.
+- Avoid repeated floating cards, oversized radii, and generic glass tiles.
+- Grain stays below content and never reduces text clarity.
 
 ## Navigation and footer
 
-- Public navigation is a fixed 48px text layer on desktop and 46px on mobile, with no lower border. Its text changes tone with the section beneath it.
-- Logged-out: text wordmark, two useful overview anchors, Sign in, and quiet Enter demo.
-- The signed-in product does not reuse the public header. Desktop uses a compact Ink navigation rail with Home, Discover, Diary, Add response, profile, and sign out. Mobile turns that rail into a bottom navigation bar.
-- Enter demo signs in directly; never display credentials.
-- Protected routes return signed-out visitors to the public overview.
-- The footer is one compact 88px field with the TMDB mark and the required non-commercial attribution only.
+- The public header is a stable 62px dark layer with Moodie, Product, How it works, Sign in, and Enter demo.
+- It does not change color by section because the landing field is continuous.
+- The mobile header uses the same dark state and a compact menu.
+- The signed-in product keeps its own navigation rail and is not restyled by the landing page.
+- The footer stays compact and contains only the required TMDB attribution.
 
 ## Motion
 
-Motion should make the page feel continuous and responsive, not staged.
+Motion should express continuity and lived activity.
 
-- Lenis supplies restrained smooth scrolling and anchor movement on the public landing page only. Every signed-in route uses native scrolling for a snappier product feel.
-- Large visual layers may move at subtly different scroll rates.
-- Content reveals once as it enters the viewport with short, low-distance motion.
-- Ink diffusion and grain are static. Motion belongs to content and spatial layers, not simulated paper texture.
-- Hover motion is limited to a small lift, scale, or color change.
-- No scroll locking, autoplay carousels, particles, looping decoration, or long entrance sequences.
-- Respect `prefers-reduced-motion` globally; content must appear immediately when reduction is requested.
+- Lenis supplies restrained smooth scrolling on the public landing page only.
+- The hero uses one synchronized 30-second loop. Content changes in place through crossfades.
+- The ambient field and projector light move on separate 22 to 28 second cycles.
+- Do not stack entrance animations on the product demonstrations.
+- Hover motion is limited to a small lift or color change.
+- Ink diffusion and grain remain static.
+- `prefers-reduced-motion` stops ambient motion and keeps the first complete hero state visible.
 
-## Feeling language and colors
+## Feeling language and color
 
 The current seven keys remain a temporary implementation constraint:
 
-- Stillness: Mineral and Ink
-- Joy: Oxide
+- Stillness: neutral and Ink
+- Joy: Coral
 - Melancholy: Blue
-- Friction: deep Oxide
+- Friction: deep Coral
 - Tension: Fig
 - Unease: Teal
-- Wonder: light Teal and Mist
+- Wonder: light Teal
 
-Do not encode emotion-to-genre rules. Do not use scanning graphics, camera frames, confidence scores, or temporary labels as brand motifs.
+Color never stands alone. Every feeling trace has a text label or accessible name. Do not encode emotion-to-genre rules.
 
-## Components
+## Signed-in product
 
-- **Primary button:** Ink with Chalk text in the signed-in product, 8px radius, 50px minimum height. Oxide is reserved for emotional fields and rare emphasis.
-- **Secondary button:** Ink or Mist according to the field.
-- **Quiet button:** transparent at rest with a local-surface hover.
-- **Surface:** 14px maximum radius for grouped state; posters use 2 to 6px.
-- **Input:** Chalk or Mineral, visible Ink-derived border, readable placeholder.
-- **Focus:** 3px Fig outline with 3px offset on light fields; Chalk on dark fields.
-- **Poster:** 2:3 crop, flat at rest, small lift on hover or focus.
-- **Loading:** content-shaped skeletons for lists; a compact spinner only for short isolated transitions.
-- **Empty state:** one useful next action.
-- **Errors:** a specific message and recovery action where possible.
+The signed-in application remains calmer and denser than the landing page.
+
+- Home combines personal state with recent community activity.
+- Discover leads with people who felt something similar about a shared film.
+- Add response starts with film selection, then words and direct feeling controls.
+- History keeps chronological responses editable and searchable.
+- Member pages show a person’s responses and films, not a compatibility score.
+- Film pages lead with the film, then show how people felt.
+
+The landing page may preview these surfaces, but it must not force the full product into the landing layout.
 
 ## Copy rules
 
-Use film, response, feelings, note, person, activity, diary, public, private, saved, follow, reaction, and recommendation literally. The `/feed` route remains an implementation detail; the interface calls it Home and labels the actual list Recent activity.
+Use film, response, feelings, note, person, activity, history, follow, reaction, and recommendation literally.
 
-Avoid invented feature names, technical architecture copy, privacy theater, marketing buzzwords, and mechanical explanations. Never claim that Moodie understands, reads, detects, or diagnoses how a person feels.
+Describe what the product does before explaining its philosophy. Use plain specifications where they help a visitor evaluate the product. Keep people and source films visible in recommendation reasons.
 
-Use `expression estimate` for the optional analysis adapter. Use `attach photo` for post media. These are different actions.
+Avoid invented feature names, marketing buzzwords, privacy theater, technical architecture copy, and claims that Moodie understands or diagnoses a person.
 
 ## Do not
 
-- Reintroduce a dark streaming shell or catalog-first home.
+- Reintroduce EmotionFlix or any name ending in “flix.”
+- Build a streaming catalog as the landing page.
+- Use alternating full-screen matte sections.
+- Turn the page into a magazine cover or consulting presentation.
+- Use a notebook, diary paper, film strip, clapperboard, or decorative camera prop.
 - Add ratings, stars, genre profiles, compatibility percentages, or popularity-first recommendations.
-- Use glassmorphism, gradient text, repeated feature-card grids, oversized radii, purple fog, or neon blobs.
-- Use visible dot patterns, paper speckles, faux aging, film strips, clapperboards, or decorative camera imagery.
-- Put facial analysis, confidence, or privacy proof in the opening screen.
-- Hide first-person notes, feelings, recommendation sources, or visibility behind hover.
+- Add animated headline lines, flying quotes, particles, decorative circles, or wave dividers.
+- Center visibility language inside response cards.
+- Hide first-person notes, feelings, people, or recommendation sources behind hover.
