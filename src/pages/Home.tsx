@@ -308,7 +308,7 @@ const Home: React.FC = () => {
               <div
                 className="mf-cycle-frame mf-hero-media"
                 key={beat.film.title}
-                style={{ '--beat-delay': `${index * 5}s` } as React.CSSProperties}
+                style={{ '--beat-delay': `${index * 4}s` } as React.CSSProperties}
               >
                 {beat.film.backdrop && <img className="mf-hero__backdrop" src={beat.film.backdrop} alt="" />}
                 <div className="mf-hero__backdrop-wash" />
@@ -327,7 +327,7 @@ const Home: React.FC = () => {
               <div
                 className="mf-cycle-frame mf-hero-response__beat"
                 key={beat.context}
-                style={{ '--beat-delay': `${index * 5}s` } as React.CSSProperties}
+                style={{ '--beat-delay': `${index * 4}s` } as React.CSSProperties}
               >
                 <div className="mf-response-card__meta"><span>{beat.meta}</span><span>{beat.context}</span></div>
                 <blockquote>{beat.note}</blockquote>
@@ -342,7 +342,7 @@ const Home: React.FC = () => {
               <figure
                 className="mf-cycle-frame mf-hero__reaction"
                 key={`${beat.film.title}-reaction`}
-                style={{ '--beat-delay': `${index * 5}s` } as React.CSSProperties}
+                style={{ '--beat-delay': `${index * 4}s` } as React.CSSProperties}
               >
                 <img src={beat.reaction.src} alt="" />
                 <figcaption>{beat.reaction.caption}</figcaption>
@@ -350,11 +350,6 @@ const Home: React.FC = () => {
             ))}
           </div>
 
-          <div aria-hidden="true" className="mf-hero__progress">
-            {heroBeats.map((beat, index) => (
-              <span key={`${beat.film.title}-progress`} style={{ '--beat-delay': `${index * 5}s` } as React.CSSProperties} />
-            ))}
-          </div>
         </div>
       </section>
 
@@ -608,9 +603,9 @@ const Home: React.FC = () => {
       <section className="mf-final" aria-labelledby="final-title" data-nav-tone="dark">
         <div className="mf-final__glow" aria-hidden="true" />
         <div>
-          <p className="mf-kicker">Start with one viewing</p>
-          <h2 id="final-title">Bring the last film that followed you home.</h2>
-          <p>Write what stayed. Moodie will keep the response, learn its shape, and show you where it can lead.</p>
+          <p className="mf-kicker">Start with one film</p>
+          <h2 id="final-title">Log what you watched.</h2>
+          <p>Add how it felt. Moodie uses that response to recommend films through people with similar experiences.</p>
         </div>
         <div className="mf-final__actions">
           <button className="mf-primary-action" disabled={demoLoading} onClick={() => void enterDemo()} type="button">

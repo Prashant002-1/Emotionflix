@@ -11,8 +11,10 @@ const HeroIdentity: React.FC<HeroIdentityProps> = ({ demoLoading, onEnterDemo, o
   <div className="mf-hero-copy">
     <p className="mf-hero-copy__eyebrow">A social film journal and recommendation system</p>
     <div className="mf-hero-copy__statement">
-      <h1 id="landing-title">No two people leave the same film.</h1>
-      <p className="mf-hero-copy__conclusion">Find your next through people who felt something familiar.</p>
+      <h1 id="landing-title">No two people feel the same.</h1>
+      <p className="mf-hero-copy__conclusion">
+        Log how a film felt. Get recommendations from people who felt something similar.
+      </p>
     </div>
 
     <div className="mf-hero-copy__actions">

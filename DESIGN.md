@@ -140,7 +140,7 @@ Most product surfaces are dark, thin-bordered, and flat enough to scan. Depth is
 Motion should express continuity and lived activity.
 
 - Lenis supplies restrained smooth scrolling on the public landing page only.
-- The hero uses one synchronized 25-second loop. Content changes in place through crossfades.
+- The hero uses one synchronized 20-second loop. Content changes in place through crossfades.
 - The ambient field and projector light move on separate 22 to 28 second cycles.
 - Do not stack entrance animations on the product demonstrations.
 - Hover motion is limited to a small lift or color change.
