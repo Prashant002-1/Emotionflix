@@ -381,7 +381,7 @@
 .mf-cycle-frame {
   opacity: 0;
   animation: mf-beat-cycle 20s ease-in-out infinite;
-  animation-delay: calc(var(--beat-delay) - 0.7s);
+  animation-delay: calc(var(--beat-delay) - 2.6s);
 }
 
 .mf-hero-media {
@@ -1137,7 +1137,7 @@
 .mf-shared-film-panel blockquote {
   margin-top: 13px;
   padding: 11px 12px;
-  border-left: 2px solid rgba(85, 120, 144, 0.36);
+  border: 1px solid rgba(85, 120, 144, 0.28);
   background: var(--mf-panel-raised);
   color: rgba(244, 239, 233, 0.69);
   font-size: 0.65rem;
@@ -1145,7 +1145,7 @@
 }
 
 .mf-shared-film-panel blockquote:last-child {
-  border-left-color: rgba(215, 99, 88, 0.48);
+  border-color: rgba(215, 99, 88, 0.36);
 }
 
 .mf-shared-film-panel blockquote span {

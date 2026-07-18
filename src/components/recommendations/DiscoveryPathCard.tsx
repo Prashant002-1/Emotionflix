@@ -37,7 +37,7 @@ export function DiscoveryPathCard({ movie, requestedFeelings = [] }: DiscoveryPa
         <Link to={filmLink}><h3>{movie.title}</h3></Link>
         <p className="path-card__year">{releaseYear(movie.release_date)}</p>
         <RecommendationEvidence connection={person} movieTitle={movie.title} requestedFeelings={requestedFeelings} />
-        {person.response_note && <blockquote>“{person.response_note}”</blockquote>}
+        {person.response_note && <blockquote><span className="path-card__response-label">@{person.username} on {movie.title}</span>“{person.response_note}”</blockquote>}
         <div className="path-card__actions">
           <Link to={filmLink}>Open <ArrowUpRight aria-hidden="true" size={15} /></Link>
           <button aria-label={`${saved ? 'Remove' : 'Save'} ${movie.title}`} aria-pressed={saved} onClick={() => void toggleSaved()} type="button">

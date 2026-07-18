@@ -170,6 +170,8 @@ Color never stands alone. Every feeling trace has a text label or accessible nam
 
 The signed-in application remains calmer and denser than the landing page.
 
+Its background carries the broadcast identity through warm mineral, oxide, slate-blue, and muted gold light bleed, continuous grain, faint scanlines, and a soft edge vignette. Existing dark product surfaces may carry quieter scanlines. Do not add a television frame, controls, channel labels, or fake broadcast copy.
+
 - The response stream is the signed-in default and contains complete responses from people, newest first. It does not repeat the word Feed as a page title.
 - The For you view combines one leading recommendation, more recommended films, responses from followed people, connected people, community films, and saved films. It must feel useful for more than one interaction.
 - Feed items keep the person, film, note, feeling trace, and optional photo together. They do not use generic media-first social cards.
@@ -205,3 +207,4 @@ Avoid invented feature names, marketing buzzwords, privacy theater, technical ar
 - Add animated headline lines, flying quotes, particles, decorative circles, or wave dividers.
 - Center visibility language inside response cards.
 - Hide first-person notes, feelings, people, or recommendation sources behind hover.
+- Use a colored or heavy left border as a mark on a box, quote, or callout. Use a full border, horizontal rule, background shift, or spacing instead.

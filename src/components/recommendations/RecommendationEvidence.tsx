@@ -21,19 +21,19 @@ export function RecommendationEvidence({ connection, movieTitle, requestedFeelin
     <div className="recommendation-evidence">
       <p className="recommendation-evidence__title">Why this film</p>
       <dl>
-        <div><dt>Shared film</dt><dd>{connection.shared_film_title}</dd></div>
-        {shared.length > 0 && <div><dt>Both felt</dt><dd>{feelingList(shared)}</dd></div>}
-        {requestedFeelings.length > 0 && <div><dt>You asked for</dt><dd>{feelingList(requestedFeelings)}</dd></div>}
+        <div><dt>You both responded to</dt><dd>{connection.shared_film_title}</dd></div>
+        {shared.length > 0 && <div><dt>Feelings you shared</dt><dd>{feelingList(shared)}</dd></div>}
+        {requestedFeelings.length > 0 && <div><dt>You wanted</dt><dd>{feelingList(requestedFeelings)}</dd></div>}
         {response.length > 0 && <div><dt><Link to={`/member/${connection.username}`}>@{connection.username}</Link> felt after {movieTitle}</dt><dd>{feelingList(response)}</dd></div>}
       </dl>
       {showComparison && connection.viewer_shared_note && connection.person_shared_note && (
-        <details>
-          <summary>Compare your responses to {connection.shared_film_title}</summary>
+        <section className="recommendation-evidence__comparison" aria-label={`Your responses to ${connection.shared_film_title}`}>
+          <h3>Your responses to {connection.shared_film_title}</h3>
           <div className="recommendation-evidence__responses">
             <blockquote><span>You</span>{connection.viewer_shared_note}</blockquote>
             <blockquote><span>@{connection.username}</span>{connection.person_shared_note}</blockquote>
           </div>
-        </details>
+        </section>
       )}
     </div>
   );

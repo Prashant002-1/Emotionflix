@@ -887,8 +887,9 @@
 .recommendation-spotlight__response {
   max-width: 620px;
   margin-top: 28px;
-  padding: 3px 0 3px 20px;
-  border-left: 2px solid #d76358;
+  padding: 16px 0;
+  border-top: 1px solid rgba(29, 43, 51, 0.16);
+  border-bottom: 1px solid rgba(29, 43, 51, 0.16);
 }
 
 .recommendation-spotlight__response span {

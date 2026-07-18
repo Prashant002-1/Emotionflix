@@ -1,16 +1,29 @@
 .app-shell--product {
   --product-rail-width: 64px;
-  --product-canvas: #f4efe9;
+  --product-canvas: #e2d9c8;
   min-height: 100vh;
   background-color: var(--product-canvas);
-  background-image: var(--grain-image);
-  background-position: 17px 23px;
-  background-size: 144px 144px;
-  background-blend-mode: soft-light;
+  background-image:
+    radial-gradient(ellipse at 8% -4%, rgba(215, 99, 88, 0.3), transparent 34%),
+    radial-gradient(ellipse at 94% 12%, rgba(85, 120, 144, 0.28), transparent 36%),
+    radial-gradient(ellipse at 48% 108%, rgba(198, 151, 63, 0.22), transparent 43%),
+    linear-gradient(112deg, rgba(113, 59, 66, 0.08), rgba(244, 239, 233, 0.38) 43%, rgba(215, 99, 88, 0.09)),
+    var(--grain-image);
+  background-attachment: fixed;
+  background-position: center, center, center, center, 17px 23px;
+  background-size: auto, auto, auto, auto, 144px 144px;
+  background-blend-mode: normal, normal, normal, normal, soft-light;
 }
 
 .app-shell--product::before {
-  display: none;
+  display: block;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(29, 43, 51, 0.026) 0, rgba(29, 43, 51, 0.026) 1px, transparent 1px, transparent 4px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(29, 43, 51, 0.09) 115%);
+  background-position: center;
+  background-size: auto;
+  mix-blend-mode: multiply;
+  opacity: 0.72;
 }
 
 .app-shell--product > main {
@@ -36,11 +49,12 @@
 .product-rail:hover,
 .product-rail:focus-within {
   width: 210px;
-  background-color: var(--product-canvas);
+  background-color: rgba(244, 239, 233, 0.76);
   background-image: var(--grain-image);
   background-position: 17px 23px;
   background-size: 144px 144px;
   background-blend-mode: soft-light;
+  backdrop-filter: blur(14px) saturate(0.85);
   box-shadow: 22px 0 42px rgba(29, 43, 51, 0.08);
 }
 
@@ -126,6 +140,17 @@
 .feed-page__header {
   display: flex;
   justify-content: flex-end;
+}
+
+.app-shell--product .feed-page {
+  padding-top: 18px;
+}
+
+.app-shell--product .feed-page__header {
+  min-height: 44px;
+  margin-bottom: 18px;
+  padding-bottom: 7px;
+  align-items: center;
 }
 
 .feed-journey {
@@ -465,14 +490,22 @@
 }
 
 .path-card blockquote {
-  display: -webkit-box;
+  display: block;
   margin-top: 18px;
-  overflow: hidden;
+  overflow: visible;
   color: rgba(248, 243, 236, 0.72);
   font-size: 0.74rem;
   line-height: 1.5;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+}
+
+.path-card__response-label {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(248, 243, 236, 0.48);
+  font-size: 0.58rem;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .path-card__actions {
@@ -1581,6 +1614,16 @@
   .app-shell--product .page-shell {
     padding: 28px 18px 72px;
   }
+
+  .app-shell--product .feed-page {
+    padding-top: 12px;
+  }
+
+  .app-shell--product .feed-page__header {
+    min-height: 40px;
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1600,8 +1643,11 @@
   border: 1px solid rgba(29, 43, 51, 0.16);
   border-radius: 28px;
   background:
+    linear-gradient(rgba(255, 255, 255, 0.012) 50%, rgba(0, 0, 0, 0.021) 50%),
+    radial-gradient(circle at 16% 88%, rgba(85, 120, 144, 0.14), transparent 34%),
     radial-gradient(circle at 82% 18%, rgba(215, 99, 88, 0.23), transparent 37%),
     #1d2b33;
+  background-size: 100% 4px, auto, auto, auto;
   color: #f8f3ec;
   grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.28fr);
 }
@@ -1673,6 +1719,17 @@
   line-height: 1.35;
 }
 
+.journey-moment__response-label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(248, 243, 236, 0.52);
+  font-family: 'Oxygen', sans-serif;
+  font-size: 0.6rem;
+  font-style: normal;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
 .recommendation-evidence {
   margin-top: 24px;
   padding-top: 18px;
@@ -1680,8 +1737,8 @@
 }
 
 .recommendation-evidence__title {
-  color: rgba(248, 243, 236, 0.5);
-  font-size: 0.62rem;
+  color: #d6aa55;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1695,18 +1752,18 @@
 
 .recommendation-evidence dl > div {
   display: grid;
-  grid-template-columns: minmax(104px, 0.45fr) minmax(0, 1fr);
+  grid-template-columns: minmax(132px, 0.45fr) minmax(0, 1fr);
   gap: 14px;
 }
 
 .recommendation-evidence dt,
 .recommendation-evidence dd {
-  font-size: 0.68rem;
-  line-height: 1.45;
+  font-size: 0.74rem;
+  line-height: 1.5;
 }
 
 .recommendation-evidence dt {
-  color: rgba(248, 243, 236, 0.48);
+  color: rgba(248, 243, 236, 0.58);
 }
 
 .recommendation-evidence dd,
@@ -1714,31 +1771,33 @@
   color: rgba(248, 243, 236, 0.88);
 }
 
-.recommendation-evidence details {
-  margin-top: 14px;
-  color: rgba(248, 243, 236, 0.62);
-  font-size: 0.67rem;
+.recommendation-evidence__comparison {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(248, 243, 236, 0.15);
 }
 
-.recommendation-evidence summary {
-  width: fit-content;
-  cursor: pointer;
+.recommendation-evidence__comparison h3 {
+  color: rgba(248, 243, 236, 0.74);
+  font-size: 0.69rem;
+  font-weight: 600;
 }
 
 .recommendation-evidence__responses {
   display: grid;
-  margin-top: 14px;
+  margin-top: 10px;
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .recommendation-evidence__responses blockquote {
-  padding-left: 12px;
-  border-left: 1px solid rgba(248, 243, 236, 0.2);
-  color: rgba(248, 243, 236, 0.7);
+  padding: 9px 11px;
+  border: 1px solid rgba(248, 243, 236, 0.18);
+  background: rgba(248, 243, 236, 0.035);
+  color: rgba(248, 243, 236, 0.8);
   font-family: 'Oxygen', sans-serif;
-  font-size: 0.65rem;
-  line-height: 1.5;
+  font-size: 0.7rem;
+  line-height: 1.52;
 }
 
 .recommendation-evidence__responses span {
@@ -1780,56 +1839,156 @@
 }
 
 .journey-moment--compact {
-  min-height: 420px;
-  grid-template-columns: minmax(180px, 0.58fr) minmax(0, 1.42fr);
+  min-height: 350px;
+  border-radius: 20px;
+  grid-template-columns: minmax(165px, 0.48fr) minmax(0, 1.52fr);
 }
 
 .journey-moment--compact .journey-moment__poster {
-  min-height: 420px;
+  min-height: 350px;
 }
 
 .journey-moment--compact h2 {
-  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  font-size: clamp(2.2rem, 4.2vw, 3.5rem);
 }
 
 .journey-moment--compact .journey-moment__story {
-  padding: clamp(30px, 4vw, 52px);
+  display: grid;
+  padding: clamp(22px, 2.5vw, 30px);
+  column-gap: clamp(22px, 3vw, 34px);
+  grid-template-areas:
+    'connection response'
+    'title response'
+    'year response'
+    'evidence evidence'
+    'actions actions';
+  grid-template-columns: minmax(205px, 0.7fr) minmax(0, 1.3fr);
+  grid-template-rows: auto auto auto auto auto;
+  align-content: center;
+  justify-content: stretch;
 }
 
 .journey-moment--compact .journey-moment__response {
-  display: -webkit-box;
-  margin-top: 22px;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  display: block;
+  max-width: none;
+  margin-top: 0;
+  overflow: visible;
+  font-size: clamp(0.88rem, 1.25vw, 1rem);
+  grid-area: response;
+  align-self: center;
+}
+
+.journey-moment--compact .journey-moment__connection {
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  grid-area: connection;
+}
+
+.journey-moment--compact h2 {
+  grid-area: title;
+}
+
+.journey-moment--compact .journey-moment__year {
+  grid-area: year;
+}
+
+.journey-moment--compact .recommendation-evidence {
+  display: grid;
+  margin-top: 18px;
+  padding-top: 14px;
+  column-gap: clamp(22px, 3vw, 34px);
+  grid-area: evidence;
+  grid-template-areas:
+    'evidence-title comparison'
+    'evidence-facts comparison';
+  grid-template-columns: minmax(205px, 0.7fr) minmax(0, 1.3fr);
+  align-items: start;
+}
+
+.journey-moment--compact .recommendation-evidence__title {
+  grid-area: evidence-title;
+}
+
+.journey-moment--compact .recommendation-evidence dl {
+  margin-top: 9px;
+  gap: 5px;
+  grid-area: evidence-facts;
+}
+
+.journey-moment--compact .recommendation-evidence dl > div {
+  display: block;
+}
+
+.journey-moment--compact .recommendation-evidence dd {
+  margin-top: 2px;
+}
+
+.journey-moment--compact .recommendation-evidence__comparison {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  grid-area: comparison;
+}
+
+.journey-moment--compact .recommendation-evidence__responses blockquote {
+  font-size: 0.65rem;
+  line-height: 1.45;
+}
+
+.journey-moment--compact .journey-moment__actions {
+  margin-top: 17px;
+  grid-area: actions;
 }
 
 @media (max-width: 760px) {
   .journey-moment,
   .journey-moment--compact {
     min-height: 0;
-    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .journey-moment__poster,
   .journey-moment--compact .journey-moment__poster {
-    min-height: 100%;
+    min-height: 0;
+    height: 168px;
+  }
+
+  .journey-moment__poster::after {
+    background: linear-gradient(0deg, rgba(29, 43, 51, 0.62), transparent 46%);
   }
 
   .journey-moment__story {
-    padding: 28px 22px;
+    padding: 24px 20px;
+  }
+
+  .journey-moment--compact .journey-moment__story {
+    display: flex;
+  }
+
+  .journey-moment--compact .recommendation-evidence {
+    display: block;
+  }
+
+  .journey-moment--compact .recommendation-evidence__comparison {
+    margin-top: 16px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(248, 243, 236, 0.15);
   }
 
   .journey-moment h2,
   .journey-moment--compact h2 {
-    font-size: clamp(2rem, 10vw, 3.3rem);
+    font-size: clamp(2.1rem, 12vw, 3.15rem);
   }
 
   .journey-moment__response {
-    display: none;
+    display: block;
   }
 
   .recommendation-evidence__responses {
     grid-template-columns: 1fr;
+  }
+
+  .journey-moment--compact .recommendation-evidence__responses blockquote {
+    font-size: 0.68rem;
   }
 }

@@ -34,7 +34,7 @@ export function RecommendationSpotlight({ movie, compact = false, requestedFeeli
         <p className="journey-moment__year">{releaseYear(movie.release_date)}</p>
         <RecommendationEvidence connection={person} movieTitle={movie.title} requestedFeelings={requestedFeelings} showComparison />
         {person.response_note && (
-          <blockquote className="journey-moment__response">“{person.response_note}”</blockquote>
+          <blockquote className="journey-moment__response"><span className="journey-moment__response-label">@{person.username} on {movie.title}</span>“{person.response_note}”</blockquote>
         )}
         <div className="journey-moment__actions">
           <Link className="journey-moment__open" to={filmLink}>Open film <ArrowUpRight aria-hidden="true" size={15} /></Link>
