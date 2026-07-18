@@ -1,63 +1,12 @@
 /**
  * Frontend Test Environment Setup
  * 
- * Global test configuration for Vitest test suite including comprehensive mocks
- * for face-api.js, MediaDevices API, FileReader, Image constructor, localStorage,
- * and environment variables to enable isolated testing of emotion detection components.
+ * Global test configuration for Vitest, including browser file, image,
+ * localStorage, and environment mocks.
  */
 
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
-
-/**
- * Mock face-api.js library for emotion detection testing
- * 
- * Provides mock implementations of neural network loading and face detection
- * to avoid actual model downloads and computation during testing.
- */
-vi.mock('face-api.js', () => ({
-  nets: {
-    ssdMobilenetv1: {
-      loadFromUri: vi.fn().mockResolvedValue(true),
-      isLoaded: true,
-    },
-    faceLandmark68Net: {
-      loadFromUri: vi.fn().mockResolvedValue(true),
-      isLoaded: true,
-    },
-    faceExpressionNet: {
-      loadFromUri: vi.fn().mockResolvedValue(true),
-      isLoaded: true,
-    },
-  },
-  detectAllFaces: vi.fn().mockResolvedValue([]),
-  SsdMobilenetv1Options: vi.fn().mockImplementation(() => ({})),
-}));
-
-/**
- * Mock MediaDevices API for webcam testing
- * 
- * Provides mock implementations of getUserMedia and related video track methods
- * to simulate webcam functionality without requiring actual camera access.
- */
-Object.defineProperty(global.navigator, 'mediaDevices', {
-  writable: true,
-  value: {
-    getUserMedia: vi.fn().mockResolvedValue({
-      getVideoTracks: vi.fn().mockReturnValue([{
-        stop: vi.fn(),
-        getSettings: vi.fn().mockReturnValue({
-          width: 640,
-          height: 480,
-        }),
-      }]),
-      getTracks: vi.fn().mockReturnValue([{
-        stop: vi.fn(),
-      }]),
-      active: true,
-    }),
-  },
-});
 
 /**
  * Mock URL object methods for blob handling
@@ -72,7 +21,7 @@ global.URL.revokeObjectURL = vi.fn();
  * Mock FileReader for file upload testing
  * 
  * Simulates file reading operations with mock base64 data output
- * for testing image upload and processing functionality.
+ * for testing optional photo attachment.
  */
 global.FileReader = class MockFileReader {
   static readonly EMPTY = 0;
@@ -114,7 +63,7 @@ global.FileReader = class MockFileReader {
  * Mock Image constructor for image loading testing
  * 
  * Provides mock Image implementation with automatic onload triggering
- * for testing image-based emotion detection functionality.
+ * for testing optional photo preparation.
  */
 global.Image = class MockImage {
   onload: (() => void) | null = null;

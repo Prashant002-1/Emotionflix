@@ -18,8 +18,11 @@ const Home = lazy(() => import('./pages/Home'))
 const UserProfile = lazy(() => import('./pages/UserProfile'))
 const Log = lazy(() => import('./pages/Log'))
 const Diary = lazy(() => import('./pages/Diary'))
-const HomeActivity = lazy(() => import('./pages/Community'))
+const Feed = lazy(() => import('./pages/Feed'))
 const MemberProfile = lazy(() => import('./pages/MemberProfile'))
+const People = lazy(() => import('./pages/People'))
+const Search = lazy(() => import('./pages/Search'))
+const Activity = lazy(() => import('./pages/Activity'))
 const Recommendations = lazy(() => import('./pages/Recommendations'))
 const MovieDetails = lazy(() => import('./pages/MovieDetails'))
 
@@ -60,7 +63,22 @@ function App() {
                                     } />
                                     <Route path="feed" element={
                                         <ProtectedRoute>
-                                            <HomeActivity />
+                                            <Feed />
+                                        </ProtectedRoute>
+                                    } />
+                                    <Route path="people" element={
+                                        <ProtectedRoute>
+                                            <People />
+                                        </ProtectedRoute>
+                                    } />
+                                    <Route path="search" element={
+                                        <ProtectedRoute>
+                                            <Search />
+                                        </ProtectedRoute>
+                                    } />
+                                    <Route path="activity" element={
+                                        <ProtectedRoute>
+                                            <Activity />
                                         </ProtectedRoute>
                                     } />
                                     <Route path="community" element={<Navigate replace to="/feed" />} />
@@ -69,7 +87,7 @@ function App() {
                                             <MemberProfile />
                                         </ProtectedRoute>
                                     } />
-                                    <Route path="movie-match" element={<Navigate replace to="/recommendations" />} />
+                                    <Route path="movie-match" element={<Navigate replace to="/feed" />} />
                                     <Route path="movie/:id" element={
                                         <ProtectedRoute>
                                             <MovieDetails />

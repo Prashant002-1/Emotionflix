@@ -7,7 +7,7 @@
     "server"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20 <26"
   },
   "scripts": {
     "dev": "concurrently --kill-others --names web,api \"npm:dev:web\" \"npm:dev:api\"",
@@ -37,7 +37,6 @@
     "@fontsource/oxygen": "^5.2.8",
     "@types/node": "^24.1.0",
     "axios": "^1.18.1",
-    "face-api.js": "^0.22.2",
     "lenis": "^1.3.25",
     "lucide-react": "^1.24.0",
     "react": "^19.0.0",

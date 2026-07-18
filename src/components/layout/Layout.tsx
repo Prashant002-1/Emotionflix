@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, BookOpen, Compass, LoaderCircle, LogOut, Menu, Plus, X } from 'lucide-react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Bell, BookOpen, House, LoaderCircle, Menu, Plus, Search, UserRound, UsersRound, X } from 'lucide-react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import AuthModal from '../auth/AuthModal';
+import BrandMark from '../brand/BrandMark';
+import './ProductShell.css';
+import './JourneyShell.css';
 
 const DEMO_EMAIL = 'demo@demo.com';
 const DEMO_PASSWORD = 'demo123!';
@@ -16,17 +19,20 @@ export interface LayoutOutletContext {
 const Layout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading: authLoading, login, logout } = useUser();
+  const { user, loading: authLoading, login } = useUser();
   const [authOpen, setAuthOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState('');
 
   const productLinks = [
-    { path: '/feed', label: 'Home', icon: Activity },
-    { path: '/recommendations', label: 'Discover', icon: Compass },
+    { path: '/feed', label: 'Home', icon: House },
+    { path: '/search', label: 'Search', icon: Search },
+    { path: '/people', label: 'People', icon: UsersRound },
+    { path: '/activity', label: 'Activity', icon: Bell },
     { path: '/diary', label: 'Diary', icon: BookOpen },
-    { path: '/log', label: 'Add response', shortLabel: 'Add', icon: Plus },
+    { path: '/log', label: 'Add a response', icon: Plus },
+    { path: '/profile', label: 'Account', icon: UserRound },
   ];
 
   useEffect(() => {
@@ -54,35 +60,31 @@ const Layout: React.FC = () => {
     }
   };
 
-  const activePath = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
-
   return (
     <div className={`app-shell${user ? ' app-shell--product' : ' app-shell--public'}`}>
       <a className="skip-link" href="#main-content">Skip to content</a>
 
       {user ? (
-        <aside className="product-rail" aria-label="Application navigation">
-          <Link aria-label="Moodie home" className="product-rail__brand" to="/feed">Moodie</Link>
-          <nav className="product-rail__nav">
+        <aside className="product-rail">
+          <Link aria-label="Moodie home" className="product-rail__mark" to="/feed">
+            <BrandMark />
+          </Link>
+          <nav aria-label="Main navigation" className="product-rail__nav">
             {productLinks.map(link => {
               const Icon = link.icon;
-              const active = activePath(link.path);
               return (
-                <Link aria-current={active ? 'page' : undefined} className={`product-rail__link${active ? ' product-rail__link--active' : ''}`} key={link.path} to={link.path}>
-                  <Icon aria-hidden="true" size={17} />
+                <NavLink
+                  aria-label={link.label}
+                  className={({ isActive }) => `product-rail__link${isActive ? ' product-rail__link--active' : ''}`}
+                  key={link.path}
+                  to={link.path}
+                >
+                  <span className="product-rail__icon"><Icon aria-hidden="true" size={20} strokeWidth={1.8} /></span>
                   <span className="product-rail__label">{link.label}</span>
-                  <span className="product-rail__short-label">{link.shortLabel || link.label}</span>
-                </Link>
+                </NavLink>
               );
             })}
           </nav>
-          <div className="product-rail__account">
-            <Link className={`product-rail__profile${activePath('/profile') ? ' product-rail__profile--active' : ''}`} to="/profile">
-              <span className="product-rail__avatar">{user.displayName.charAt(0).toUpperCase()}</span>
-              <span><strong>{user.displayName}</strong><small>@{user.username}</small></span>
-            </Link>
-            <button aria-label="Sign out" className="product-rail__logout" onClick={logout} type="button"><LogOut size={16} /></button>
-          </div>
         </aside>
       ) : (
         <header className="nav-shell nav-shell--public nav-shell--steady">

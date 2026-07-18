@@ -235,7 +235,11 @@ const runVerification = async () => {
     for (const movie of recommendations.body.forYou as Array<Record<string, any>>) {
       assert(!demoMovieIds.has(Number(movie.id)), `Recommended watched film ${movie.title}`);
       assert(Array.isArray(movie.recommended_by) && movie.recommended_by.length > 0, `${movie.title} does not identify a connected person`);
-      assert(movie.recommended_by.every((person: Record<string, unknown>) => person.id && person.username && person.shared_film_title), `${movie.title} has an incomplete person connection`);
+      assert(movie.recommended_by.every((person: Record<string, unknown>) => person.id && person.username && person.shared_film_title && person.response_id && person.response_note), `${movie.title} has an incomplete person or response connection`);
+      assert(movie.recommended_by.every((person: Record<string, unknown>) => Array.isArray(person.shared_feelings) && person.shared_feelings.length > 0), `${movie.title} does not explain the shared-film feeling overlap`);
+      assert(movie.recommended_by.every((person: Record<string, unknown>) => Array.isArray(person.response_feelings) && person.response_feelings.length > 0), `${movie.title} does not expose the source response feelings`);
+      assert(movie.recommended_by.every((person: Record<string, unknown>) => person.viewer_shared_note && person.person_shared_note), `${movie.title} cannot compare the two shared-film responses`);
+      assert(movie.recommended_by.every((person: Record<string, unknown>) => !('similarity' in person)), `${movie.title} exposes an internal similarity score`);
       assert(!('vote_average' in movie) && !('vote_count' in movie) && !('popularity' in movie), `${movie.title} exposes rating-led metadata`);
       assert(!/genre|well-rated|rating|stars?/i.test(String(movie.recommendation_reason)), `${movie.title} uses a genre/rating reason`);
     }

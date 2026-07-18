@@ -2,7 +2,6 @@ import { EmotionScores } from './emotion';
 import { Movie } from './movie';
 
 export type DiaryVisibility = 'private' | 'public';
-export type CaptureMethod = 'manual' | 'webcam' | 'upload';
 
 export interface DiaryEntry extends EmotionScores {
   id: number;
@@ -14,8 +13,6 @@ export interface DiaryEntry extends EmotionScores {
   expression_image_path: string | null;
   expression_image_alt: string | null;
   visibility: DiaryVisibility;
-  capture_method: CaptureMethod;
-  confidence: number;
   created_at: string;
   reaction_count: number;
   title: string;
@@ -55,8 +52,6 @@ export interface DiaryEntryInput {
   expressionImage?: string | null;
   visibility: DiaryVisibility;
   emotions: EmotionScores;
-  captureMethod: CaptureMethod;
-  confidence: number;
 }
 
 export const diaryEntryMovie = (entry: DiaryEntry): Movie => ({

@@ -48,8 +48,6 @@ const entrySchema = z.object({
   note: z.string().trim().max(2000).default(''),
   visibility: z.enum(['private', 'public']).default('private'),
   emotions: emotionSchema,
-  captureMethod: z.enum(['manual', 'webcam', 'upload']).default('manual'),
-  confidence: z.number().min(0).max(1).default(1),
   expressionImage: expressionImageSchema.nullable().optional(),
 });
 
@@ -59,7 +57,7 @@ const selectEntry = `
   SELECT de.id, de.user_id, de.movie_id, de.watched_on, de.note, de.visibility,
          de.neutral::float, de.happy::float, de.sad::float, de.angry::float,
          de.fearful::float, de.disgusted::float, de.surprised::float,
-         de.capture_method, de.confidence::float, de.created_at, de.updated_at,
+         de.created_at, de.updated_at,
          u.username, m.title, m.overview, m.release_date, m.poster_path, m.backdrop_path,
          COALESCE((SELECT ARRAY_AGG(mg.genre_id ORDER BY mg.genre_id) FROM movie_genres mg WHERE mg.movie_id = m.id), ARRAY[]::integer[]) AS genre_ids,
          (SELECT COUNT(*)::int FROM entry_reactions er WHERE er.entry_id = de.id) AS reaction_count,
@@ -105,11 +103,11 @@ export const createEntry = async (req: AuthRequest, res: Response) => {
       const inserted = await client.query(
         `INSERT INTO diary_entries (
           user_id, movie_id, watched_on, rating, note, visibility,
-          neutral, happy, sad, angry, fearful, disgusted, surprised, capture_method, confidence
-         ) VALUES ($1,$2,$3,NULL,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+          neutral, happy, sad, angry, fearful, disgusted, surprised
+         ) VALUES ($1,$2,$3,NULL,$4,$5,$6,$7,$8,$9,$10,$11,$12)
          RETURNING id`,
         [userId, data.movieId, data.watchedOn, data.note, data.visibility,
-          e.neutral, e.happy, e.sad, e.angry, e.fearful, e.disgusted, e.surprised, data.captureMethod, data.confidence],
+          e.neutral, e.happy, e.sad, e.angry, e.fearful, e.disgusted, e.surprised],
       );
       const insertedEntryId = Number(inserted.rows[0].id);
       if (data.expressionImage) {
@@ -146,8 +144,6 @@ export const updateEntry = async (req: AuthRequest, res: Response) => {
     if (data.watchedOn !== undefined) add('watched_on', data.watchedOn);
     if (data.note !== undefined) add('note', data.note);
     if (data.visibility !== undefined) add('visibility', data.visibility);
-    if (data.captureMethod !== undefined) add('capture_method', data.captureMethod);
-    if (data.confidence !== undefined) add('confidence', data.confidence);
     if (data.emotions) Object.entries(data.emotions).forEach(([key, value]) => add(key, value));
     if (!updates.length && data.expressionImage === undefined) return res.status(400).json({ error: 'No diary changes supplied' });
 

@@ -30,7 +30,7 @@ const DiaryEntryEditor: React.FC<DiaryEntryEditorProps> = ({ entry, onCancel, on
     setSaving(true);
     setError('');
     try {
-      await onSave({ watchedOn, note, visibility, emotions, captureMethod: entry.capture_method, confidence: entry.confidence });
+      await onSave({ watchedOn, note, visibility, emotions });
     } catch {
       setError('The diary entry could not be updated.');
     } finally {

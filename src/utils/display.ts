@@ -11,6 +11,22 @@ export const releaseYear = (date?: string) => {
   return Number.isNaN(year) ? 'Date unknown' : String(year);
 };
 
+export const calendarDate = (value?: string | Date | null) => {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  const datePart = value.slice(0, 10);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day), 12);
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+export const formatCalendarDate = (value: string | Date | null | undefined, options: Intl.DateTimeFormatOptions) =>
+  calendarDate(value)?.toLocaleDateString(undefined, options) || 'Date unknown';
+
 export const formatRuntime = (minutes?: number) => {
   if (!minutes) return null;
   const hours = Math.floor(minutes / 60);

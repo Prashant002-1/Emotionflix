@@ -11,6 +11,7 @@ interface FilmPosterProps {
 
 const FilmPoster: React.FC<FilmPosterProps> = ({ movie, actionLabel = 'View film' }) => {
   const poster = imageUrl(movie.poster_path, 'w500');
+  const leadResponse = movie.recommended_by?.[0];
 
   return (
     <article className="film-poster">
@@ -29,6 +30,7 @@ const FilmPoster: React.FC<FilmPosterProps> = ({ movie, actionLabel = 'View film
       </Link>
       {movie.recommended_by?.length ? <p className="film-poster__people">From {movie.recommended_by.slice(0, 2).map((person, index) => <React.Fragment key={person.id}>{index > 0 ? ' and ' : ''}<Link to={`/member/${person.username}`}>@{person.username}</Link></React.Fragment>)}</p> : null}
       {movie.recommendation_reason && <p className="film-poster__reason">{movie.recommendation_reason}</p>}
+      {leadResponse?.response_note && <blockquote className="film-poster__response">{leadResponse.response_note}</blockquote>}
     </article>
   );
 };

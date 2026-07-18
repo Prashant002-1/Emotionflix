@@ -48,8 +48,6 @@ CREATE TABLE IF NOT EXISTS emotions (
     fearful DECIMAL(3,2) DEFAULT 0.00,
     disgusted DECIMAL(3,2) DEFAULT 0.00,
     surprised DECIMAL(3,2) DEFAULT 0.00,
-    detection_method VARCHAR(20) DEFAULT 'manual', -- 'manual', 'webcam'
-    confidence DECIMAL(3,2) DEFAULT 0.00, -- confidence level 0-1
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, movie_id, created_at) -- Composite key for unique emotion sessions per movie viewing
 );
@@ -126,8 +124,8 @@ CREATE TABLE IF NOT EXISTS diary_entries (
     fearful DECIMAL(4,3) NOT NULL DEFAULT 0.000 CHECK (fearful BETWEEN 0 AND 1),
     disgusted DECIMAL(4,3) NOT NULL DEFAULT 0.000 CHECK (disgusted BETWEEN 0 AND 1),
     surprised DECIMAL(4,3) NOT NULL DEFAULT 0.000 CHECK (surprised BETWEEN 0 AND 1),
-    capture_method VARCHAR(12) NOT NULL DEFAULT 'manual' CHECK (capture_method IN ('manual', 'webcam', 'upload')), -- prototype input provenance; see docs/EMOTIONAL_SIGNAL_MODEL.md
-    confidence DECIMAL(4,3) NOT NULL DEFAULT 1.000 CHECK (confidence BETWEEN 0 AND 1),
+    capture_method VARCHAR(12) NOT NULL DEFAULT 'manual' CHECK (capture_method = 'manual'), -- retained for data compatibility; active input is direct
+    confidence DECIMAL(4,3) NOT NULL DEFAULT 1.000 CHECK (confidence = 1), -- retained for data compatibility
     legacy_user_movie_id INTEGER UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -140,7 +138,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_diary_entries_seed_key
     ON diary_entries(seed_key) WHERE seed_key IS NOT NULL;
 
 -- A shared expression image is optional post media. It is deliberately
--- separate from capture_method: attaching a face does not claim the response
+-- Optional post media stays separate from the person's saved feelings.
 -- was inferred from that face.
 CREATE TABLE IF NOT EXISTS entry_media (
     entry_id BIGINT NOT NULL REFERENCES diary_entries(id) ON DELETE CASCADE,
@@ -244,7 +242,7 @@ SELECT
     'private',
     COALESCE(e.neutral, 0), COALESCE(e.happy, 0), COALESCE(e.sad, 0),
     COALESCE(e.angry, 0), COALESCE(e.fearful, 0), COALESCE(e.disgusted, 0), COALESCE(e.surprised, 0),
-    COALESCE(e.detection_method, 'manual'), COALESCE(e.confidence, 1), um.id, um.created_at, um.created_at
+    'manual', 1, um.id, um.created_at, um.created_at
 FROM user_movies um
 LEFT JOIN LATERAL (
     SELECT * FROM emotions source_emotion

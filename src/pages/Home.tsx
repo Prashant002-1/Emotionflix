@@ -374,9 +374,9 @@ const Home: React.FC = () => {
             <div className="mf-capture-demo__body">
               <nav className="mf-demo-rail" aria-label="Example product navigation">
                 <strong className="mf-demo-rail__mark">M</strong>
-                <span><MessageCircle size={15} />Home</span>
-                <span><Compass size={15} />Discover</span>
-                <span><Library size={15} />History</span>
+                <span><MessageCircle size={15} />Feed</span>
+                <span><Compass size={15} />Recommendations</span>
+                <span><Library size={15} />Diary</span>
                 <span className="is-active"><Film size={15} />Add response</span>
               </nav>
 
@@ -432,7 +432,7 @@ const Home: React.FC = () => {
         <div className="mf-section__inner">
           <header className="mf-section-heading" data-reveal>
             <div>
-              <p className="mf-kicker">Discovery</p>
+              <p className="mf-kicker">Recommendations</p>
               <h2 id="discovery-title">People first. Films second.</h2>
               <p>Moodie finds someone who responded to the same film in a familiar way, then uses their other responses as evidence for what reaches you next.</p>
             </div>
@@ -445,7 +445,7 @@ const Home: React.FC = () => {
           </header>
 
           <div aria-hidden="true" className="mf-product-frame mf-discovery-demo" data-reveal>
-            <ProductWindowBar path="Moodie / Discover" status="People you overlap with" />
+            <ProductWindowBar path="Moodie / Recommendations" status="From shared responses" />
             <div className="mf-discovery-demo__body">
               <div className="mf-discovery-request">
                 <span className="mf-ui-label">Your request</span>

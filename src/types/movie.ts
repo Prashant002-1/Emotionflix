@@ -1,3 +1,5 @@
+import type { EmotionScores } from './emotion';
+
 /**
  * Movie Type Definitions
  * 
@@ -60,8 +62,13 @@ export interface Movie {
   recommended_by?: {
     id: number;
     username: string;
-    similarity: number;
     shared_film_title: string;
+    shared_feelings: (keyof EmotionScores)[];
+    response_feelings: (keyof EmotionScores)[];
+    viewer_shared_note: string;
+    person_shared_note: string;
+    response_id: number;
+    response_note: string;
   }[];
 }
 

@@ -52,7 +52,9 @@ export const getFilmEntries = async (req: AuthRequest, res: Response) => {
               CASE WHEN $2::int IS NULL THEN FALSE ELSE EXISTS(
                 SELECT 1 FROM entry_reactions er WHERE er.entry_id = de.id AND er.user_id = $2
               ) END AS reacted,
-              FALSE AS following
+              CASE WHEN $2::int IS NULL THEN FALSE ELSE EXISTS(
+                SELECT 1 FROM follows f WHERE f.follower_id = $2 AND f.followed_id = de.user_id
+              ) END AS following
        FROM diary_entries de
        JOIN users u ON u.id = de.user_id
        JOIN movies m ON m.id = de.movie_id
@@ -82,6 +84,14 @@ export const getPeople = async (req: AuthRequest, res: Response) => {
          FROM diary_entries
          WHERE visibility = 'public'
          ORDER BY user_id, movie_id, watched_on DESC, created_at DESC
+       ), latest_response AS (
+         SELECT DISTINCT ON (de.user_id)
+                de.user_id, de.movie_id AS latest_movie_id, de.note AS latest_note,
+                m.title AS latest_title, m.poster_path AS latest_poster_path
+         FROM diary_entries de
+         JOIN movies m ON m.id = de.movie_id
+         WHERE de.visibility = 'public'
+         ORDER BY de.user_id, de.watched_on DESC, de.created_at DESC
        ), person_overlap AS (
          SELECT candidate.user_id, COUNT(*)::int AS shared_films,
                 AVG(GREATEST(0, 1 - (
@@ -94,6 +104,19 @@ export const getPeople = async (req: AuthRequest, res: Response) => {
          JOIN viewer_entries viewer ON viewer.movie_id = candidate.movie_id
          WHERE candidate.user_id <> $1
          GROUP BY candidate.user_id
+       ), person_shared AS (
+         SELECT DISTINCT ON (candidate.user_id)
+                candidate.user_id, m.title AS shared_film_title
+         FROM public_latest candidate
+         JOIN viewer_entries viewer ON viewer.movie_id = candidate.movie_id
+         JOIN movies m ON m.id = candidate.movie_id
+         WHERE candidate.user_id <> $1
+         ORDER BY candidate.user_id, (
+           ABS(candidate.neutral - viewer.neutral) + ABS(candidate.happy - viewer.happy) +
+           ABS(candidate.sad - viewer.sad) + ABS(candidate.angry - viewer.angry) +
+           ABS(candidate.fearful - viewer.fearful) + ABS(candidate.disgusted - viewer.disgusted) +
+           ABS(candidate.surprised - viewer.surprised)
+         ) ASC
        )
        SELECT u.id, u.username, u.bio,
               COUNT(de.id)::int AS entries,
@@ -103,14 +126,21 @@ export const getPeople = async (req: AuthRequest, res: Response) => {
               AVG(de.sad)::float AS sad, AVG(de.angry)::float AS angry,
               AVG(de.fearful)::float AS fearful, AVG(de.disgusted)::float AS disgusted,
               AVG(de.surprised)::float AS surprised,
-              o.shared_films, o.pattern_overlap,
+              o.shared_films, o.pattern_overlap, shared.shared_film_title,
+              latest.latest_movie_id, latest.latest_title, latest.latest_poster_path, latest.latest_note,
               CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
                 SELECT 1 FROM follows f WHERE f.follower_id = $1 AND f.followed_id = u.id
-              ) END AS following
+              ) END AS following,
+              CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
+                SELECT 1 FROM follows f WHERE f.follower_id = u.id AND f.followed_id = $1
+              ) END AS follows_you
        FROM users u JOIN diary_entries de ON de.user_id = u.id AND de.visibility = 'public'
        LEFT JOIN person_overlap o ON o.user_id = u.id
+       LEFT JOIN person_shared shared ON shared.user_id = u.id
+       LEFT JOIN latest_response latest ON latest.user_id = u.id
        WHERE ($1::int IS NULL OR u.id <> $1)
-       GROUP BY u.id, o.shared_films, o.pattern_overlap
+       GROUP BY u.id, o.shared_films, o.pattern_overlap, shared.shared_film_title,
+                latest.latest_movie_id, latest.latest_title, latest.latest_poster_path, latest.latest_note
        ORDER BY following DESC, o.shared_films DESC NULLS LAST, pattern_overlap DESC NULLS LAST, entries DESC, u.username ASC LIMIT 18`,
       [viewerId],
     );
@@ -134,9 +164,23 @@ export const getPersonProfile = async (req: AuthRequest, res: Response) => {
               AVG(de.sad)::float AS sad, AVG(de.angry)::float AS angry,
               AVG(de.fearful)::float AS fearful, AVG(de.disgusted)::float AS disgusted,
               AVG(de.surprised)::float AS surprised,
+              (SELECT m.title
+               FROM diary_entries candidate
+               JOIN diary_entries viewer ON viewer.movie_id = candidate.movie_id AND viewer.user_id = $2
+               JOIN movies m ON m.id = candidate.movie_id
+               WHERE candidate.user_id = u.id AND candidate.visibility = 'public'
+               ORDER BY (
+                 ABS(candidate.neutral - viewer.neutral) + ABS(candidate.happy - viewer.happy) +
+                 ABS(candidate.sad - viewer.sad) + ABS(candidate.angry - viewer.angry) +
+                 ABS(candidate.fearful - viewer.fearful) + ABS(candidate.disgusted - viewer.disgusted) +
+                 ABS(candidate.surprised - viewer.surprised)
+               ) ASC LIMIT 1) AS shared_film_title,
               CASE WHEN $2::int IS NULL THEN FALSE ELSE EXISTS(
                 SELECT 1 FROM follows f WHERE f.follower_id = $2 AND f.followed_id = u.id
-              ) END AS following
+              ) END AS following,
+              CASE WHEN $2::int IS NULL THEN FALSE ELSE EXISTS(
+                SELECT 1 FROM follows f WHERE f.follower_id = u.id AND f.followed_id = $2
+              ) END AS follows_you
        FROM users u
        LEFT JOIN diary_entries de ON de.user_id = u.id AND de.visibility = 'public'
        WHERE LOWER(u.username) = LOWER($1)
@@ -170,6 +214,76 @@ export const getPersonProfile = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: 'Invalid member name' });
     res.status(500).json({ error: 'Member profile could not be loaded' });
+  }
+};
+
+export const getActivity = async (req: AuthRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+  try {
+    const limit = z.coerce.number().int().min(1).max(80).default(40).parse(req.query.limit);
+    const result = await pool.query(
+      `SELECT * FROM (
+         SELECT 'reaction'::text AS kind, er.created_at,
+                actor.id AS actor_id, actor.username,
+                de.id AS entry_id, m.id AS movie_id, m.title, m.poster_path,
+                de.note
+         FROM entry_reactions er
+         JOIN users actor ON actor.id = er.user_id
+         JOIN diary_entries de ON de.id = er.entry_id
+         JOIN movies m ON m.id = de.movie_id
+         WHERE de.user_id = $1 AND actor.id <> $1
+
+         UNION ALL
+
+         SELECT 'follow'::text AS kind, f.created_at,
+                actor.id AS actor_id, actor.username,
+                NULL::bigint AS entry_id, NULL::integer AS movie_id,
+                NULL::varchar AS title, NULL::varchar AS poster_path,
+                NULL::varchar AS note
+         FROM follows f
+         JOIN users actor ON actor.id = f.follower_id
+         WHERE f.followed_id = $1
+       ) activity
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [req.user.id, limit],
+    );
+    res.json({ activity: result.rows });
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ error: 'Invalid activity query' });
+    console.error('Activity error:', error);
+    res.status(500).json({ error: 'Activity could not be loaded' });
+  }
+};
+
+export const getCommunityPulse = async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await pool.query(
+      `WITH recent AS (
+         SELECT de.id, de.user_id, de.movie_id, de.note, de.created_at,
+                u.username, m.title, m.overview, m.release_date,
+                m.poster_path, m.backdrop_path,
+                ROW_NUMBER() OVER (PARTITION BY de.movie_id ORDER BY de.created_at DESC) AS recency
+         FROM diary_entries de
+         JOIN users u ON u.id = de.user_id
+         JOIN movies m ON m.id = de.movie_id
+         WHERE de.visibility = 'public'
+       )
+       SELECT movie_id, title, overview, release_date, poster_path, backdrop_path,
+              COUNT(*)::int AS response_count,
+              COUNT(DISTINCT user_id)::int AS people_count,
+              MAX(created_at) AS latest_at,
+              (ARRAY_AGG(username ORDER BY created_at DESC))[1] AS latest_username,
+              (ARRAY_AGG(note ORDER BY created_at DESC) FILTER (WHERE note <> ''))[1] AS latest_note
+       FROM recent
+       GROUP BY movie_id, title, overview, release_date, poster_path, backdrop_path
+       ORDER BY MAX(created_at) DESC, COUNT(DISTINCT user_id) DESC
+       LIMIT 14`,
+    );
+    res.json({ films: result.rows });
+  } catch (error) {
+    console.error('Community pulse error:', error);
+    res.status(500).json({ error: 'Community films could not be loaded' });
   }
 };
 

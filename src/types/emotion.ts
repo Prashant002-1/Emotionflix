@@ -1,12 +1,12 @@
 /**
  * Emotion Type Definitions
  * 
- * Type definitions for reviewed emotional records and adapter suggestions.
+ * Type definitions for reviewed emotional records.
  * The current seven-key shape is a prototype constraint, not the final product vocabulary.
  */
 
 /**
- * Reviewed emotional values entered directly or suggested by a supported adapter.
+ * Reviewed emotional values entered directly by the person.
  * All values are normalized between 0 and 1, representing the intensity of each emotion.
  */
 export interface EmotionScores {
@@ -24,36 +24,6 @@ export interface EmotionScores {
   disgusted: number;
   /** Surprised emotional state (0-1) */
   surprised: number;
-}
-
-/**
- * Records one prototype emotion-input session with source metadata.
- * The target model separates source observations from the reviewed emotional record.
- */
-export interface EmotionSession {
-  /** Unique identifier for the session */
-  id: string;
-  /** Prototype input source */
-  type: 'webcam' | 'manual' | 'upload';
-  /** The suggested or directly entered values */
-  emotionScores: EmotionScores;
-  /** Adapter confidence (0-1). Direct input should become nullable in the target model. */
-  confidence: number;
-  /** When the emotion session was recorded */
-  timestamp: Date;
-}
-
-/**
- * Legacy emotion-to-genre mapping shape.
- * @deprecated The product learns personal relationships instead of universal emotion-to-genre rules.
- */
-export interface EmotionToGenreMapping {
-  /** The emotion being mapped */
-  emotion: keyof EmotionScores;
-  /** Array of TMDB genre IDs associated with this emotion */
-  genreIds: number[];
-  /** Weight/strength of the emotion-to-genre relationship (0-1) */
-  weight: number;
 }
 
 /**

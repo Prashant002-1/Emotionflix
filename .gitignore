@@ -58,6 +58,8 @@ logs/
 # AI agent local files
 CLAUDE.local.md
 GEMINI.local.md
+.codex/
+.agents/
 
 # Testing documentation
 TESTING.md

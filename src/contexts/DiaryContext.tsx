@@ -63,7 +63,6 @@ export const DiaryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const createEntry = useCallback(async (input: DiaryEntryInput) => {
     const entry = await diaryService.create(input);
     await refresh();
-    setCurrentSignal(input.emotions);
     return entry;
   }, [refresh]);
 
@@ -75,7 +74,6 @@ export const DiaryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateEntry = useCallback(async (entryId: number, changes: Partial<Omit<DiaryEntryInput, 'movieId'>>) => {
     const entry = await diaryService.update(entryId, changes);
     await refresh();
-    if (changes.emotions) setCurrentSignal(changes.emotions);
     return entry;
   }, [refresh]);
 

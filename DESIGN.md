@@ -51,7 +51,7 @@ The hero is the product story in motion.
 - Poster, backdrop, reaction photo, response text, feeling trace, and context change together.
 - The paper response card stays physically anchored while its contents change.
 - Use the original paper-card behavior: warm paper, internal metadata divider, compact type, small feeling trace, modest radius, slight rotation, and a hard offset shadow.
-- A full loop lasts 25 seconds. Each film has room to register before the next crossfade.
+- A full loop lasts 20 seconds. Each film has room to register before the next crossfade.
 - The trail demonstrates a response being saved, reaching another person, creating common ground, satisfying a feeling request across genre, and continuing through another response.
 - Never label a card “public response.” Visibility is ordinary entry state, not a selling point.
 - Show film and human diversity through time, never as a pile of simultaneous posters.
@@ -87,7 +87,7 @@ Show a real response composer with:
 
 State the contract beside the demonstration: freeform input, seven temporary feeling signals, optional media, and visibility per response. Rewatches remain separate records.
 
-### Discovery
+### Recommendations
 
 Show the recommendation chain in one product frame:
 
@@ -115,7 +115,7 @@ Newsreader is the expressive display face. Oxygen is the product and reading fac
 - Use Oxygen for controls, specifications, response copy, metadata, and product frames.
 - Landing section headings should normally stop near 4.35rem. They share the viewport with the product, rather than becoming the entire viewport.
 - Interface copy stays compact but readable. Metadata may be small only when contrast and hierarchy remain clear.
-- Uppercase labels are reserved for functional categories such as Input, Signal, Capture, and Discovery.
+- Uppercase labels are reserved for short functional categories such as Input and Feelings.
 
 ## Material and depth
 
@@ -132,7 +132,12 @@ Most product surfaces are dark, thin-bordered, and flat enough to scan. Depth is
 - The public header is a stable 62px layer with Moodie, Sign in, and Enter demo.
 - It does not change color by section because the landing field is continuous.
 - The mobile header uses the same dark state and a compact menu.
-- The signed-in product keeps its own navigation rail and is not restyled by the landing page.
+- The signed-in product has no header. A fixed 64px rail is the only persistent navigation.
+- The rail stays collapsed by default and contains icons for Home, Search, People, Activity, Diary, Add response, and Account.
+- Hovering or focusing within the rail opens one temporary 210px menu that reveals every item name. It cannot be pinned open.
+- Navigation icons sit at the vertical center of the rail, not at the top.
+- The collapsed rail is transparent over the same Chalk canvas and grain. It should read as icons placed directly on the page. Active and hover states use color only, with no persistent pill, dot, or circle.
+- Recommendations do not appear in the rail. They enter through responses, people, films, and the moment after saving a response.
 - The footer stays compact and contains only the required TMDB attribution.
 
 ## Motion
@@ -165,18 +170,25 @@ Color never stands alone. Every feeling trace has a text label or accessible nam
 
 The signed-in application remains calmer and denser than the landing page.
 
-- Home combines personal state with recent community activity.
-- Discover leads with people who felt something similar about a shared film.
+- The response stream is the signed-in default and contains complete responses from people, newest first. It does not repeat the word Feed as a page title.
+- The For you view combines one leading recommendation, more recommended films, responses from followed people, connected people, community films, and saved films. It must feel useful for more than one interaction.
+- Feed items keep the person, film, note, feeling trace, and optional photo together. They do not use generic media-first social cards.
+- A recommendation appears as a journey moment inside the stream or after a response is saved. It leads with a person, the shared film that created the connection, the feelings both people recorded there, and the public response behind the recommended film. Both written responses to the shared film can be compared without exposing a score.
+- Following the moment opens a focused continuation. Recommendations are never framed as a utility destination in the primary navigation.
 - Add response starts with film selection, then words and direct feeling controls.
-- History keeps chronological responses editable and searchable.
-- Member pages show a person’s responses and films, not a compatibility score.
-- Film pages lead with the film, then show how people felt.
+- Diary keeps chronological responses editable and saved films in a separate view.
+- Diary supports search, visibility filters, rewatches, chronological grouping, and a recent-viewing feeling summary.
+- People cards keep the latest film and response beside the person, and name a shared film when one exists.
+- Search covers films, desired feelings, and people without becoming a streaming grid. Desired-feeling results stay people-led and keep genre open. Activity links reactions and follows back to their source.
+- Member pages use separate Responses and Films views. They do not assign a compatibility score or a defining feeling to a person.
+- Film pages lead with the film, carry the person and shared-film context when reached through a recommendation, then separate human responses from related catalog browsing.
+- Account settings use local tabs so profile, account, and password controls are never presented as one long settings dashboard.
 
 The landing page may preview these surfaces, but it must not force the full product into the landing layout.
 
 ## Copy rules
 
-Use film, response, feelings, note, person, activity, history, follow, reaction, and recommendation literally.
+Use film, response, feelings, note, person, feed, diary, follow, reaction, and recommendation literally.
 
 Describe what the product does before explaining its philosophy. Use plain specifications where they help a visitor evaluate the product. Keep people and source films visible in recommendation reasons.
 

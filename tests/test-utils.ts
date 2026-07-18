@@ -2,7 +2,7 @@
  * Test Utilities for Moodie Frontend Tests
  * 
  * Provides mock data creators, test helper functions, and utility methods
- * for testing emotion detection, movie data, and UI interactions across
+ * for testing feeling input, movie data, and UI interactions across
  * the frontend application test suite.
  */
 
@@ -14,7 +14,7 @@ import { Movie } from '../src/types/movie';
  * Creates mock emotion scores for testing
  * 
  * Generates normalized emotion data with optional overrides for testing
- * specific emotion states and detection scenarios.
+ * specific feeling states and display scenarios.
  * 
  * @param overrides - Partial emotion scores to override defaults
  * @returns Normalized emotion scores object

@@ -4,7 +4,7 @@ Moodie is emotion-based social film discovery.
 
 A person shares what a film meant to them and the feelings that stayed with them. The product finds people who responded similarly to the same films, then reveals what stayed with those people next. The signed-in home combines personal usage, active films, community activity, the diary, and saved films.
 
-Direct feeling controls and writing are the primary inputs. A public response may include an optional expression photo as attached media. Facial-expression analysis is a separate optional adapter whose output remains an editable suggestion. It is not the product identity.
+Direct feeling controls and writing are the inputs. A public response may include an optional expression photo as attached media. The photo is never analyzed and never changes the person's feelings.
 
 There are no user ratings. Genres, TMDB vote values, and universal emotion-to-genre rules do not power personal recommendations.
 
@@ -14,15 +14,17 @@ There are no user ratings. Genres, TMDB vote values, and universal emotion-to-ge
 
 - React 19, TypeScript, Vite, React Router, Lenis, and Oxygen
 - Express, embedded PostgreSQL via PGlite, JWT authentication, and Zod validation
-- face-api.js for the current optional in-browser expression adapter
 - TMDB for server-side film metadata and artwork
 - Vitest, React Testing Library, Jest, and Supertest
 
 ## Product routes
 
 - `/`: public product overview
-- `/feed`: signed-in home and activity
-- `/recommendations`: people-led discovery with catalog browse below
+- `/feed`: signed-in response stream with personal film paths woven into it
+- `/search`: film and people search with community and shared-film context
+- `/people`: followed and discoverable people with shared-film context
+- `/activity`: reactions, follows, and recent responses from people followed
+- `/recommendations`: a contextual continuation reached from a personal film path, not primary navigation
 - `/diary`: personal response history
 - `/log`: add a film response
 - `/movie/:id`: film details and public responses
@@ -44,28 +46,36 @@ There are no user ratings. Genres, TMDB vote values, and universal emotion-to-ge
 - `GET /api/discovery/people`
 - `GET /api/discovery/people/:username`
 - `GET /api/discovery/films/:movieId`
+- `GET /api/discovery/activity`
+- `GET /api/discovery/pulse`
 - `POST|DELETE /api/discovery/people/:personId/follow`
 - `POST|DELETE /api/discovery/entries/:entryId/reaction`
 - `GET|PATCH /api/auth/profile`
 
 ## Current implementation boundary
 
-The current application supports direct sliders and optional camera or photo expression estimates. The database still uses seven face-api-derived feeling keys and a `manual|webcam|upload` source enum. Text-derived suggestions and the extensible source model are documented requirements, not completed features.
+The current application supports direct feeling controls and an optional attached photo. The seven-key feeling vocabulary is still a prototype constraint and will need a deliberate migration before it expands.
 
 ## Run locally
 
-Requirement: Node.js 20 or newer. Docker and a system database are not needed.
+Requirement: Node.js 20 through 25. Node.js 22 is the recommended local runtime. Docker and a system database are not needed.
 
 ```bash
 npm install
 cp .env.example .env
-npm run dev
 ```
 
 Add a TMDB API key to `.env` to enable live film metadata:
 
 ```dotenv
 TMDB_API_KEY=your-tmdb-api-key
+```
+
+Populate the local social demo, then start the application:
+
+```bash
+npm run seed
+npm run dev
 ```
 
 Open `http://localhost:5173`. The root command runs the web app and API together. Vite proxies `/api` internally, so there is no frontend API URL to configure.

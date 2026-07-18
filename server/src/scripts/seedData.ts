@@ -258,9 +258,14 @@ const resolveMovieByTitleAndYear = async (client: ConnectedDatabaseClient, title
     params: { api_key: TMDB_API_KEY, query: title, primary_release_year: year },
   });
   const results = search.data.results || [];
-  const exact = results.filter(movie => movie.title.toLowerCase() === title.toLowerCase()
+  const comparableTitle = (value: string) => value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+  const exact = results.filter(movie => comparableTitle(movie.title) === comparableTitle(title)
     && Number(movie.release_date?.slice(0, 4)) === year);
-  const match = exact.length === 1 ? exact[0] : results.find(movie => Number(movie.release_date?.slice(0, 4)) === year);
+  const match = exact.length === 1 ? exact[0] : undefined;
   if (!match) throw new Error(`No unambiguous TMDB result for "${title}" (${year})`);
 
   const detailsResponse = await axios.get<Record<string, any>>(`${TMDB_BASE_URL}/movie/${match.id}`, { params: { api_key: TMDB_API_KEY } });

@@ -9,6 +9,8 @@ interface ManualEmotionInputProps {
   onSubmit?: (scores: EmotionScores) => void;
   showSubmitButton?: boolean;
   initialScores?: EmotionScores;
+  heading?: string;
+  description?: string;
   submitLabel?: string;
 }
 
@@ -22,7 +24,16 @@ const EMPTY_SCORES: EmotionScores = {
   surprised: 0,
 };
 
-const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({ onEmotionScores, onEmotionChange, onSubmit, showSubmitButton = false, initialScores, submitLabel = 'Use this feeling' }) => {
+const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({
+  onEmotionScores,
+  onEmotionChange,
+  onSubmit,
+  showSubmitButton = false,
+  initialScores,
+  heading = 'What did you feel?',
+  description = 'Raise the feelings that belong to this viewing. They do not need to add up to 100%.',
+  submitLabel = 'Use these feelings',
+}) => {
   const [emotions, setEmotions] = useState<EmotionScores>(initialScores || EMPTY_SCORES);
 
   const updateEmotion = (emotion: keyof EmotionScores, value: number) => {
@@ -35,8 +46,8 @@ const ManualEmotionInput: React.FC<ManualEmotionInputProps> = ({ onEmotionScores
   return (
     <div className="capture-shell">
       <div className="capture-copy">
-        <h3>Describe it yourself</h3>
-        <p>Raise only the feelings that belong to this viewing. The values do not need to total 100%.</p>
+        <h3>{heading}</h3>
+        <p>{description}</p>
       </div>
       <div className="slider-list">
         {(Object.entries(emotions) as [keyof EmotionScores, number][]).map(([emotion, value]) => (
