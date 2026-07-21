@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shape Emotional Film Product"
+  short_description: "Project-specific social film design guidance"
+  default_prompt: "Use $shape-emotional-film-product to redesign this project surface without losing its product identity."

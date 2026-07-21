@@ -4,17 +4,25 @@ Moodie is emotion-based social film discovery.
 
 > Moodie uses the TMDB API for non-commercial purposes and is not endorsed or certified by TMDB.
 
-## OpenAI Build Week disclosure
+No two people feel the same. Moodie starts there. A person records what a film meant to them and the feelings that stayed. The product finds people who responded similarly to the same films, then opens a path to what moved those people next.
 
-Moodie did not start during Build Week. The original repository was a class project built around facial-expression analysis and rating-led recommendations. Before the submission window opened, I had already started turning it into a product about personal film responses and discovery through other people.
+It does not treat a person as a rating, genre profile, or point in a recommendation system. The person, the shared film, and the response behind each recommendation remain visible.
 
-The January 21 baseline commit [`1f4a3fd`](https://github.com/Prashant002-1/Emotionflix/commit/1f4a3fd8965f9b9d3af963dafad0d11e5caa5520) documents the earlier public application. A timestamped July 10 Codex session documents the pre-window relaunch work. To avoid claiming that work as eligible, the first three branch commits are treated as pre-existing checkpoints even though they were committed after the window opened.
+## OpenAI Build Week
 
-The Build Week contribution begins after [`af9cd5d`](https://github.com/Prashant002-1/Emotionflix/commit/af9cd5d) and is preserved as 15 dated commits through [`ce4630c`](https://github.com/Prashant002-1/Emotionflix/commit/ce4630c). It covers 88 files, with 12,701 additions and 3,409 deletions.
+The idea existed before Build Week. I first organized it as a student project called EmotionFlix, built around facial-expression analysis and rating-led recommendations. It never became the product I had in mind. After the January 21 baseline commit [`1f4a3fd`](https://github.com/Prashant002-1/Emotionflix/commit/1f4a3fd8965f9b9d3af963dafad0d11e5caa5520), the repository sat untouched for nearly six months.
 
-[`BUILD_WEEK.md`](./BUILD_WEEK.md) distinguishes the pre-existing foundation from the eligible Build Week work and links the commit evidence.
+OpenAI Build Week gave me a reason to reopen it. The frontend and product capabilities I saw in Codex with GPT-5.6 Sol made a complete relaunch feel possible. The core belief stayed the same, but the product philosophy, recommendation model, data, design system, social experience, runtime, and execution became Moodie during this work.
 
-A person shares what a film meant to them and the feelings that stayed with them. The product finds people who responded similarly to the same films, then reveals what stayed with those people next. The signed-in home combines personal usage, active films, community activity, the diary, and saved films.
+The dated Build Week implementation is preserved as 15 commits after [`af9cd5d`](https://github.com/Prashant002-1/Emotionflix/commit/af9cd5d), from [`7ffe1f4`](https://github.com/Prashant002-1/Emotionflix/commit/7ffe1f4) through [`ce4630c`](https://github.com/Prashant002-1/Emotionflix/commit/ce4630c). That range changes 88 files, with 12,701 additions and 3,409 deletions. The complete relaunch from the dormant student baseline changes 159 files, with 30,628 additions and 22,080 deletions.
+
+[`BUILD_WEEK.md`](./BUILD_WEEK.md) carries the story, commit evidence, Codex and GPT-5.6 Sol contributions, and the decisions I kept ownership of.
+
+## Codex and GPT-5.6 Sol
+
+I used Codex as a working partner across the repository, not as autocomplete. The workflow stayed simple: I described what felt wrong, Codex read the product and code, implemented a direction, ran it, and I steered the next correction. It untangled an immature architecture, rebuilt the frontend and backend, exercised the product in the browser when needed, generated visual assets inside coding sessions, created and verified the social seed world, and turned repeated feedback into a repository-specific agent skill.
+
+GPT-5.6 Sol made the largest product correction. It recognized that facial recognition was not the real idea and pushed the product toward direct emotional responses and people-led discovery. It could recover the intention from old code without preserving its assumptions. It also helped keep the recommendation engine lean: shared films and reviewed feelings connect people, and real public responses create the path to another film.
 
 Direct feeling controls and writing are the inputs. A public response may include an optional expression photo as attached media. The photo is never analyzed and never changes the person's feelings.
 
@@ -138,3 +146,9 @@ npm --workspace server test -- --runInBand
 ```
 
 The product documents are source-of-truth constraints. When implementation and documentation differ, preserve user data and move the implementation toward the documented model deliberately.
+
+## License and attribution
+
+Moodie's source code is available under the [MIT License](./LICENSE).
+
+Film metadata and artwork are supplied through the TMDB API. The API key remains on the Express server and is never sent to the browser. TMDB content is governed by TMDB's own terms and is not covered by the MIT License. See [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

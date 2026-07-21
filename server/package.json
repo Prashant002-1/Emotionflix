@@ -1,6 +1,7 @@
 {
   "name": "emotionflix-server",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "Moodie Backend API",
   "main": "dist/index.js",
   "scripts": {
