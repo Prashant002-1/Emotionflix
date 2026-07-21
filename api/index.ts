@@ -29,10 +29,7 @@ export default async function handler(request: Request, response: Response) {
     console.error('Failed to prepare the Moodie demo:', error);
     response.statusCode = 503;
     response.setHeader('content-type', 'application/json');
-    response.end(JSON.stringify({
-      error: 'Moodie is still preparing the demo. Please try again.',
-      detail: error instanceof Error ? error.message : String(error),
-    }));
+    response.end(JSON.stringify({ error: 'Moodie is still preparing the demo. Please try again.' }));
     return response;
   }
 }
