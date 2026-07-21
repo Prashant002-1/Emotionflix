@@ -92,6 +92,13 @@ npm run dev
 
 Open `http://localhost:5173`. The root command runs the web app and API together. Vite proxies `/api` internally, so there is no frontend API URL to configure.
 
+Enter through the one-step demo on the landing page, or sign in directly with:
+
+```text
+Email: demo@demo.com
+Password: demo123!
+```
+
 The embedded database is created at `.data/emotionflix` and `database/schema.sql` is applied automatically. Delete `.data/emotionflix` only when you intentionally want a clean local database.
 
 ## Production-style run

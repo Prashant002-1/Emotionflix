@@ -14,6 +14,8 @@ The repository itself predates Build Week. Commit [`1f4a3fd`](https://github.com
 
 A timestamped Codex session from July 10 documents that the product and design relaunch had already started before the official submission period. The first three branch commits, [`24f4e7e`](https://github.com/Prashant002-1/Emotionflix/commit/24f4e7e), [`99809d8`](https://github.com/Prashant002-1/Emotionflix/commit/99809d8), and [`af9cd5d`](https://github.com/Prashant002-1/Emotionflix/commit/af9cd5d), checkpoint that mixed pre-existing state. I am not presenting those commits as eligible Build Week work.
 
+The pre-window Codex session ID is `019f4d0e-118f-7bf0-9f48-6d2d5b22a7de`.
+
 ## What I built during Build Week
 
 The Build Week contribution begins after `af9cd5d`. The eligible range contains 15 commits from [`7ffe1f4`](https://github.com/Prashant002-1/Emotionflix/commit/7ffe1f4) through [`ce4630c`](https://github.com/Prashant002-1/Emotionflix/commit/ce4630c). The range changes 88 files, with 12,701 additions and 3,409 deletions.
@@ -41,6 +43,8 @@ The complete eligible comparison is:
 | July 21 | `c157ecc`, `5f453ad`, `1641f2f`, `ce4630c` | Expanded social discovery and completed the rendering, framing, and scrolling work. |
 
 The pull request preserves these commits individually.
+
+The primary Codex session for the eligible product work is `019f5f3c-f27a-75a3-a2f9-621a014fd198`. It contains the rejected mechanical hero direction, the correction that restored the cinematic response scene, and the later people-led discovery work represented by the dated commits above.
 
 <!--
 Submission drafting anchors. Replace this comment with the finished sections after Prashant provides the contribution story.
