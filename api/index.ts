@@ -1,8 +1,11 @@
-import type { Request, Response } from 'express';
+import type { Application, Request, Response } from 'express';
 import appModule from '../server/src/app.js';
 import { seed } from '../server/src/scripts/seedData.js';
 
-const app = ((appModule as unknown as { default?: typeof appModule }).default || appModule) as typeof appModule;
+const app = (
+  (appModule as unknown as { default?: Application }).default ||
+  (appModule as unknown as Application)
+);
 
 let preparation: Promise<void> | undefined;
 
