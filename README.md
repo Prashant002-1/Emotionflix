@@ -2,6 +2,18 @@
 
 Moodie is emotion-based social film discovery.
 
+> Moodie uses the TMDB API for non-commercial purposes and is not endorsed or certified by TMDB.
+
+## OpenAI Build Week disclosure
+
+Moodie did not start during Build Week. The original repository was a class project built around facial-expression analysis and rating-led recommendations. Before the submission window opened, I had already started turning it into a product about personal film responses and discovery through other people.
+
+The January 21 baseline commit [`1f4a3fd`](https://github.com/Prashant002-1/Emotionflix/commit/1f4a3fd8965f9b9d3af963dafad0d11e5caa5520) documents the earlier public application. A timestamped July 10 Codex session documents the pre-window relaunch work. To avoid claiming that work as eligible, the first three branch commits are treated as pre-existing checkpoints even though they were committed after the window opened.
+
+The Build Week contribution begins after [`af9cd5d`](https://github.com/Prashant002-1/Emotionflix/commit/af9cd5d) and is preserved as 15 dated commits through [`ce4630c`](https://github.com/Prashant002-1/Emotionflix/commit/ce4630c). It covers 88 files, with 12,701 additions and 3,409 deletions.
+
+[`BUILD_WEEK.md`](./BUILD_WEEK.md) distinguishes the pre-existing foundation from the eligible Build Week work and links the commit evidence.
+
 A person shares what a film meant to them and the feelings that stayed with them. The product finds people who responded similarly to the same films, then reveals what stayed with those people next. The signed-in home combines personal usage, active films, community activity, the diary, and saved films.
 
 Direct feeling controls and writing are the inputs. A public response may include an optional expression photo as attached media. The photo is never analyzed and never changes the person's feelings.
