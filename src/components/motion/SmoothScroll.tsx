@@ -11,12 +11,13 @@ const SmoothScroll = () => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let cleanupReveal: (() => void) | undefined;
 
+    document.documentElement.style.removeProperty('--page-scroll');
+    document.documentElement.style.removeProperty('--page-progress');
+
     if (location.pathname !== '/') {
       lenisRef.current?.destroy();
       lenisRef.current = null;
       document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(element => element.dataset.revealState = 'visible');
-      document.documentElement.style.removeProperty('--page-scroll');
-      document.documentElement.style.removeProperty('--page-progress');
       return;
     }
 
@@ -79,10 +80,6 @@ const SmoothScroll = () => {
           stopInertiaOnNavigate: true,
           syncTouch: false,
           wheelMultiplier: 0.9,
-        });
-        lenis.on('scroll', ({ scroll, limit }) => {
-          document.documentElement.style.setProperty('--page-scroll', `${scroll}px`);
-          document.documentElement.style.setProperty('--page-progress', String(limit > 0 ? scroll / limit : 0));
         });
         lenisRef.current = lenis;
       }
