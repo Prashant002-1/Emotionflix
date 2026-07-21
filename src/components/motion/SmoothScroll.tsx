@@ -74,12 +74,12 @@ const SmoothScroll = () => {
           anchors: { offset: -72 },
           autoToggle: true,
           autoRaf: true,
-          lerp: 0.075,
+          lerp: 0.1,
           overscroll: false,
           smoothWheel: true,
           stopInertiaOnNavigate: true,
           syncTouch: false,
-          wheelMultiplier: 0.9,
+          wheelMultiplier: 1,
         });
         lenisRef.current = lenis;
       }
