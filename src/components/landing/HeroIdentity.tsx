@@ -4,10 +4,9 @@ import { ArrowRight } from 'lucide-react';
 interface HeroIdentityProps {
   demoLoading: boolean;
   onEnterDemo: () => void;
-  onSignIn: () => void;
 }
 
-const HeroIdentity: React.FC<HeroIdentityProps> = ({ demoLoading, onEnterDemo, onSignIn }) => (
+const HeroIdentity: React.FC<HeroIdentityProps> = ({ demoLoading, onEnterDemo }) => (
   <div className="mf-hero-copy">
     <p className="mf-hero-copy__eyebrow">A social film journal and recommendation system</p>
     <div className="mf-hero-copy__statement">
@@ -21,7 +20,6 @@ const HeroIdentity: React.FC<HeroIdentityProps> = ({ demoLoading, onEnterDemo, o
       <button className="mf-primary-action" disabled={demoLoading} onClick={onEnterDemo} type="button">
         {demoLoading ? 'Opening demo' : 'Enter demo'}<ArrowRight size={18} />
       </button>
-      <button className="mf-text-action" onClick={onSignIn} type="button">Sign in</button>
     </div>
   </div>
 );

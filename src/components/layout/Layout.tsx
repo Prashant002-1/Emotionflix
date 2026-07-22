@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, History, House, LoaderCircle, Menu, Plus, Search, UserRound, UsersRound, X } from 'lucide-react';
+import { Bell, History, House, LoaderCircle, Menu, Plus, Search, UsersRound, X } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
-import AuthModal from '../auth/AuthModal';
 import BrandMark from '../brand/BrandMark';
 import './ProductShell.css';
 import './JourneyShell.css';
 
-const DEMO_EMAIL = 'demo@demo.com';
-const DEMO_PASSWORD = 'demo123!';
-
 export interface LayoutOutletContext {
-  openAuth: () => void;
   enterDemo: () => Promise<void>;
   demoLoading: boolean;
 }
@@ -19,8 +14,7 @@ export interface LayoutOutletContext {
 const Layout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading: authLoading, login } = useUser();
-  const [authOpen, setAuthOpen] = useState(false);
+  const { user, loading: authLoading, enterDemo: openDemo } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState('');
@@ -32,7 +26,6 @@ const Layout: React.FC = () => {
     { path: '/activity', label: 'Activity', icon: Bell },
     { path: '/diary', label: 'Diary', icon: History },
     { path: '/log', label: 'Add a response', icon: Plus },
-    { path: '/profile', label: 'Account', icon: UserRound },
   ];
 
   useEffect(() => {
@@ -40,21 +33,15 @@ const Layout: React.FC = () => {
     setDemoError('');
   }, [location.pathname]);
 
-  const openAuth = () => {
-    setMobileOpen(false);
-    setAuthOpen(true);
-  };
-
   const enterDemo = async () => {
     if (demoLoading) return;
     setDemoError('');
     setDemoLoading(true);
     try {
-      await login(DEMO_EMAIL, DEMO_PASSWORD);
-      setAuthOpen(false);
+      await openDemo();
       navigate('/feed');
     } catch {
-      setDemoError('The demo account is unavailable right now. Try again shortly.');
+      setDemoError('The demo is unavailable right now. Try again shortly.');
     } finally {
       setDemoLoading(false);
     }
@@ -95,14 +82,11 @@ const Layout: React.FC = () => {
             </Link>
             <div className="nav-actions">
               {!authLoading ? (
-                <>
-                  <button className="button button--quiet nav-sign-in" onClick={openAuth} type="button">Sign in</button>
-                  <button className="button button--secondary nav-demo" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
-                    {demoLoading && <LoaderCircle className="loading-icon" size={16} />}
-                    {demoLoading ? 'Opening demo' : 'Enter demo'}
-                  </button>
-                </>
-              ) : <span aria-label="Loading account" className="nav-auth-loading" />}
+                <button className="button button--secondary nav-demo" disabled={demoLoading} onClick={() => void enterDemo()} type="button">
+                  {demoLoading && <LoaderCircle className="loading-icon" size={16} />}
+                  {demoLoading ? 'Opening demo' : 'Enter demo'}
+                </button>
+              ) : <span aria-label="Opening demo" className="nav-auth-loading" />}
               <button aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} className="icon-button mobile-menu-button" onClick={() => setMobileOpen(open => !open)} type="button">
                 {mobileOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -111,7 +95,6 @@ const Layout: React.FC = () => {
           {demoError && <p className="nav-status" role="alert">{demoError}</p>}
           {mobileOpen && (
             <nav aria-label="Mobile" className="mobile-sheet">
-              <button className="nav-link" onClick={openAuth} type="button">Sign in</button>
               <button className="button button--secondary" disabled={demoLoading} onClick={() => void enterDemo()} type="button">{demoLoading ? 'Opening demo' : 'Enter demo'}</button>
             </nav>
           )}
@@ -119,7 +102,7 @@ const Layout: React.FC = () => {
       )}
 
       <main id="main-content">
-        <Outlet context={{ openAuth, enterDemo, demoLoading } satisfies LayoutOutletContext} />
+        <Outlet context={{ enterDemo, demoLoading } satisfies LayoutOutletContext} />
       </main>
 
       {!user && (
@@ -134,8 +117,6 @@ const Layout: React.FC = () => {
           </div>
         </footer>
       )}
-
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   );
 };

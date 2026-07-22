@@ -30,7 +30,7 @@ The complete signed-in information architecture and user journeys live in `docs/
 
 ### Public overview
 
-The logged-out landing page explains the product as a human sequence: the small moment after a film, keeping words and feelings, recognizing another person, and finding films through them. It shows multiple films so the discovery network is legible, explains who the product is for, and makes the care behind privacy, contradiction, and optional media visible. It does not expose a streaming-style catalog. Sign in and the one-step demo are the routes into the product.
+The public landing page explains the product as a human sequence: the small moment after a film, keeping words and feelings, recognizing another person, and finding films through them. It shows multiple films so the discovery network is legible, explains who the product is for, and makes the care behind privacy, contradiction, and optional media visible. It does not expose a streaming-style catalog. The one-step demo is the route into the product.
 
 ### Feed
 
@@ -116,7 +116,7 @@ The current seven-key vector is a prototype constraint. It must not become the p
 - `/api/discovery`: feed, public responses, people, follows, likes, and comments.
 - `/api/discovery/activity`: likes, comments, and follows that lead back to the exact social event.
 - `/api/discovery/pulse`: films with recent public responses from the community.
-- `/api/auth`: account access and profile changes.
+- `/api/auth/demo`: opens the prepared demo session and returns its initial product data.
 
 ## Accessibility and inclusion
 

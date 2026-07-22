@@ -120,10 +120,6 @@
   font-size: 0.72rem;
 }
 
-.app-shell--public .nav-shell--steady .nav-sign-in {
-  color: rgba(29, 43, 51, 0.68);
-}
-
 .app-shell--public .nav-shell--steady .nav-demo,
 .app-shell--public .nav-shell--steady .nav-demo:hover:not(:disabled) {
   border: 0;
@@ -2146,7 +2142,6 @@
     padding-inline: 17px;
   }
 
-  .nav-shell--steady .nav-sign-in,
   .nav-shell--steady .nav-demo {
     display: none;
   }

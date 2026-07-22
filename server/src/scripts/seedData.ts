@@ -1,5 +1,4 @@
 import axios from 'axios';
-import bcrypt from 'bcryptjs';
 import pool, { ConnectedDatabaseClient, initializeDatabase } from '../config/database';
 import { env } from '../config/env';
 
@@ -8,6 +7,7 @@ const TMDB_API_KEY = env.tmdbApiKey;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const SEED_PREFIX = 'emotionflix:v2:';
 const SEED_REFERENCE_DATE = '2026-07-13';
+const DEMO_ONLY_PASSWORD_HASH = 'demo-only-no-password-login';
 
 type EmotionScores = {
   neutral: number;
@@ -69,18 +69,18 @@ const recentPost = (
 ): SeedEntry => ({ ...post(key, title, year, note, 'public', emotions, expressionPhoto), streamDay });
 
 const SEED_USERS = [
-  { email: 'demo@demo.com', username: 'demo', password: 'demo123!', bio: 'I keep films close when they help me name a feeling I could not explain on my own.' },
-  { email: 'clara@seed.emotionflix.com', username: 'clara_valdez', password: 'seed123!', bio: 'I return to films that make loneliness feel shared, especially when tenderness survives the ending.' },
-  { email: 'marcus@seed.emotionflix.com', username: 'marcus_k', password: 'seed123!', bio: 'I love the startled feeling of having my sense of reality loosen, then finding something human inside it.' },
-  { email: 'elena@seed.emotionflix.com', username: 'elena_r', password: 'seed123!', bio: 'I hold onto films that make time feel precious and leave me missing lives I never actually lived.' },
-  { email: 'hiro@seed.emotionflix.com', username: 'hiro_s', password: 'seed123!', bio: 'I am drawn to the quiet fear that follows me home and makes familiar rooms feel unfamiliar.' },
-  { email: 'chloe@seed.emotionflix.com', username: 'chloe_d', password: 'seed123!', bio: 'I look for wonder, playfulness, and the kind of warmth that makes the world feel briefly repairable.' },
-  { email: 'devon@seed.emotionflix.com', username: 'devon_m', password: 'seed123!', bio: 'I like being frightened, but I remember the films that uncover grief or loneliness beneath the fear.' },
-  { email: 'ananya@seed.emotionflix.com', username: 'ananya_sen', password: 'seed123!', bio: 'I stay with films that make injustice personal and turn my anger into attention rather than distance.' },
-  { email: 'lucas@seed.emotionflix.com', username: 'lucas_v', password: 'seed123!', bio: 'I chase the strange little emotional turns that make me laugh, ache, and question my first response.' },
-  { email: 'sarah@seed.emotionflix.com', username: 'sarah_m', password: 'seed123!', bio: 'I remember films through gestures, rooms, and the bittersweet feeling of people trying to reach each other.' },
-  { email: 'tariq@seed.emotionflix.com', username: 'tariq_a', password: 'seed123!', bio: 'I need films that leave enough quiet for my own memories to enter and change what I am watching.' },
-  { email: 'rachel@seed.emotionflix.com', username: 'rachel_g', password: 'seed123!', bio: 'I am interested in the feelings people hide from family, friends, and sometimes from themselves.' },
+  { email: 'demo@demo.com', username: 'demo', bio: 'I keep films close when they help me name a feeling I could not explain on my own.' },
+  { email: 'clara@seed.emotionflix.com', username: 'clara_valdez', bio: 'I return to films that make loneliness feel shared, especially when tenderness survives the ending.' },
+  { email: 'marcus@seed.emotionflix.com', username: 'marcus_k', bio: 'I love the startled feeling of having my sense of reality loosen, then finding something human inside it.' },
+  { email: 'elena@seed.emotionflix.com', username: 'elena_r', bio: 'I hold onto films that make time feel precious and leave me missing lives I never actually lived.' },
+  { email: 'hiro@seed.emotionflix.com', username: 'hiro_s', bio: 'I am drawn to the quiet fear that follows me home and makes familiar rooms feel unfamiliar.' },
+  { email: 'chloe@seed.emotionflix.com', username: 'chloe_d', bio: 'I look for wonder, playfulness, and the kind of warmth that makes the world feel briefly repairable.' },
+  { email: 'devon@seed.emotionflix.com', username: 'devon_m', bio: 'I like being frightened, but I remember the films that uncover grief or loneliness beneath the fear.' },
+  { email: 'ananya@seed.emotionflix.com', username: 'ananya_sen', bio: 'I stay with films that make injustice personal and turn my anger into attention rather than distance.' },
+  { email: 'lucas@seed.emotionflix.com', username: 'lucas_v', bio: 'I chase the strange little emotional turns that make me laugh, ache, and question my first response.' },
+  { email: 'sarah@seed.emotionflix.com', username: 'sarah_m', bio: 'I remember films through gestures, rooms, and the bittersweet feeling of people trying to reach each other.' },
+  { email: 'tariq@seed.emotionflix.com', username: 'tariq_a', bio: 'I need films that leave enough quiet for my own memories to enter and change what I am watching.' },
+  { email: 'rachel@seed.emotionflix.com', username: 'rachel_g', bio: 'I am interested in the feelings people hide from family, friends, and sometimes from themselves.' },
 ] as const;
 
 export const SEED_EMAILS = SEED_USERS.map(user => user.email);
@@ -513,24 +513,21 @@ export const seed = async () => {
       let id: number;
       if (existing.rowCount) {
         const current = existing.rows[0];
-        const passwordMatches = await bcrypt.compare(user.password, current.password_hash);
-        if (current.username !== user.username || current.bio !== user.bio || !passwordMatches) {
-          const passwordHash = passwordMatches ? current.password_hash : await bcrypt.hash(user.password, 12);
+        if (current.username !== user.username || current.bio !== user.bio || current.password_hash !== DEMO_ONLY_PASSWORD_HASH) {
           const updated = await client.query(
             `UPDATE users SET username = $2, password_hash = $3, bio = $4, updated_at = CURRENT_TIMESTAMP
              WHERE email = $1 RETURNING id`,
-            [user.email, user.username, passwordHash, user.bio],
+            [user.email, user.username, DEMO_ONLY_PASSWORD_HASH, user.bio],
           );
           id = Number(updated.rows[0].id);
         } else {
           id = Number(current.id);
         }
       } else {
-        const passwordHash = await bcrypt.hash(user.password, 12);
         const inserted = await client.query(
           `INSERT INTO users (email, username, password_hash, bio)
            VALUES ($1,$2,$3,$4) RETURNING id`,
-          [user.email, user.username, passwordHash, user.bio],
+          [user.email, user.username, DEMO_ONLY_PASSWORD_HASH, user.bio],
         );
         id = Number(inserted.rows[0].id);
       }

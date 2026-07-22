@@ -29,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Show loading spinner while checking authentication
   if (loading) {
-    return <LoadingSpinner message="Loading account" />;
+    return <LoadingSpinner message="Opening demo" />;
   }
 
   // If not authenticated, don't render children

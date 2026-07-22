@@ -14,14 +14,13 @@ import {
   Plus,
   Search,
   Trash2,
-  UserRound,
   UsersRound,
 } from 'lucide-react';
 import { EmotionScores } from '../../types/emotion';
 import { emotionColors, imageUrl } from '../../utils/display';
 import BrandMark from '../brand/BrandMark';
 
-type PreviewRoute = 'home' | 'search' | 'people' | 'activity' | 'diary' | 'add' | 'account';
+type PreviewRoute = 'home' | 'search' | 'people' | 'activity' | 'diary' | 'add';
 
 interface PreviewShellProps {
   active: PreviewRoute;
@@ -49,7 +48,6 @@ const navItems: { id: PreviewRoute; label: string; icon: typeof House }[] = [
   { id: 'activity', label: 'Activity', icon: Bell },
   { id: 'diary', label: 'Diary', icon: History },
   { id: 'add', label: 'Add a response', icon: Plus },
-  { id: 'account', label: 'Account', icon: UserRound },
 ];
 
 const PreviewTrace = ({ label, scores }: PreviewTraceProps) => (

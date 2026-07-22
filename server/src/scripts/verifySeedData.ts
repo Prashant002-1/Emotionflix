@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import bcrypt from 'bcryptjs';
 import request from 'supertest';
 import app from '../app';
 import pool, { initializeDatabase } from '../config/database';
@@ -119,9 +118,9 @@ const runVerification = async () => {
     await initializeDatabase();
     console.log('Verifying Moodie social seed contract...\n');
 
-    const login = await request(app).post('/api/auth/login').send({ email: 'demo@demo.com', password: 'demo123!' });
-    assert(login.status === 200 && login.body.token, `Demo login failed with ${login.status}`);
-    const token = login.body.token as string;
+    const demo = await request(app).post('/api/auth/demo');
+    assert(demo.status === 200 && demo.body.token, `Demo entry failed with ${demo.status}`);
+    const token = demo.body.token as string;
     console.log('1. Demo access works.');
 
     const responseRows = await pool.query(
@@ -377,7 +376,7 @@ const runVerification = async () => {
     const verifierSuffix = randomUUID();
     const verifierEmail = `seed-verifier-${verifierSuffix}@invalid.example`;
     const verifierUsername = `seed_verifier_${verifierSuffix.replace(/-/g, '').slice(0, 18)}`;
-    const passwordHash = await bcrypt.hash(randomUUID(), 10);
+    const passwordHash = `verifier-only-${randomUUID()}`;
     const insertedUser = await pool.query(
       `INSERT INTO users (email, username, password_hash, bio)
        VALUES ($1,$2,$3,'Verifier-owned account used only for a rollback-safe preservation check.')

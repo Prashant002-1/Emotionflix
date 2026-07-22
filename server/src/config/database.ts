@@ -25,7 +25,17 @@ type QueryTarget = {
   }>;
 };
 
-const embedded = new PGlite(env.databasePath);
+const createEmbeddedDatabase = async () => {
+  if (env.databaseSnapshotPath) {
+    const snapshot = await fs.readFile(env.databaseSnapshotPath);
+    return PGlite.create({
+      dataDir: 'memory://',
+      loadDataDir: new Blob([new Uint8Array(snapshot)]),
+    });
+  }
+
+  return PGlite.create(env.databasePath);
+};
 
 const query = async <Row extends DatabaseRow = DatabaseRow>(
   target: QueryTarget,
@@ -44,26 +54,38 @@ const clientFor = (target: QueryTarget): DatabaseClient => ({
 });
 
 class EmbeddedDatabase implements DatabaseClient {
-  query<Row extends DatabaseRow = DatabaseRow>(sql: string, params: any[] = []) {
+  private readonly embedded = createEmbeddedDatabase();
+
+  async query<Row extends DatabaseRow = DatabaseRow>(sql: string, params: any[] = []) {
+    const embedded = await this.embedded;
     return query<Row>(embedded as QueryTarget, sql, params);
   }
 
-  exec(sql: string) {
+  async exec(sql: string) {
+    const embedded = await this.embedded;
     return embedded.exec(sql);
   }
 
   async connect(): Promise<ConnectedDatabaseClient> {
+    const embedded = await this.embedded;
     return {
       ...clientFor(embedded as QueryTarget),
       release: () => undefined,
     };
   }
 
-  transaction<T>(callback: (client: DatabaseClient) => Promise<T>) {
+  async transaction<T>(callback: (client: DatabaseClient) => Promise<T>) {
+    const embedded = await this.embedded;
     return embedded.transaction(transaction => callback(clientFor(transaction as QueryTarget)));
   }
 
-  end() {
+  async dump(compression: 'none' | 'gzip' | 'auto' = 'gzip') {
+    const embedded = await this.embedded;
+    return embedded.dumpDataDir(compression);
+  }
+
+  async end() {
+    const embedded = await this.embedded;
     return embedded.close();
   }
 }
@@ -73,6 +95,11 @@ let initialization: Promise<void> | undefined;
 
 export const initializeDatabase = () => {
   initialization ||= (async () => {
+    if (env.databaseSnapshotPath) {
+      await database.query('SELECT 1');
+      return;
+    }
+
     if (env.databasePath !== 'memory://') {
       await fs.mkdir(path.dirname(env.databasePath), { recursive: true });
     }
@@ -81,5 +108,9 @@ export const initializeDatabase = () => {
   })();
   return initialization;
 };
+
+export const dumpDatabase = (compression: 'none' | 'gzip' | 'auto' = 'gzip') => (
+  database.dump(compression)
+);
 
 export default database;

@@ -78,14 +78,46 @@ const requireUser = (req: AuthRequest, res: Response): number | null => {
   return req.user.id;
 };
 
+export const loadDiaryEntries = async (userId: number, limit = 50) => {
+  const result = await pool.query(
+    `${selectEntry} WHERE de.user_id = $1 ORDER BY de.watched_on DESC, de.created_at DESC LIMIT $2`,
+    [userId, limit],
+  );
+  return result.rows;
+};
+
+export const loadDiarySummary = async (userId: number) => {
+  const summary = await pool.query(
+    `SELECT COUNT(*)::int AS entries,
+            COUNT(*) FILTER (WHERE visibility = 'public')::int AS public_entries,
+            AVG(neutral)::float AS neutral, AVG(happy)::float AS happy, AVG(sad)::float AS sad,
+            AVG(angry)::float AS angry, AVG(fearful)::float AS fearful,
+            AVG(disgusted)::float AS disgusted, AVG(surprised)::float AS surprised,
+            (SELECT COUNT(*)::int FROM saved_films sf WHERE sf.user_id = $1) AS saved
+     FROM diary_entries WHERE user_id = $1`,
+    [userId],
+  );
+  return summary.rows[0];
+};
+
+export const loadSavedFilms = async (userId: number) => {
+  const result = await pool.query(
+    `SELECT sf.id, sf.movie_id, sf.created_at, m.title, m.overview, m.release_date, m.poster_path, m.backdrop_path,
+            COALESCE((SELECT ARRAY_AGG(mg.genre_id) FROM movie_genres mg WHERE mg.movie_id = m.id), ARRAY[]::integer[]) AS genre_ids
+     FROM saved_films sf JOIN movies m ON m.id = sf.movie_id
+     WHERE sf.user_id = $1 ORDER BY sf.created_at DESC`,
+    [userId],
+  );
+  return result.rows;
+};
+
 export const listEntries = async (req: AuthRequest, res: Response) => {
   const userId = requireUser(req, res);
   if (!userId) return;
 
   try {
     const limit = z.coerce.number().int().min(1).max(100).default(50).parse(req.query.limit);
-    const result = await pool.query(`${selectEntry} WHERE de.user_id = $1 ORDER BY de.watched_on DESC, de.created_at DESC LIMIT $2`, [userId, limit]);
-    res.json({ entries: result.rows });
+    res.json({ entries: await loadDiaryEntries(userId, limit) });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: 'Invalid diary query' });
     res.status(500).json({ error: 'Diary entries could not be loaded' });
@@ -203,17 +235,7 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
   const userId = requireUser(req, res);
   if (!userId) return;
   try {
-    const summary = await pool.query(
-      `SELECT COUNT(*)::int AS entries,
-              COUNT(*) FILTER (WHERE visibility = 'public')::int AS public_entries,
-              AVG(neutral)::float AS neutral, AVG(happy)::float AS happy, AVG(sad)::float AS sad,
-              AVG(angry)::float AS angry, AVG(fearful)::float AS fearful,
-              AVG(disgusted)::float AS disgusted, AVG(surprised)::float AS surprised,
-              (SELECT COUNT(*)::int FROM saved_films sf WHERE sf.user_id = $1) AS saved
-       FROM diary_entries WHERE user_id = $1`,
-      [userId],
-    );
-    res.json(summary.rows[0]);
+    res.json(await loadDiarySummary(userId));
   } catch {
     res.status(500).json({ error: 'Diary summary could not be loaded' });
   }
@@ -223,14 +245,7 @@ export const listSaved = async (req: AuthRequest, res: Response) => {
   const userId = requireUser(req, res);
   if (!userId) return;
   try {
-    const result = await pool.query(
-      `SELECT sf.id, sf.movie_id, sf.created_at, m.title, m.overview, m.release_date, m.poster_path, m.backdrop_path,
-              COALESCE((SELECT ARRAY_AGG(mg.genre_id) FROM movie_genres mg WHERE mg.movie_id = m.id), ARRAY[]::integer[]) AS genre_ids
-       FROM saved_films sf JOIN movies m ON m.id = sf.movie_id
-       WHERE sf.user_id = $1 ORDER BY sf.created_at DESC`,
-      [userId],
-    );
-    res.json({ films: result.rows });
+    res.json({ films: await loadSavedFilms(userId) });
   } catch {
     res.status(500).json({ error: 'Saved films could not be loaded' });
   }

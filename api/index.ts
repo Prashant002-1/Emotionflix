@@ -4,15 +4,15 @@ let preparation: Promise<Application> | undefined;
 
 const prepareDemo = () => {
   preparation ||= (async () => {
-    const [{ default: appModule }, { seed }] = await Promise.all([
+    const [{ default: appModule }, { initializeDatabase }] = await Promise.all([
       import('../server/src/app.js'),
-      import('../server/src/scripts/seedData.js'),
+      import('../server/src/config/database.js'),
     ]);
     const app = (
       (appModule as unknown as { default?: Application }).default ||
       (appModule as unknown as Application)
     );
-    await seed();
+    await initializeDatabase();
     return app;
   })().catch((error) => {
     preparation = undefined;

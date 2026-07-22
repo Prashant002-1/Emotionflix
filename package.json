@@ -20,6 +20,7 @@
     "start": "npm --workspace server run start",
     "seed": "npm --workspace server run seed",
     "seed:verify": "npm --workspace server run seed:verify",
+    "demo:snapshot": "npm --workspace server run demo:snapshot",
     "lint": "eslint src",
     "preview": "vite preview",
     "test": "vitest run",

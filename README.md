@@ -72,7 +72,7 @@ There are no user ratings. Genres, TMDB vote values, and universal emotion-to-ge
 - `GET /api/discovery/pulse`
 - `POST|DELETE /api/discovery/people/:personId/follow`
 - `POST|DELETE /api/discovery/entries/:entryId/reaction`
-- `GET|PATCH /api/auth/profile`
+- `POST /api/auth/demo`
 
 ## Current implementation boundary
 
@@ -102,14 +102,11 @@ npm run dev
 
 Open `http://localhost:5173`. The root command runs the web app and API together. Vite proxies `/api` internally, so there is no frontend API URL to configure.
 
-Enter through the one-step demo on the landing page, or sign in directly with:
-
-```text
-Email: demo@demo.com
-Password: demo123!
-```
+Choose `Enter demo` on the landing page. Moodie opens the prepared social world directly; there is no account creation or password login.
 
 The embedded database is created at `.data/emotionflix` and `database/schema.sql` is applied automatically. Delete `.data/emotionflix` only when you intentionally want a clean local database.
+
+Vercel loads the committed `database/demo-seed.tgz` snapshot instead of rebuilding the social world during a request. Run `npm run demo:snapshot` only when the deterministic demo data changes.
 
 ## Production-style run
 

@@ -55,7 +55,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 /**
  * Adds user context when a valid token is present without making authentication
  * a requirement. Public discovery and recommendation routes use this to become
- * personal for signed-in visitors while remaining useful before sign-in.
+ * personal inside the demo while remaining useful before it is opened.
  */
 export const optionalAuthentication = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

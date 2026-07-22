@@ -15,7 +15,6 @@ import Layout from './components/layout/Layout'
 import SmoothScroll from './components/motion/SmoothScroll'
 
 const Home = lazy(() => import('./pages/Home'))
-const UserProfile = lazy(() => import('./pages/UserProfile'))
 const Log = lazy(() => import('./pages/Log'))
 const Diary = lazy(() => import('./pages/Diary'))
 const Feed = lazy(() => import('./pages/Feed'))
@@ -41,11 +40,6 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Layout />}>
                                     <Route index element={<Home />} />
-                                    <Route path="profile" element={
-                                        <ProtectedRoute>
-                                            <UserProfile />
-                                        </ProtectedRoute>
-                                    } />
                                     <Route path="log" element={
                                         <ProtectedRoute>
                                             <Log />

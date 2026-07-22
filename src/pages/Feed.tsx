@@ -58,7 +58,7 @@ const ResponseCard = ({ compact = false, entry, ownUserId, onFollow, onLike }: R
 };
 
 const Feed = () => {
-  const { user } = useUser();
+  const { user, takeDemoHome } = useUser();
   const { savedFilms } = useDiary();
   const [entries, setEntries] = useState<CommunityEntry[]>([]);
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
@@ -72,6 +72,15 @@ const Feed = () => {
     let active = true;
     setLoading(true);
     setError('');
+    const bootstrap = takeDemoHome();
+    if (bootstrap) {
+      setEntries(bootstrap.entries);
+      setRecommendations(bootstrap.recommendations.forYou.filter(movie => movie.recommended_by?.length));
+      setPeople(bootstrap.people);
+      setPulse(bootstrap.pulse);
+      setLoading(false);
+      return () => { active = false; };
+    }
     Promise.all([
       discoveryService.feed(50),
       recommendationService.get().catch(() => null),
@@ -88,7 +97,7 @@ const Feed = () => {
       .catch(() => active && setError('Home could not be loaded.'))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [user?.id]);
+  }, [takeDemoHome, user?.id]);
 
   const followingEntries = useMemo(() => entries.filter(entry => entry.following || entry.user_id === user?.id), [entries, user?.id]);
   const visibleEntries = view === 'following' ? followingEntries : entries;

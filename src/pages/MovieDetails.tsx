@@ -153,7 +153,7 @@ const MovieDetails: React.FC = () => {
                 <Link className="button button--primary" to={`/log?movieId=${movie.id}`}>{isLogged(movie.id) ? 'Add another response' : 'Add response'}</Link>
               </div>
             ) : (
-              <p className="metadata details-auth-note">Sign in from the menu to save this film or add it to your history.</p>
+              <p className="metadata details-auth-note">Enter the demo to save this film or add it to the diary.</p>
             )}
             {notice && <p className="metadata details-status" role="status">{notice}</p>}
           </div>

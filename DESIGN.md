@@ -129,11 +129,11 @@ Most product surfaces are dark, thin-bordered, and flat enough to scan. Depth is
 
 ## Navigation and footer
 
-- The public header is a stable 62px layer with Moodie, Sign in, and Enter demo.
+- The public header is a stable 62px layer with Moodie and Enter demo.
 - It does not change color by section because the landing field is continuous.
 - The mobile header uses the same dark state and a compact menu.
 - The signed-in product has no header. A fixed 64px rail is the only persistent navigation.
-- The rail stays collapsed by default and contains icons for Home, Search, People, Activity, Diary, Add response, and Account.
+- The rail stays collapsed by default and contains icons for Home, Search, People, Activity, Diary, and Add response.
 - Hovering or focusing within the rail opens one temporary 210px menu that reveals every item name. It cannot be pinned open.
 - Navigation icons sit at the vertical center of the rail, not at the top.
 - The collapsed rail is transparent over the same Chalk canvas and grain. It should read as icons placed directly on the page. Active and hover states use color only, with no persistent pill, dot, or circle.
@@ -184,7 +184,7 @@ Its background carries the broadcast identity through warm mineral, oxide, slate
 - Search covers films, desired feelings, and people without becoming a streaming grid. Desired-feeling results stay people-led and keep genre open. Activity links likes, comments, and follows back to their source.
 - Member pages use separate Responses and Films views. They do not assign a compatibility score or a defining feeling to a person.
 - Film pages lead with the film, carry the person and shared-film context when reached through a recommendation, then separate human responses from related catalog browsing.
-- Account settings use local tabs so profile, account, and password controls are never presented as one long settings dashboard.
+- The hosted product is a prepared demo. It does not expose account creation, profile settings, or password controls.
 
 The landing page may preview these surfaces, but it must not force the full product into the landing layout.
 

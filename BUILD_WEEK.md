@@ -50,7 +50,7 @@ Codex and GPT-5.6 Sol did not replace those decisions. They made it possible to 
 
 ## Data and recommendation evidence
 
-The final deterministic demo contains 12 accounts, 86 films, 163 responses, 104 public posts, 71 saved films, 32 follows, 223 likes, 24 comments, and 14 optional response photos. The writing deliberately varies between short reactions, longer reflections, contradictions, rewatches, private entries, quick replies, and fuller conversations. It is structured enough to verify but varied enough to feel like people rather than templates.
+The final deterministic demo contains 12 people, 86 films, 163 responses, 104 public posts, 71 saved films, 32 follows, 223 likes, 24 comments, and 14 optional response photos. The writing deliberately varies between short reactions, longer reflections, contradictions, rewatches, private entries, quick replies, and fuller conversations. It is structured enough to verify but varied enough to feel like people rather than templates.
 
 The recommendation path is visible. A joyful request can surface *Scream* through Ananya because her actual response to it was joyful and she shares emotional common ground with the demo viewer on *Whiplash*. Moodie does not claim that horror means joy. It shows that this person experienced this film that way.
 

@@ -97,7 +97,7 @@ export function ResponseComments({ entryId, initialCount = 0 }: ResponseComments
               <textarea aria-label="Write a comment" maxLength={1000} onChange={event => setBody(event.target.value)} placeholder="Write a comment" rows={2} value={body} />
               <button aria-label="Post comment" disabled={!body.trim() || saving} type="submit"><Send aria-hidden="true" size={15} /></button>
             </form>
-          ) : <p className="response-comments__status">Sign in to comment.</p>}
+          ) : <p className="response-comments__status">Enter the demo to comment.</p>}
           {error && <p className="response-comments__error" role="alert">{error}</p>}
         </div>
       )}

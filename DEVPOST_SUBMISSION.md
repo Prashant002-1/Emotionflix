@@ -68,7 +68,7 @@ I remained the person making the decisions. I kept steering the work toward some
 
 ### Data and recommendation quality
 
-The deterministic demo contains 12 accounts, 86 films, 163 responses, 104 public posts, 71 saved films, 32 follows, 223 likes, 24 comments, and 14 optional response photos. The records vary in length, privacy, contradiction, emotional intensity, rewatches, and conversational depth.
+The deterministic demo contains 12 people, 86 films, 163 responses, 104 public posts, 71 saved films, 32 follows, 223 likes, 24 comments, and 14 optional response photos. The records vary in length, privacy, contradiction, emotional intensity, rewatches, and conversational depth.
 
 The recommendation engine was tested separately before integration. It excludes watched films and private source responses, preserves person and shared-film provenance, and produces different results for different requested feelings without using genres, ratings, popularity, embeddings, or text classification.
 
@@ -88,7 +88,7 @@ The repository includes setup instructions, demo credentials, the seed contract,
 
 ### Testing instructions
 
-Open `https://moodie-server-mauve.vercel.app/` for the hosted project. For the complete local demo, run `npm install`, copy `.env.example` to `.env`, add a TMDB API key, run `npm run seed`, then run `npm run dev`. Open `http://localhost:5173` and choose `Enter demo`. Direct credentials are `demo@demo.com` and `demo123!`.
+Open `https://moodie-server-mauve.vercel.app/` for the hosted project and choose `Enter demo`. For the complete local demo, run `npm install`, copy `.env.example` to `.env`, add a TMDB API key, run `npm run seed`, then run `npm run dev`. Open `http://localhost:5173` and choose `Enter demo`.
 
 ### `/feedback` session
 

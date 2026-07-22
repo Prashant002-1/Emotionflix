@@ -138,7 +138,17 @@ const FeelingTrace: React.FC<{ label: string; scores?: Partial<EmotionScores> }>
 
 const Home: React.FC = () => {
   const { user } = useUser();
-  const { openAuth, enterDemo, demoLoading } = useOutletContext<LayoutOutletContext>();
+  const { enterDemo, demoLoading } = useOutletContext<LayoutOutletContext>();
+  const [loadedBeatCount, setLoadedBeatCount] = React.useState(1);
+
+  React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timers = heroBeats.slice(1).map((_, index) => window.setTimeout(
+      () => setLoadedBeatCount(index + 2),
+      750 + index * 4_000,
+    ));
+    return () => timers.forEach(timer => window.clearTimeout(timer));
+  }, []);
 
   if (user) return <Navigate replace to="/feed" />;
 
@@ -151,7 +161,6 @@ const Home: React.FC = () => {
         <HeroIdentity
           demoLoading={demoLoading}
           onEnterDemo={() => void enterDemo()}
-          onSignIn={openAuth}
         />
 
         <div className="mf-hero__scene" aria-label="A film response moving from one person to another through Moodie">
@@ -168,11 +177,11 @@ const Home: React.FC = () => {
                 key={beat.film.title}
                 style={{ '--beat-delay': `${index * 4}s` } as React.CSSProperties}
               >
-                {beat.film.backdrop && <img className="mf-hero__backdrop" src={beat.film.backdrop} alt="" />}
+                {index < loadedBeatCount && beat.film.backdrop && <img className="mf-hero__backdrop" fetchPriority={index === 0 ? 'high' : 'auto'} loading={index === 0 ? 'eager' : 'lazy'} src={beat.film.backdrop} alt="" />}
                 <div className="mf-hero__backdrop-wash" />
-                {beat.film.poster && (
+                {index < loadedBeatCount && beat.film.poster && (
                   <figure className="mf-hero__poster">
-                    <img src={beat.film.poster} alt="" />
+                    <img fetchPriority={index === 0 ? 'high' : 'auto'} loading={index === 0 ? 'eager' : 'lazy'} src={beat.film.poster} alt="" />
                     <figcaption><strong>{beat.film.title}</strong><span>{beat.film.year}</span></figcaption>
                   </figure>
                 )}
@@ -202,7 +211,7 @@ const Home: React.FC = () => {
                 key={`${beat.film.title}-reaction`}
                 style={{ '--beat-delay': `${index * 4}s` } as React.CSSProperties}
               >
-                <img src={beat.reaction.src} alt="" />
+                {index < loadedBeatCount && <img loading={index === 0 ? 'eager' : 'lazy'} src={beat.reaction.src} alt="" />}
                 <figcaption>{beat.reaction.caption}</figcaption>
               </figure>
             ))}

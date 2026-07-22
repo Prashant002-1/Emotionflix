@@ -31,7 +31,7 @@ export const useDiary = () => {
 };
 
 export const DiaryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useUser();
+  const { user, takeDemoDiary } = useUser();
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [savedFilms, setSavedFilms] = useState<SavedFilm[]>([]);
   const [summary, setSummary] = useState<DiarySummary | null>(null);
@@ -47,6 +47,13 @@ export const DiaryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     setLoading(true);
     try {
+      const bootstrap = takeDemoDiary();
+      if (bootstrap) {
+        setEntries(bootstrap.entries);
+        setSavedFilms(bootstrap.savedFilms);
+        setSummary(bootstrap.summary);
+        return;
+      }
       const [nextEntries, nextSaved, nextSummary] = await Promise.all([
         diaryService.entries(), diaryService.saved(), diaryService.summary(),
       ]);
@@ -56,7 +63,7 @@ export const DiaryProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [takeDemoDiary, user]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 

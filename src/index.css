@@ -483,10 +483,6 @@ fieldset {
   white-space: nowrap;
 }
 
-.nav-sign-in {
-  min-width: 78px;
-}
-
 .mobile-menu-button {
   display: none;
 }
@@ -2722,7 +2718,6 @@ textarea::placeholder {
 
   .nav-links,
   .nav-actions > .nav-log,
-  .nav-actions > .nav-sign-in,
   .nav-actions > .nav-demo {
     display: none;
   }
@@ -3248,7 +3243,6 @@ html {
   font-weight: 400;
 }
 
-.nav-sign-in:hover:not(:disabled),
 .nav-demo:hover:not(:disabled) {
   background: color-mix(in srgb, currentColor 9%, transparent);
   color: inherit;
@@ -3981,7 +3975,6 @@ html {
   }
 
   .nav-inner > .nav-links,
-  .nav-actions > .nav-sign-in,
   .nav-actions > .nav-demo {
     display: none;
   }

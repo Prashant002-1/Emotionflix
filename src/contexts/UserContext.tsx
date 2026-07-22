@@ -1,13 +1,10 @@
-/**
- * UserContext
- * 
- * React context for managing user authentication, profile data, and preferences.
- * Handles login, registration, logout, and maintains user statistics and preferences.
- */
-
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { authService, AuthUser } from '../services/authService';
-import { diaryService } from '../services/diaryService';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  authService,
+  type AuthUser,
+  type DemoDiaryBootstrap,
+  type DemoHomeBootstrap,
+} from '../services/authService';
 
 export interface User {
   id: number;
@@ -15,190 +12,86 @@ export interface User {
   email: string;
   displayName: string;
   bio: string;
-  stats: {
-    diaryEntries: number;
-    publicEntries: number;
-    savedFilms: number;
-  };
 }
 
 interface UserContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string) => Promise<void>;
-  logout: () => void;
-  updateUserStats: () => void;
-  updateBio: (bio: string) => Promise<void>;
+  enterDemo: () => Promise<void>;
+  takeDemoDiary: () => DemoDiaryBootstrap | null;
+  takeDemoHome: () => DemoHomeBootstrap | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-/**
- * Hook to access the UserContext.
- * @returns {UserContextType} The user context value with authentication state and functions
- * @throws {Error} If used outside of a UserProvider
- */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
+  if (!context) throw new Error('useUser must be used within a UserProvider');
   return context;
 };
 
-interface UserProviderProps {
-  children: React.ReactNode;
-}
-
-/**
- * Creates a User object from AuthUser data with default preferences and stats.
- * @param authUser - Authenticated user data from the server
- * @returns Complete User object with default preferences and empty stats
- */
 const createUserFromAuth = (authUser: AuthUser): User => ({
   id: authUser.id,
   username: authUser.username,
   email: authUser.email,
   displayName: authUser.username.charAt(0).toUpperCase() + authUser.username.slice(1),
   bio: authUser.bio || '',
-  stats: {
-    diaryEntries: 0,
-    publicEntries: 0,
-    savedFilms: 0,
-  }
 });
 
-/**
- * UserProvider component that manages user authentication and profile state.
- * @param children - Child components that will have access to the user context
- */
-export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const userRef = useRef<User | null>(null);
-  
-  // Keep ref in sync with state
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+  const bootstrapRef = useRef<{
+    diary?: DemoDiaryBootstrap;
+    home?: DemoHomeBootstrap;
+  } | null>(null);
 
-  const updateUserStatsInternal = async (userToUpdate: User) => {
-    if (!userToUpdate.id) return;
-
+  const openDemoSession = useCallback(async () => {
+    setLoading(true);
     try {
-      const stats = await diaryService.summary();
-      
-      const updatedUser = {
-        ...userToUpdate,
-        stats: {
-          diaryEntries: stats.entries,
-          publicEntries: stats.public_entries,
-          savedFilms: stats.saved,
-        }
-      };
-
-      setUser(updatedUser);
+      const response = await authService.openDemo();
+      authService.storeAuthData(response.token, response.user);
+      bootstrapRef.current = { ...response.bootstrap };
+      setUser(createUserFromAuth(response.user));
     } catch (error) {
-      console.error('Error updating user stats:', error);
+      authService.clear();
+      bootstrapRef.current = null;
+      setUser(null);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const initializeUser = async () => {
-      try {
-        const token = authService.getStoredToken();
-        if (token) {
-          try {
-            const { user: authUser } = await authService.getProfile();
-            const userWithStats = createUserFromAuth(authUser);
-            setUser(userWithStats);
-            // Update stats after setting user
-            setTimeout(() => {
-              updateUserStatsInternal(userWithStats);
-            }, 0);
-          } catch {
-            authService.logout();
-          }
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeUser();
-  }, []);
-
-  /**
-   * Authenticates user with email and password.
-   * @param email - User's email address
-   * @param password - User's password
-   * @throws {Error} If authentication fails
-   */
-  const login = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const response = await authService.login({ email, password });
-      authService.storeAuthData(response.token, response.user);
-      const userWithStats = createUserFromAuth(response.user);
-      
-      setUser(userWithStats);
-      await updateUserStatsInternal(userWithStats);
-    } finally {
+    if (authService.getStoredToken()) {
+      void openDemoSession().catch(() => undefined);
+    } else {
+      authService.clear();
       setLoading(false);
     }
-  };
+  }, [openDemoSession]);
 
-  /**
-   * Registers a new user account.
-   * @param email - User's email address
-   * @param username - Desired username
-   * @param password - User's password
-   * @throws {Error} If registration fails
-   */
-  const register = async (email: string, username: string, password: string) => {
-    setLoading(true);
-    try {
-      const response = await authService.register({ email, username, password });
-      authService.storeAuthData(response.token, response.user);
-      const userWithStats = createUserFromAuth(response.user);
-      setUser(userWithStats);
-      await updateUserStatsInternal(userWithStats);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Logs out the current user and redirects to home page.
-   */
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-    // Redirect to home page after logout
-    window.location.href = '/';
-  };
-
-  const updateUserStats = useCallback(() => {
-    if (!userRef.current) return;
-    updateUserStatsInternal(userRef.current);
+  const takeDemoDiary = useCallback(() => {
+    const diary = bootstrapRef.current?.diary || null;
+    if (bootstrapRef.current) delete bootstrapRef.current.diary;
+    return diary;
   }, []);
 
-  const updateBio = async (bio: string) => {
-    const response = await authService.updateProfile({ bio });
-    setUser(current => current ? { ...current, bio: response.user.bio || '' } : current);
-  };
+  const takeDemoHome = useCallback(() => {
+    const home = bootstrapRef.current?.home || null;
+    if (bootstrapRef.current) delete bootstrapRef.current.home;
+    return home;
+  }, []);
 
   return (
     <UserContext.Provider value={{
       user,
       loading,
-      login,
-      register,
-      logout,
-      updateUserStats,
-      updateBio,
+      enterDemo: openDemoSession,
+      takeDemoDiary,
+      takeDemoHome,
     }}>
       {children}
     </UserContext.Provider>

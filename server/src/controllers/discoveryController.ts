@@ -5,35 +5,39 @@ import { AuthRequest } from '../middleware/auth';
 
 const commentBodySchema = z.object({ body: z.string().trim().min(1).max(1000) });
 
+export const loadFeed = async (viewerId: number | null, limit = 24) => {
+  const result = await pool.query(
+    `SELECT de.id, de.user_id, de.movie_id, de.watched_on, de.note, de.created_at,
+            de.neutral::float, de.happy::float, de.sad::float, de.angry::float,
+            de.fearful::float, de.disgusted::float, de.surprised::float,
+            u.username, u.bio, m.title, m.poster_path, m.backdrop_path, m.release_date,
+            em.asset_path AS expression_image_path,
+            em.alt_text AS expression_image_alt,
+            (SELECT COUNT(*)::int FROM entry_reactions er WHERE er.entry_id = de.id) AS like_count,
+            CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
+              SELECT 1 FROM entry_reactions er WHERE er.entry_id = de.id AND er.user_id = $1
+            ) END AS liked,
+            (SELECT COUNT(*)::int FROM entry_comments ec WHERE ec.entry_id = de.id) AS comment_count,
+            CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
+              SELECT 1 FROM follows f WHERE f.follower_id = $1 AND f.followed_id = de.user_id
+            ) END AS following
+     FROM diary_entries de
+     JOIN users u ON u.id = de.user_id
+     JOIN movies m ON m.id = de.movie_id
+     LEFT JOIN entry_media em ON em.entry_id = de.id AND em.kind = 'expression_photo'
+     WHERE de.visibility = 'public'
+     ORDER BY de.created_at DESC, de.id DESC
+     LIMIT $2`,
+    [viewerId, limit],
+  );
+  return result.rows;
+};
+
 export const getFeed = async (req: AuthRequest, res: Response) => {
   try {
     const limit = z.coerce.number().int().min(1).max(60).default(24).parse(req.query.limit);
     const viewerId = req.user?.id || null;
-    const result = await pool.query(
-      `SELECT de.id, de.user_id, de.movie_id, de.watched_on, de.note, de.created_at,
-              de.neutral::float, de.happy::float, de.sad::float, de.angry::float,
-              de.fearful::float, de.disgusted::float, de.surprised::float,
-              u.username, u.bio, m.title, m.poster_path, m.backdrop_path, m.release_date,
-              em.asset_path AS expression_image_path,
-              em.alt_text AS expression_image_alt,
-              (SELECT COUNT(*)::int FROM entry_reactions er WHERE er.entry_id = de.id) AS like_count,
-              CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
-                SELECT 1 FROM entry_reactions er WHERE er.entry_id = de.id AND er.user_id = $1
-              ) END AS liked,
-              (SELECT COUNT(*)::int FROM entry_comments ec WHERE ec.entry_id = de.id) AS comment_count,
-              CASE WHEN $1::int IS NULL THEN FALSE ELSE EXISTS(
-                SELECT 1 FROM follows f WHERE f.follower_id = $1 AND f.followed_id = de.user_id
-              ) END AS following
-       FROM diary_entries de
-       JOIN users u ON u.id = de.user_id
-       JOIN movies m ON m.id = de.movie_id
-       LEFT JOIN entry_media em ON em.entry_id = de.id AND em.kind = 'expression_photo'
-       WHERE de.visibility = 'public'
-       ORDER BY de.created_at DESC, de.id DESC
-       LIMIT $2`,
-      [viewerId, limit],
-    );
-    res.json({ entries: result.rows });
+    res.json({ entries: await loadFeed(viewerId, limit) });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ error: 'Invalid feed query' });
     res.status(500).json({ error: 'Community entries could not be loaded' });
@@ -74,10 +78,8 @@ export const getFilmEntries = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getPeople = async (req: AuthRequest, res: Response) => {
-  try {
-    const viewerId = req.user?.id || null;
-    const result = await pool.query(
+export const loadPeople = async (viewerId: number | null) => {
+  const result = await pool.query(
       `WITH viewer_entries AS (
          SELECT DISTINCT ON (movie_id) movie_id, neutral, happy, sad, angry, fearful, disgusted, surprised
          FROM diary_entries WHERE user_id = $1
@@ -146,9 +148,14 @@ export const getPeople = async (req: AuthRequest, res: Response) => {
        GROUP BY u.id, o.shared_films, o.pattern_overlap, shared.shared_film_title,
                 latest.latest_movie_id, latest.latest_title, latest.latest_poster_path, latest.latest_note
        ORDER BY following DESC, o.shared_films DESC NULLS LAST, pattern_overlap DESC NULLS LAST, entries DESC, u.username ASC LIMIT 18`,
-      [viewerId],
-    );
-    res.json({ people: result.rows });
+    [viewerId],
+  );
+  return result.rows;
+};
+
+export const getPeople = async (req: AuthRequest, res: Response) => {
+  try {
+    res.json({ people: await loadPeople(req.user?.id || null) });
   } catch (error) {
     console.error('People discovery error:', error);
     res.status(500).json({ error: 'People could not be loaded' });
@@ -290,9 +297,8 @@ export const getActivity = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getCommunityPulse = async (_req: AuthRequest, res: Response) => {
-  try {
-    const result = await pool.query(
+export const loadCommunityPulse = async () => {
+  const result = await pool.query(
       `WITH recent AS (
          SELECT de.id, de.user_id, de.movie_id, de.note, de.created_at,
                 u.username, m.title, m.overview, m.release_date,
@@ -313,8 +319,13 @@ export const getCommunityPulse = async (_req: AuthRequest, res: Response) => {
        GROUP BY movie_id, title, overview, release_date, poster_path, backdrop_path
        ORDER BY MAX(created_at) DESC, COUNT(DISTINCT user_id) DESC
        LIMIT 14`,
-    );
-    res.json({ films: result.rows });
+  );
+  return result.rows;
+};
+
+export const getCommunityPulse = async (_req: AuthRequest, res: Response) => {
+  try {
+    res.json({ films: await loadCommunityPulse() });
   } catch (error) {
     console.error('Community pulse error:', error);
     res.status(500).json({ error: 'Community films could not be loaded' });

@@ -15,6 +15,8 @@ process.env.JWT_EXPIRES_IN ||= '7d';
 
 const configuredDatabasePath = process.env.DATABASE_PATH
   || (process.env.VERCEL ? 'memory://' : '.data/emotionflix');
+const configuredSnapshotPath = process.env.DATABASE_SNAPSHOT_PATH
+  || (process.env.VERCEL ? 'database/demo-seed.tgz' : '');
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -22,5 +24,8 @@ export const env = {
   databasePath: configuredDatabasePath === 'memory://'
     ? configuredDatabasePath
     : path.resolve(projectRoot, configuredDatabasePath),
+  databaseSnapshotPath: configuredSnapshotPath
+    ? path.resolve(projectRoot, configuredSnapshotPath)
+    : undefined,
   tmdbApiKey: process.env.TMDB_API_KEY || '',
 };
